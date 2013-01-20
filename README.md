@@ -21,10 +21,10 @@ unnecessarily blocking other processes.
 
 ### Row-level locks
 Whether [optimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html)
-or [pessimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Pessimistic.html), prevents
-concurrent modification to a given model. If you're building a
+or [pessimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Pessimistic.html),
+row-level locks prevent concurrent modification to a given model. **If you're building a
 [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application, this will be your
-most commonly used lock.
+most commonly used lock.**
 
 ### Advisory locks
 
