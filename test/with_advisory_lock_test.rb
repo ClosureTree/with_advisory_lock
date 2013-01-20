@@ -57,4 +57,41 @@ describe "with_advisory_lock" do
     TagAudit.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
     Label.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
   end
+
+  it "returns false if the lock wasn't acquirable" do
+    t1_acquired_lock = false
+    t1_return_value = nil
+    t1 = Thread.new do
+      ActiveRecord::Base.connection.reconnect!
+      t1_return_value = Label.with_advisory_lock("testing 1,2,3") do
+        t1_acquired_lock = true
+        sleep(0.3)
+        "boom"
+      end
+    end
+
+    # Make sure the lock is acquired:
+    sleep(0.1)
+
+    # Now try to acquire the lock impatiently:
+    t2_acquired_lock = false
+    t2_return_value = nil
+    t2 = Thread.new do
+      ActiveRecord::Base.connection.reconnect!
+      t2_return_value = Label.with_advisory_lock("testing 1,2,3", 0.1) do
+        t2_acquired_lock = true
+        "not expected"
+      end
+    end
+
+    # Wait for them to finish:
+    t1.join
+    t2.join
+
+    t1_acquired_lock.must_be_true
+    t1_return_value.must_equal "boom"
+
+    t2_acquired_lock.must_be_false
+    t2_return_value.must_be_false
+  end
 end

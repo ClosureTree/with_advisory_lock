@@ -11,6 +11,7 @@ ActiveRecord::Migration.verbose = false
 
 require 'test_models'
 require 'minitest/autorun'
+require 'minitest/great_expectations'
 
 Thread.abort_on_exception = true
 
