@@ -1,6 +1,7 @@
 sqlite:
   adapter: <%= "jdbc" if defined? JRUBY_VERSION %>sqlite3
-  database: test.sqlite3.db
+  database: test/sqlite3.db
+  timeout: 500
   pool: 50
 pg:
   adapter: postgresql

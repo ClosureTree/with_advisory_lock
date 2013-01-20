@@ -9,6 +9,12 @@ env:
   - DB=mysql
   - DB=pg
 
+# 1.8.7 and sqlite fails: "SQL statements in progress: rollback transaction"
+matrix:
+  exclude:
+    - rvm: 1.8.7
+      env: DB=sqlite
+
 script: bundle exec rake
 
 before_script:

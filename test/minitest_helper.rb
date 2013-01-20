@@ -16,17 +16,13 @@ Thread.abort_on_exception = true
 
 DatabaseCleaner.strategy = :deletion
 class MiniTest::Spec
-  before :each do
+  before do
+    ENV['FLOCK_DIR'] = Dir.mktmpdir
     DatabaseCleaner.start
   end
-  after :each do
-    DatabaseCleaner.clean
-  end
-  before :all do
-    ENV['FLOCK_DIR'] = Dir.mktmpdir
-  end
-  after :all do
+  after do
     FileUtils.remove_entry_secure ENV['FLOCK_DIR']
+    DatabaseCleaner.clean
   end
 end
 

@@ -11,13 +11,13 @@ describe "with_advisory_lock" do
 
   def find_or_create_at_even_second(run_at, with_advisory_lock)
     sleep(run_at - Time.now.to_f)
+    ActiveRecord::Base.connection.reconnect!
     name = run_at.to_s
+    task = lambda { Tag.find_by_name(name) || Tag.create!(:name => name) }
     if with_advisory_lock
-      Tag.with_advisory_lock(name) do
-        Tag.find_by_name(name) || Tag.create!(:name => name)
-      end
+      Tag.with_advisory_lock(name, nil, &task)
     else
-      Tag.find_by_name(name) || Tag.create!(:name => name)
+      task.call
     end
   end
 
@@ -25,13 +25,8 @@ describe "with_advisory_lock" do
     start_time = Time.now.to_i + 2
     threads = @workers.times.collect do
       Thread.new do
-        begin
-          ActiveRecord::Base.connection.reconnect!
-          @iterations.times do |ea|
-            find_or_create_at_even_second(start_time + (ea * 2), with_advisory_lock)
-          end
-        ensure
-          ActiveRecord::Base.connection.close
+        @iterations.times do |ea|
+          find_or_create_at_even_second(start_time + (ea * 2), with_advisory_lock)
         end
       end
     end
@@ -47,12 +42,13 @@ describe "with_advisory_lock" do
   it "parallel threads create multiple duplicate rows" do
     run_workers(with_advisory_lock = false)
     if Tag.connection.adapter_name == "SQLite" && RUBY_VERSION == "1.9.3"
-      Tag.all.size.must_equal @iterations # <- sqlite on 1.9.3 doesn't create dupes IKNOWNOTWHY
+      oper = :== # sqlite doesn't run in parallel.
     else
-      Tag.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
-      TagAudit.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
-      Label.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
+      oper = :> # Everything else should create duplicate rows.
     end
+    Tag.all.size.must_be oper, @iterations # <- any duplicated rows will make me happy.
+    TagAudit.all.size.must_be oper, @iterations # <- any duplicated rows will make me happy.
+    Label.all.size.must_be oper, @iterations # <- any duplicated rows will make me happy.
   end
 
   it "parallel threads with_advisory_lock don't create multiple duplicate rows" do
