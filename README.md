@@ -13,15 +13,29 @@ server, as long as it isn't SQLite, your mutex spans hosts.
 
 Advisory locks ignore database transaction boundaries.
 
-### When to use
+## Lock Types
 
-If you want to prevent duplicate inserts, and there isn't a row or valid SELECT to lock against,
-you need a [shared mutex](http://en.wikipedia.org/wiki/Mutual_exclusion), either though
-a [table-level lock](https://github.com/mceachen/monogamy), or through an advisory lock.
+First off, know that there are **lots** of different kinds of locks available to you. You want the
+finest-grain lock that ensures correctness. If you choose a lock that is too coarse, you are
+unnecessarily blocking other processes.
 
-When possible, use [optimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html)
-or [pessimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Pessimistic.html) row locking
-instead.
+### Row-level locks
+Whether [optimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html)
+or [pessimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Pessimistic.html), prevents
+concurrent modification to a given model. If you're building a
+[CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application, this will be your
+most commonly used lock.
+
+### Advisory locks
+
+These are named mutexes that are inherently "application level"—it is up to the application
+to acquire, run a critical code section, and release the advisory lock.
+
+### Table-level locks
+
+Provided through something like the [monogamy](https://github.com/mceachen/monogamy)
+gem, these prevent concurrent access to **any instance of a model**. You probably don't want these,
+and they are easily used to create [deadlocks](http://en.wikipedia.org/wiki/Deadlock).
 
 ## Usage
 
