@@ -22,7 +22,9 @@ unnecessarily blocking other processes.
 ### Row-level locks
 Whether [optimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html)
 or [pessimistic](http://api.rubyonrails.org/classes/ActiveRecord/Locking/Pessimistic.html),
-row-level locks prevent concurrent modification to a given model. **If you're building a
+row-level locks prevent concurrent modification to a given model.
+
+**If you're building a
 [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application, this will be your
 most commonly used lock.**
 
@@ -35,12 +37,14 @@ to acquire, run a critical code section, and release the advisory lock.
 
 Provided through something like the [monogamy](https://github.com/mceachen/monogamy)
 gem, these prevent concurrent access to **any instance of a model**. You probably don't want these,
-and they are easily used to create [deadlocks](http://en.wikipedia.org/wiki/Deadlock).
+and they can be a source of [deadlocks](http://en.wikipedia.org/wiki/Deadlock).
 
 ## Usage
 
+Where ```User``` is an ActiveRecord model, and ```lock_name``` is some string:
+
 ```ruby
-Tag.with_advisory_lock(lock_name) do
+User.with_advisory_lock(lock_name) do
   do_something_that_needs_locking
 end
 ```
