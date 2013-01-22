@@ -12,6 +12,7 @@ ActiveRecord::Migration.verbose = false
 require 'test_models'
 require 'minitest/autorun'
 require 'minitest/great_expectations'
+require 'mocha/setup'
 
 Thread.abort_on_exception = true
 

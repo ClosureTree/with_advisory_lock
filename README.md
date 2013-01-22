@@ -66,6 +66,15 @@ The return value of ```with_advisory_lock``` will be the result of the yielded b
 if the lock was able to be acquired and the block yielded, or ```false```, if you provided
 a timeout_seconds value and the lock was not able to be acquired in time.
 
+### Gotchas
+
+**MySQL doesn't support nesting advisory locks.** If you ask for another advisory lock within
+a ```with_advisory_lock``` block, you will be releasing the parent lock.
+
+An warning message will be emitted to the rails logger in this case, because you
+probably didn't mean to lose the first lock. (Raising an exception would be safer. I'm open to
+suggestions on how to handle this dangerous case).
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -79,6 +88,11 @@ And then execute:
     $ bundle
 
 ## Changelog
+
+### 0.0.2
+
+* Added warning log message for nested MySQL lock calls
+* Randomized lock wait time, which can help ameliorate lock contention
 
 ### 0.0.1
 

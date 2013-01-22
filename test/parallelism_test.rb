@@ -1,14 +1,6 @@
 require 'minitest_helper'
 
-describe "with_advisory_lock" do
-  it "adds with_advisory_lock to ActiveRecord classes" do
-    assert Tag.respond_to?(:with_advisory_lock)
-  end
-
-  it "adds with_advisory_lock to ActiveRecord instances" do
-    assert Tag.new.respond_to?(:with_advisory_lock)
-  end
-
+describe "parallelism" do
   def find_or_create_at_even_second(run_at, with_advisory_lock)
     sleep(run_at - Time.now.to_f)
     ActiveRecord::Base.connection.reconnect!
@@ -36,7 +28,7 @@ describe "with_advisory_lock" do
 
   before :each do
     @iterations = 5
-    @workers = 7
+    @workers = 10
   end
 
   it "parallel threads create multiple duplicate rows" do

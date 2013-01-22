@@ -22,7 +22,9 @@ module WithAdvisoryLock
             release_lock
           end
         else
-          sleep(0.1)
+          # sleep between 1/20 and ~1/5 of a second.
+          # Randomizing sleep time may help reduce contention.
+          sleep(rand * 0.15 + 0.05)
         end
       end
       false # failed to get lock in time.
