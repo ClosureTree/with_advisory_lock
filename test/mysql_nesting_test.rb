@@ -7,5 +7,5 @@ describe "lock nesting" do
       Tag.with_advisory_lock("second") do
       end
     end
-  end if ENV['DB'] == 'mysql'
-end
+  end
+end if env_db == 'mysql'

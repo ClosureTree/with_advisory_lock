@@ -5,7 +5,11 @@ describe "parallelism" do
     sleep(run_at - Time.now.to_f)
     ActiveRecord::Base.connection.reconnect!
     name = run_at.to_s
-    task = lambda { Tag.find_by_name(name) || Tag.create!(:name => name) }
+    task = lambda do
+      Tag.transaction do
+        Tag.find_by_name(name) || Tag.create!(:name => name)
+      end
+    end
     if with_advisory_lock
       Tag.with_advisory_lock(name, nil, &task)
     else
@@ -86,4 +90,4 @@ describe "parallelism" do
     t2_acquired_lock.must_be_false
     t2_return_value.must_be_false
   end
-end
+end unless env_db == 'sqlite3'

@@ -6,7 +6,12 @@ require 'tmpdir'
 
 db_config = File.expand_path("database.yml", File.dirname(__FILE__))
 ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(db_config)).result)
-ActiveRecord::Base.establish_connection(ENV["DB"] || "sqlite")
+
+def env_db
+  ENV["DB"] || "sqlite3"
+end
+
+ActiveRecord::Base.establish_connection(env_db)
 ActiveRecord::Migration.verbose = false
 
 require 'test_models'
@@ -23,8 +28,8 @@ class MiniTest::Spec
     DatabaseCleaner.start
   end
   after do
-    FileUtils.remove_entry_secure ENV['FLOCK_DIR']
     DatabaseCleaner.clean
+    FileUtils.remove_entry_secure ENV['FLOCK_DIR']
   end
 end
 
