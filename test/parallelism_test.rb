@@ -1,17 +1,14 @@
 require 'minitest_helper'
 
 describe "parallelism" do
-  def find_or_create_at_even_second(run_at, with_advisory_lock)
+  def find_or_create_at(run_at, with_advisory_lock)
     ActiveRecord::Base.connection.reconnect!
-    sleep_time = run_at - Time.now.to_f
-    $stderr.puts "sleeping for #{sleep_time} for #{run_at}"
-    sleep(sleep_time)
+    sleep(run_at - Time.now.to_f)
     name = run_at.to_s
     task = lambda do
       Tag.transaction do
         Tag.find_by_name(name) || Tag.create(:name => name)
       end
-      $stderr.puts "finished with #{run_at}"
     end
     if with_advisory_lock
       Tag.with_advisory_lock(name, nil, &task)
@@ -22,15 +19,14 @@ describe "parallelism" do
 
   def run_workers(with_advisory_lock)
     skip if env_db == "sqlite"
-    start_time = Time.now.to_i + 2
-    threads = @workers.times.collect do
-      Thread.new do
-        @iterations.times do |ea|
-          find_or_create_at_even_second(start_time + ea, with_advisory_lock)
+    @iterations.times do
+      time = (Time.now + 1).to_f
+      @workers.times.collect do
+        Thread.new do
+          find_or_create_at(time, with_advisory_lock)
         end
-      end
+      end.each { |ea| ea.join }
     end
-    threads.each { |ea| ea.join }
     puts "Created #{Tag.all.size} (lock = #{with_advisory_lock})"
   end
 
