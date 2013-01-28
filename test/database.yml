@@ -1,9 +1,9 @@
-sqlite3:
+sqlite:
   adapter: <%= "jdbc" if defined? JRUBY_VERSION %>sqlite3
-  database: test/sqlite3.db
+  database: test/sqlite.db
   timeout: 500
   pool: 50
-pg:
+postgresql:
   adapter: postgresql
   username: postgres
   database: with_advisory_lock_test

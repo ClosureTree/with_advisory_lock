@@ -7,18 +7,12 @@ rvm:
 env:
   - DB=sqlite
   - DB=mysql
-  - DB=pg
+  - DB=postgresql
 
 gemfile:
   - ci/Gemfile.activerecord-3.0.x
   - ci/Gemfile.activerecord-3.1.x
   - ci/Gemfile.activerecord-3.2.x
-
-# 1.8.7 and sqlite fails: "SQL statements in progress: rollback transaction"
-matrix:
-  exclude:
-    - rvm: 1.8.7
-      env: DB=sqlite
 
 script: bundle exec rake
 

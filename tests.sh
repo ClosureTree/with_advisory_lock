@@ -11,7 +11,7 @@ do
   for BUNDLE_GEMFILE in ci/Gemfile.activerecord-3.0.x ci/Gemfile.activerecord-3.1.x ci/Gemfile.activerecord-3.2.x
   do
     bundle --quiet
-    for DB in sqlite3 mysql pg
+    for DB in sqlite mysql postgresql
     do
       echo $DB $BUNDLE_GEMFILE `ruby -v`
       bundle exec rake
