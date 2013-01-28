@@ -33,7 +33,7 @@ if env_db != 'sqlite3'
 
     before :each do
       @iterations = 5
-      @workers = 10
+      @workers = 5
     end
 
     it "parallel threads create multiple duplicate rows" do
