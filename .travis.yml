@@ -9,11 +9,6 @@ env:
   - DB=mysql
   - DB=postgresql
 
-gemfile:
-  - ci/Gemfile.activerecord-3.0.x
-  - ci/Gemfile.activerecord-3.1.x
-  - ci/Gemfile.activerecord-3.2.x
-
 script: bundle exec rake
 
 before_script:

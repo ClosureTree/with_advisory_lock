@@ -1,6 +1,6 @@
 # with_advisory_lock [![Build Status](https://api.travis-ci.org/mceachen/with_advisory_lock.png?branch=master)](https://travis-ci.org/mceachen/with_advisory_lock)
 
-Adds advisory locking to ActiveRecord 3.x.
+Adds advisory locking to ActiveRecord 3.2.x.
 [MySQL](http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_get-lock)
 and [PostgreSQL](http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS)
 are supported natively. SQLite resorts to file locking (which won't span hosts, of course!).
@@ -93,6 +93,11 @@ aren't going to be commonly applicable, and they can be a source of
 [deadlocks](http://en.wikipedia.org/wiki/Deadlock).
 
 ## Changelog
+
+### 0.0.3
+
+* Fought with ActiveRecord 3.0.x and 3.1.x. You don't want them if you use threads—they fail
+  predictably.
 
 ### 0.0.2
 
