@@ -94,6 +94,10 @@ aren't going to be commonly applicable, and they can be a source of
 
 ## Changelog
 
+### 0.0.4
+
+* Moved require into on_load, which should speed loading when AR doesn't have to spin up
+
 ### 0.0.3
 
 * Fought with ActiveRecord 3.0.x and 3.1.x. You don't want them if you use threads—they fail
