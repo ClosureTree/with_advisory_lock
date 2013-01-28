@@ -37,6 +37,10 @@ describe "parallelism" do
   before :each do
     @iterations = 5
     @workers = 10
+    # Force the AR classes to load for 3.0 and 3.1:
+    Tag.new
+    TagAudit.new
+    Label.new
   end
 
   it "parallel threads create multiple duplicate rows" do
