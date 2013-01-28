@@ -15,28 +15,26 @@ describe "parallelism" do
     else
       task.call
     end
+    ActiveRecord::Base.connection.close
   end
 
   def run_workers(with_advisory_lock)
     skip if env_db == "sqlite"
     @iterations.times do
-      time = (Time.now + 1).to_f
-      @workers.times.collect do
+      time = (Time.now.to_i + 2).to_f
+      threads = @workers.times.collect do
         Thread.new do
           find_or_create_at(time, with_advisory_lock)
         end
-      end.each { |ea| ea.join }
+      end
+      threads.each { |ea| ea.join }
     end
     puts "Created #{Tag.all.size} (lock = #{with_advisory_lock})"
   end
 
   before :each do
     @iterations = 5
-    @workers = 10
-    # Force the AR classes to load for 3.0 and 3.1:
-    Tag.new
-    TagAudit.new
-    Label.new
+    @workers = 5
   end
 
   it "parallel threads create multiple duplicate rows" do
