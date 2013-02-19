@@ -1,9 +1,15 @@
+require 'with_advisory_lock/nested_advisory_lock_error'
 module WithAdvisoryLock
   class MySQL < Base
 
     # See http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_get-lock
 
     def try_lock
+      unless lock_stack.empty?
+        raise NestedAdvisoryLockError.new(
+          "MySQL doesn't support nested Advisory Locks",
+          lock_stack)
+      end
       # Returns 1 if the lock was obtained successfully,
       # 0 if the attempt timed out (for example, because another client has
       # previously locked the name), or NULL if an error occurred
@@ -17,6 +23,10 @@ module WithAdvisoryLock
       # in which case the lock is not released), and
       # NULL if the named lock did not exist.
       1 == connection.select_value("SELECT RELEASE_LOCK(#{quoted_lock_name})")
+    end
+
+    def already_locked?
+      lock_stack.last == @lock_name
     end
   end
 end

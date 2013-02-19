@@ -12,13 +12,31 @@ module WithAdvisoryLock
       connection.quote(lock_name)
     end
 
-    def with_advisory_lock(&block)
+    def lock_stack
+      Thread.current[:with_advisory_lock_stack] ||= []
+    end
+
+    def already_locked?
+      lock_stack.include? @lock_name
+    end
+
+    def with_advisory_lock_if_needed
+      if already_locked?
+        yield
+      else
+        yield_with_lock { yield }
+      end
+    end
+
+    def yield_with_lock
       give_up_at = Time.now + @timeout_seconds if @timeout_seconds
       while @timeout_seconds.nil? || Time.now < give_up_at do
         if try_lock
           begin
+            lock_stack.push(lock_name)
             return yield
           ensure
+            lock_stack.pop
             release_lock
           end
         else

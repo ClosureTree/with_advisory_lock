@@ -46,12 +46,10 @@ You will want to wrap your block within a transaction to ensure consistency.
 
 ### MySQL doesn't support nesting
 
-With MySQL, if you ask for another advisory lock within a ```with_advisory_lock``` block,
-you will be releasing the parent lock (!!!).
-
-A warning message will be emitted to the Rails logger in this case, because you
-probably didn't mean to lose your first lock. *Raising an exception would be safer. I'm open to
-suggestions on how to handle this dangerous case!*
+With MySQL (at least <= v5.5), if you ask for a *different* advisory lock within a ```with_advisory_lock``` block,
+you will be releasing the parent lock (!!!). A ```NestedAdvisoryLockError```will be raised
+in this case. If you ask for the same lock name, ```with_advisory_lock``` won't ask for the
+lock again, and the block given will be yielded to.
 
 ## Installation
 
@@ -66,7 +64,6 @@ And then execute:
     $ bundle
 
 ## Lock Types
-
 
 First off, know that there are **lots** of different kinds of locks available to you. **Pick the
 finest-grain lock that ensures correctness.** If you choose a lock that is too coarse, you are
@@ -93,6 +90,11 @@ aren't going to be commonly applicable, and they can be a source of
 [deadlocks](http://en.wikipedia.org/wiki/Deadlock).
 
 ## Changelog
+
+### 0.0.5
+
+* Asking for the currently acquired advisory lock doesn't re-ask for the lock now.
+* Introduced NestedAdvisoryLockError when asking for different, nested advisory locksMySQL
 
 ### 0.0.4
 
