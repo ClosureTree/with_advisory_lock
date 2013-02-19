@@ -8,7 +8,7 @@ module WithAdvisoryLock
       unless lock_stack.empty?
         raise NestedAdvisoryLockError.new(
           "MySQL doesn't support nested Advisory Locks",
-          lock_stack)
+          lock_stack.dup)
       end
       # Returns 1 if the lock was obtained successfully,
       # 0 if the attempt timed out (for example, because another client has

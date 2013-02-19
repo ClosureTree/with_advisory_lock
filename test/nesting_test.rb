@@ -17,12 +17,13 @@ describe "lock nesting" do
 
   it "raises errors with MySQL when acquiring nested lock" do
     skip if env_db != 'mysql'
-    proc {
+    exc = proc {
       Tag.with_advisory_lock("first") do
         Tag.with_advisory_lock("second") do
         end
       end
     }.must_raise WithAdvisoryLock::NestedAdvisoryLockError
+    exc.lock_stack.must_equal %w(first)
   end
 
   it "supports nested advisory locks with !MySQL" do

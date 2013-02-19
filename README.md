@@ -91,6 +91,11 @@ aren't going to be commonly applicable, and they can be a source of
 
 ## Changelog
 
+### 0.0.6
+
+* Only require ActiveRecord >= 3.0.x
+* Fixed MySQL error reporting
+
 ### 0.0.5
 
 * Asking for the currently acquired advisory lock doesn't re-ask for the lock now.
