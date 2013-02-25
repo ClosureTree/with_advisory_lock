@@ -14,7 +14,7 @@ module WithAdvisoryLock
       # 0 if the attempt timed out (for example, because another client has
       # previously locked the name), or NULL if an error occurred
       # (such as running out of memory or the thread was killed with mysqladmin kill).
-      1 == connection.select_value("SELECT GET_LOCK(#{quoted_lock_name}, 0)")
+      0 < connection.select_value("SELECT GET_LOCK(#{quoted_lock_name}, 0)*"+Time.now.to_i.to_s)
     end
 
     def release_lock
