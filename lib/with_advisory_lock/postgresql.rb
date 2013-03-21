@@ -1,3 +1,5 @@
+require 'zlib'
+
 module WithAdvisoryLock
   class PostgreSQL < Base
 
@@ -18,7 +20,9 @@ module WithAdvisoryLock
         if lock_name.is_a? Numeric
           lock_name.to_i
         else
-          lock_name.to_s.hash
+          # Ruby MRI's String#hash is randomly seeded as of Ruby 1.9 so
+          # make sure we use a deterministic hash.
+          Zlib.crc32(lock_name.to_s)
         end
       end
     end
