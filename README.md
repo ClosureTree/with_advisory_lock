@@ -91,6 +91,11 @@ aren't going to be commonly applicable, and they can be a source of
 
 ## Changelog
 
+### 0.0.7
+
+* Added Travis tests for Rails 3.0, 3.1, 3.2, and 4.0
+* Fixed MySQL bug with select_value returning a string instead of an integer when using AR 3.0.x
+
 ### 0.0.6
 
 * Only require ActiveRecord >= 3.0.x
