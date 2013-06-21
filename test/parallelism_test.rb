@@ -21,7 +21,7 @@ describe "parallelism" do
   def run_workers(with_advisory_lock)
     skip if env_db == "sqlite"
     @iterations.times do
-      time = (Time.now.to_i + 2).to_f
+      time = (Time.now.to_i + 4).to_f
       threads = @workers.times.collect do
         Thread.new do
           find_or_create_at(time, with_advisory_lock)
