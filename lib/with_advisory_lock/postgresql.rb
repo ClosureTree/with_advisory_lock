@@ -6,11 +6,11 @@ module WithAdvisoryLock
     def try_lock
       # pg_try_advisory_lock will either obtain the lock immediately
       # and return true, or return false if the lock cannot be acquired immediately
-      "t" == connection.select_value("SELECT pg_try_advisory_lock(#{numeric_lock})")
+      "t" == connection.select_value("SELECT pg_try_advisory_lock(#{numeric_lock})").to_s
     end
 
     def release_lock
-      "t" == connection.select_value("SELECT pg_advisory_unlock(#{numeric_lock})")
+      "t" == connection.select_value("SELECT pg_advisory_unlock(#{numeric_lock})").to_s
     end
 
     def numeric_lock

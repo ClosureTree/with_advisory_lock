@@ -15,7 +15,7 @@ describe "parallelism" do
     else
       task.call
     end
-    ActiveRecord::Base.connection.close
+    #ActiveRecord::Base.connection.close
   end
 
   def run_workers(with_advisory_lock)
