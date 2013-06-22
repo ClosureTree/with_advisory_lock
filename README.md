@@ -1,9 +1,11 @@
-# with_advisory_lock [![Build Status](https://api.travis-ci.org/mceachen/with_advisory_lock.png?branch=master)](https://travis-ci.org/mceachen/with_advisory_lock)
+# with_advisory_lock
 
-Adds advisory locking to ActiveRecord 3.2.x.
+Adds advisory locking (mutexes) to ActiveRecord 3.0, 3.1, 3.2, and 4.0.0 when used with
 [MySQL](http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_get-lock)
-and [PostgreSQL](http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS)
-are supported natively. SQLite resorts to file locking (which won't span hosts, of course!).
+or [PostgreSQL](http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
+SQLite resorts to file locking.
+
+[![Build Status](https://api.travis-ci.org/mceachen/with_advisory_lock.png?branch=master)](https://travis-ci.org/mceachen/with_advisory_lock)
 
 ## What's an "Advisory Lock"?
 
@@ -91,7 +93,7 @@ you will be releasing the parent lock (!!!). A ```NestedAdvisoryLockError```will
 in this case. If you ask for the same lock name, ```with_advisory_lock``` won't ask for the
 lock again, and the block given will be yielded to.
 
-### There are many ```lock-closuretree--*``` files in my project directory after test runs
+### There are many ```lock-*``` files in my project directory after test runs
 
 This is expected if you aren't using MySQL or Postgresql for your tests.
 See [issue 3](https://github.com/mceachen/with_advisory_lock/issues/3).
@@ -115,15 +117,15 @@ end
 
 ### 0.0.8
 
-* Use a deterministic hash for postgresql + MRI >= 1.9.
-  Addresses [issue 5](https://github.com/mceachen/with_advisory_lock/issues/5).
-  Thanks, [Joel Turkel](https://github.com/jturkel)!
-* Use a cache-busting query for MySQL and Postgres to deal with AR value caching bug.
-  Addresses [issue 2](https://github.com/mceachen/with_advisory_lock/issues/2).
-  Thanks, [Jaime Giraldo](https://github.com/sposmen)!
-* Added support em-postgresql-adapter.
-  Addresses [issue 4](https://github.com/mceachen/with_advisory_lock/issues/4).
-  Thanks,  [lestercsp](https://github.com/lestercsp)!
+* Addressed [issue 5](https://github.com/mceachen/with_advisory_lock/issues/5) by
+  using a deterministic hash for Postgresql + MRI >= 1.9.
+  Thanks for the pull request, [Joel Turkel](https://github.com/jturkel)!
+* Addressed [issue 2](https://github.com/mceachen/with_advisory_lock/issues/2) by
+  using a cache-busting query for MySQL and Postgres to deal with AR value caching bug.
+  Thanks for the pull request, [Jaime Giraldo](https://github.com/sposmen)!
+* Addressed [issue 4](https://github.com/mceachen/with_advisory_lock/issues/4) by
+  adding support for ```em-postgresql-adapter```.
+  Thanks, [lestercsp](https://github.com/lestercsp)!
 
 (Hey, github—your notifications are WAY too easy to ignore!)
 
