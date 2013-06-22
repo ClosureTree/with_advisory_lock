@@ -38,19 +38,6 @@ The return value of ```with_advisory_lock``` will be the result of the yielded b
 if the lock was able to be acquired and the block yielded, or ```false```, if you provided
 a timeout_seconds value and the lock was not able to be acquired in time.
 
-### Transactions and Advisory Locks
-
-Advisory locks with MySQL and PostgreSQL ignore database transaction boundaries.
-
-You will want to wrap your block within a transaction to ensure consistency.
-
-### MySQL doesn't support nesting
-
-With MySQL (at least <= v5.5), if you ask for a *different* advisory lock within a ```with_advisory_lock``` block,
-you will be releasing the parent lock (!!!). A ```NestedAdvisoryLockError```will be raised
-in this case. If you ask for the same lock name, ```with_advisory_lock``` won't ask for the
-lock again, and the block given will be yielded to.
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -89,11 +76,44 @@ gem, these prevent concurrent access to **any instance of a model**. Their coars
 aren't going to be commonly applicable, and they can be a source of
 [deadlocks](http://en.wikipedia.org/wiki/Deadlock).
 
+## FAQ
+
+### Transactions and Advisory Locks
+
+Advisory locks with MySQL and PostgreSQL ignore database transaction boundaries.
+
+You will want to wrap your block within a transaction to ensure consistency.
+
+### MySQL doesn't support nesting
+
+With MySQL (at least <= v5.5), if you ask for a *different* advisory lock within a ```with_advisory_lock``` block,
+you will be releasing the parent lock (!!!). A ```NestedAdvisoryLockError```will be raised
+in this case. If you ask for the same lock name, ```with_advisory_lock``` won't ask for the
+lock again, and the block given will be yielded to.
+
+### There are many {{lock-closuretree--*}} files in my project directory after test runs
+
+This is expected if you aren't using MySQL or Postgresql for your tests.
+See [issue 3](https://github.com/mceachen/with_advisory_lock/issues/3).
+
+SQLite doesn't have advisory locks, so we resort to file locking, which will only work
+if the ```FLOCK_DIR``` is set consistently for all ruby processes.
+
+In your ```spec_helper.rb``` or ```minitest_helper.rb```, add a ```before``` and ```after``` block:
+
+```ruby
+before do
+  ENV['FLOCK_DIR'] = Dir.mktmpdir
+end
+
+after do
+  FileUtils.remove_entry_secure ENV['FLOCK_DIR']
+end
+```
+
 ## Changelog
 
 ### 0.0.8
-
-"Merging all the things"
 
 * Use a deterministic hash for postgresql + MRI >= 1.9.
   Addresses [issue 5](https://github.com/mceachen/with_advisory_lock/issues/5).
