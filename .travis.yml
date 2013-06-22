@@ -1,8 +1,16 @@
 language: ruby
 
 rvm:
+  - 2.0.0
   - 1.8.7
   - 1.9.3
+
+gemfile:
+# TODO: reenable once tests pass with 4.0
+  - ci/Gemfile.rails-4.0.x
+  - ci/Gemfile.rails-3.2.x
+  - ci/Gemfile.rails-3.1.x
+  - ci/Gemfile.rails-3.0.x
 
 env:
   - DB=sqlite
@@ -15,3 +23,41 @@ before_script:
   - mysql -e 'create database with_advisory_lock_test'
   - psql -c 'create database with_advisory_lock_test' -U postgres
 
+matrix:
+  exclude:
+    - rvm: 1.8.7
+      gemfile: ci/Gemfile.rails-4.0.x
+      env: DB=sqlite
+    - rvm: 1.8.7
+      gemfile: ci/Gemfile.rails-4.0.x
+      env: DB=mysql
+    - rvm: 1.8.7
+      gemfile: ci/Gemfile.rails-4.0.x
+      env: DB=postgresql
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.0.x
+      env: DB=sqlite
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.0.x
+      env: DB=mysql
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.0.x
+      env: DB=postgresql
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.1.x
+      env: DB=sqlite
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.1.x
+      env: DB=mysql
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.1.x
+      env: DB=postgresql
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.2.x
+      env: DB=sqlite
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.2.x
+      env: DB=mysql
+    - rvm: 2.0.0
+      gemfile: ci/Gemfile.rails-3.2.x
+      env: DB=postgresql

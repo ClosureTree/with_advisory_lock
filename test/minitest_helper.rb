@@ -1,14 +1,13 @@
 require 'erb'
 require 'active_record'
 require 'with_advisory_lock'
-require 'database_cleaner'
 require 'tmpdir'
 
 db_config = File.expand_path("database.yml", File.dirname(__FILE__))
 ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(db_config)).result)
 
 def env_db
-  ENV["DB"] || "sqlite"
+  ENV["DB"] || "mysql"
 end
 
 ActiveRecord::Base.establish_connection(env_db)
@@ -21,14 +20,14 @@ require 'mocha/setup'
 
 Thread.abort_on_exception = true
 
-DatabaseCleaner.strategy = :deletion
 class MiniTest::Spec
   before do
     ENV['FLOCK_DIR'] = Dir.mktmpdir
-    DatabaseCleaner.start
+    Tag.delete_all
+    TagAudit.delete_all
+    Label.delete_all
   end
   after do
-    DatabaseCleaner.clean
     FileUtils.remove_entry_secure ENV['FLOCK_DIR']
   end
 end

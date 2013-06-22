@@ -1,5 +1,12 @@
 require 'minitest_helper'
 
+parallelism_is_broken = begin
+  # Rails < 3.2 has known bugs with parallelism
+  (ActiveRecord::VERSION::MAJOR <= 3 && ActiveRecord::VERSION::MINOR < 2) ||
+    # SQLite doesn't support parallel writes
+    ENV["DB"] =~ /sqlite/
+end
+
 describe "parallelism" do
   def find_or_create_at(run_at, with_advisory_lock)
     ActiveRecord::Base.connection.reconnect!
@@ -15,13 +22,13 @@ describe "parallelism" do
     else
       task.call
     end
-    ActiveRecord::Base.connection.close
+    ActiveRecord::Base.connection.close if ActiveRecord::Base.connection.respond_to?(:close)
   end
 
   def run_workers(with_advisory_lock)
     skip if env_db == "sqlite"
     @iterations.times do
-      time = (Time.now.to_i + 2).to_f
+      time = (Time.now.to_i + 4).to_f
       threads = @workers.times.collect do
         Thread.new do
           find_or_create_at(time, with_advisory_lock)
@@ -39,14 +46,9 @@ describe "parallelism" do
 
   it "parallel threads create multiple duplicate rows" do
     run_workers(with_advisory_lock = false)
-    if Tag.connection.adapter_name == "SQLite" && RUBY_VERSION == "1.9.3"
-      oper = :== # sqlite doesn't run in parallel.
-    else
-      oper = :> # Everything else should create duplicate rows.
-    end
-    Tag.all.size.must_be oper, @iterations # <- any duplicated rows will make me happy.
-    TagAudit.all.size.must_be oper, @iterations # <- any duplicated rows will make me happy.
-    Label.all.size.must_be oper, @iterations # <- any duplicated rows will make me happy.
+    Tag.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
+    TagAudit.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
+    Label.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
   end
 
   it "parallel threads with_advisory_lock don't create multiple duplicate rows" do
@@ -92,4 +94,4 @@ describe "parallelism" do
     t2_acquired_lock.must_be_false
     t2_return_value.must_be_false
   end
-end
+end unless parallelism_is_broken
