@@ -14,15 +14,19 @@ module WithAdvisoryLock
       # 0 if the attempt timed out (for example, because another client has
       # previously locked the name), or NULL if an error occurred
       # (such as running out of memory or the thread was killed with mysqladmin kill).
-      0 < connection.select_value("SELECT GET_LOCK(#{quoted_lock_name}, 0) * #{Time.now.to_f}").to_f
+      # The timestamp prevents AR from caching the result improperly, and is ignored.
+      sql = "SELECT GET_LOCK(#{quoted_lock_name}, 0), #{Time.now.to_f}"
+      1 == connection.select_value(sql).to_i
     end
 
     def release_lock
-      # Returns 1 if the lock was released,
+      # Returns > 0 if the lock was released,
       # 0 if the lock was not established by this thread (
       # in which case the lock is not released), and
       # NULL if the named lock did not exist.
-      0 < connection.select_value("SELECT RELEASE_LOCK(#{quoted_lock_name}) * #{Time.now.to_f}").to_f
+      # The timestamp prevents AR from caching the result improperly, and is ignored.
+      sql = "SELECT RELEASE_LOCK(#{quoted_lock_name}), #{Time.now.to_f}"
+      1 == connection.select_value(sql).to_i
     end
 
     def already_locked?

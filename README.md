@@ -91,6 +91,22 @@ aren't going to be commonly applicable, and they can be a source of
 
 ## Changelog
 
+### 0.0.8
+
+"Merging all the things"
+
+* Use a deterministic hash for postgresql + MRI >= 1.9.
+  Addresses [issue 5](https://github.com/mceachen/with_advisory_lock/issues/5).
+  Thanks, [Joel Turkel](https://github.com/jturkel)!
+* Use a cache-busting query for MySQL and Postgres to deal with AR value caching bug.
+  Addresses [issue 2](https://github.com/mceachen/with_advisory_lock/issues/2).
+  Thanks, [Jaime Giraldo](https://github.com/sposmen)!
+* Added support em-postgresql-adapter.
+  Addresses [issue 4](https://github.com/mceachen/with_advisory_lock/issues/4).
+  Thanks,  [lestercsp](https://github.com/lestercsp)!
+
+(Hey, github—your notifications are WAY too easy to ignore!)
+
 ### 0.0.7
 
 * Added Travis tests for Rails 3.0, 3.1, 3.2, and 4.0
