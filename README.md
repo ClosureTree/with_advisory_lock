@@ -91,7 +91,7 @@ you will be releasing the parent lock (!!!). A ```NestedAdvisoryLockError```will
 in this case. If you ask for the same lock name, ```with_advisory_lock``` won't ask for the
 lock again, and the block given will be yielded to.
 
-### There are many {{lock-closuretree--*}} files in my project directory after test runs
+### There are many ```lock-closuretree--*``` files in my project directory after test runs
 
 This is expected if you aren't using MySQL or Postgresql for your tests.
 See [issue 3](https://github.com/mceachen/with_advisory_lock/issues/3).
