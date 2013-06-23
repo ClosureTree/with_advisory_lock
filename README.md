@@ -6,6 +6,8 @@ or [PostgreSQL](http://www.postgresql.org/docs/9.1/static/functions-admin.html#F
 SQLite resorts to file locking.
 
 [![Build Status](https://api.travis-ci.org/mceachen/with_advisory_lock.png?branch=master)](https://travis-ci.org/mceachen/with_advisory_lock)
+[![Gem Version](https://badge.fury.io/rb/with_advisory_lock.png)](http://rubygems.org/gems/with_advisory_lock)
+[![Code Climate](https://codeclimate.com/github/mceachen/with_advisory_lock.png)](https://codeclimate.com/github/mceachen/with_advisory_lock)
 
 ## What's an "Advisory Lock"?
 
