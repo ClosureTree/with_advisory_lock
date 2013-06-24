@@ -21,7 +21,7 @@ module WithAdvisoryLock
 
       def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
         impl_class = case (connection.adapter_name.downcase)
-          when "postgresql", "empostgresql"
+          when "postgresql", "empostgresql", "postgis"
             WithAdvisoryLock::PostgreSQL
           when "mysql", "mysql2"
             WithAdvisoryLock::MySQL
