@@ -17,7 +17,7 @@ env:
   - DB=mysql
   - DB=postgresql
 
-script: bundle exec rake
+script: WITH_ADVISORY_LOCK_PREFIX=$TRAVIS_JOB_NUMBER bundle exec rake
 
 before_script:
   - mysql -e 'create database with_advisory_lock_test'
