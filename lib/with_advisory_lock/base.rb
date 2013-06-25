@@ -4,7 +4,7 @@ module WithAdvisoryLock
 
     def initialize(connection, lock_name, timeout_seconds)
       @connection = connection
-      @lock_name = ENV{'WITH_ADVISORY_LOCK_PREFIX'}.to_s + lock_name
+      @lock_name = ENV['WITH_ADVISORY_LOCK_PREFIX'].to_s + lock_name
       @timeout_seconds = timeout_seconds
     end
 
