@@ -1,13 +1,12 @@
 # Tried desperately to monkeypatch the polymorphic connection object,
 # but rails autoloading is too clever by half. Pull requests are welcome.
 
-# Think of this module as a hipster, using "case" ironically.
-
+require 'active_support/concern'
 require 'with_advisory_lock/base'
+require 'with_advisory_lock/database_adapter_support'
+require 'with_advisory_lock/flock'
 require 'with_advisory_lock/mysql'
 require 'with_advisory_lock/postgresql'
-require 'with_advisory_lock/flock'
-require 'active_support/concern'
 
 module WithAdvisoryLock
   module Concern
@@ -18,15 +17,14 @@ module WithAdvisoryLock
     end
 
     module ClassMethods
-
       def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
-        impl_class = case (connection.adapter_name.downcase)
-          when "postgresql", "empostgresql", "postgis"
-            WithAdvisoryLock::PostgreSQL
-          when "mysql", "mysql2"
-            WithAdvisoryLock::MySQL
-          else
-            WithAdvisoryLock::Flock
+        das = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
+        impl_class = if das.postgresql?
+          WithAdvisoryLock::PostgreSQL
+        elsif das.mysql?
+          WithAdvisoryLock::MySQL
+        else
+          WithAdvisoryLock::Flock
         end
         impl = impl_class.new(connection, lock_name, timeout_seconds)
         impl.with_advisory_lock_if_needed(&block)
