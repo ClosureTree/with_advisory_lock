@@ -117,6 +117,16 @@ end
 
 ## Changelog
 
+### 0.0.9
+
+* Merged in Postgis Adapter Support to address [issue 7](https://github.com/mceachen/with_advisory_lock/issues/7)
+  Thanks for the pull request, [Abdelkader Boudih](https://github.com/seuros)!
+* The database switching code had to be duplicated by [Closure Tree](https://github.com/mceachen/closure_tree),
+  so I extracted a new ```WithAdvisoryLock::DatabaseAdapterSupport``` one-trick pony.
+* Builds were failing on Travis, so I introduced a global lock prefix that can be set with the
+  ```WITH_ADVISORY_LOCK_PREFIX``` environment variable. I'm not going to advertise this feature yet.
+  It's a secret.
+
 ### 0.0.8
 
 * Addressed [issue 5](https://github.com/mceachen/with_advisory_lock/issues/5) by
