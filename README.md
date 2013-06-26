@@ -125,7 +125,7 @@ end
   so I extracted a new ```WithAdvisoryLock::DatabaseAdapterSupport``` one-trick pony.
 * Builds were failing on Travis, so I introduced a global lock prefix that can be set with the
   ```WITH_ADVISORY_LOCK_PREFIX``` environment variable. I'm not going to advertise this feature yet.
-  It's a secret.
+  It's a secret. Only you and I know, now. *shhh*
 
 ### 0.0.8
 
