@@ -1,6 +1,15 @@
 require 'minitest_helper'
 
 describe "lock nesting" do
+  before :each do
+    @prior_prefix = ENV['WITH_ADVISORY_LOCK_PREFIX']
+    ENV['WITH_ADVISORY_LOCK_PREFIX'] = nil
+  end
+
+  after :each do
+    ENV['WITH_ADVISORY_LOCK_PREFIX'] = @prior_prefix
+  end
+
   it "doesn't request the same lock twice" do
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
     impl.lock_stack.must_be_empty
@@ -16,7 +25,7 @@ describe "lock nesting" do
   end
 
   it "raises errors with MySQL when acquiring nested lock" do
-    skip if env_db != 'mysql'
+    skip unless env_db == 'mysql'
     exc = proc {
       Tag.with_advisory_lock("first") do
         Tag.with_advisory_lock("second") do
