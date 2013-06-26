@@ -1,3 +1,5 @@
+require 'zlib'
+
 module WithAdvisoryLock
   class Base
     attr_reader :connection, :lock_name, :timeout_seconds
@@ -33,6 +35,16 @@ module WithAdvisoryLock
         yield
       else
         yield_with_lock { yield }
+      end
+    end
+
+    def stable_hashcode(input)
+      if input.is_a? Numeric
+        input.to_i
+      else
+        # Ruby MRI's String#hash is randomly seeded as of Ruby 1.9 so
+        # make sure we use a deterministic hash.
+        Zlib.crc32(input.to_s)
       end
     end
 
