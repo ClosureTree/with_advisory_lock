@@ -8,6 +8,7 @@ SQLite resorts to file locking.
 [![Build Status](https://api.travis-ci.org/mceachen/with_advisory_lock.png?branch=master)](https://travis-ci.org/mceachen/with_advisory_lock)
 [![Gem Version](https://badge.fury.io/rb/with_advisory_lock.png)](http://rubygems.org/gems/with_advisory_lock)
 [![Code Climate](https://codeclimate.com/github/mceachen/with_advisory_lock.png)](https://codeclimate.com/github/mceachen/with_advisory_lock)
+[![Dependency Status](https://gemnasium.com/mceachen/with_advisory_lock.png)](https://gemnasium.com/mceachen/with_advisory_lock)
 
 ## What's an "Advisory Lock"?
 
@@ -116,6 +117,10 @@ end
 ```
 
 ## Changelog
+
+### 0.0.10
+
+* Explicitly added MIT licensing to the gemspec.
 
 ### 0.0.9
 

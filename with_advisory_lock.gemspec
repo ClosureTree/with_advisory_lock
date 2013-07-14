@@ -10,6 +10,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["matthew+github@mceachen.org"]
   gem.description   = %q{Advisory locking for ActiveRecord}
   gem.summary       = gem.description
+  gem.license       = 'MIT'
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
