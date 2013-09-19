@@ -16,6 +16,10 @@ module WithAdvisoryLock
       self.class.with_advisory_lock(lock_name, timeout_seconds, &block)
     end
 
+    def advisory_lock_exists?(lock_name)
+      self.class.advisory_lock_exists?(lock_name)
+    end
+
     module ClassMethods
       def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
         impl = impl_class.new(connection, lock_name, timeout_seconds)
@@ -28,7 +32,7 @@ module WithAdvisoryLock
       end
 
     private
-    
+
       def impl_class
         das = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
         impl_class = if das.postgresql?
