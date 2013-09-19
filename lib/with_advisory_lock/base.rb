@@ -30,6 +30,10 @@ module WithAdvisoryLock
       lock_stack.include? @lock_name
     end
 
+    def advisory_lock_exists?
+      raise NoMethodError, "method must be implemented in implementation subclasses"
+    end
+
     def with_advisory_lock_if_needed
       if already_locked?
         yield

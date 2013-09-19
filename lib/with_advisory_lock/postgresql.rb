@@ -19,5 +19,11 @@ module WithAdvisoryLock
     def numeric_lock
       @numeric_lock ||= stable_hashcode(lock_name)
     end
+
+    def advisory_lock_exists?
+      sql = "SELECT 't' FROM pg_locks WHERE objid = #{numeric_lock} AND locktype = 'advisory'"
+      "t" == connection.select_value(sql).to_s
+    end
+
   end
 end
