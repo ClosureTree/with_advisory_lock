@@ -9,6 +9,7 @@ SQLite resorts to file locking.
 [![Gem Version](https://badge.fury.io/rb/with_advisory_lock.png)](http://rubygems.org/gems/with_advisory_lock)
 [![Code Climate](https://codeclimate.com/github/mceachen/with_advisory_lock.png)](https://codeclimate.com/github/mceachen/with_advisory_lock)
 [![Dependency Status](https://gemnasium.com/mceachen/with_advisory_lock.png)](https://gemnasium.com/mceachen/with_advisory_lock)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mceachen/with_advisory_lock/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 ## What's an "Advisory Lock"?
 

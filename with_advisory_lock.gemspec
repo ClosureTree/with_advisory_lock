@@ -6,12 +6,12 @@ require 'with_advisory_lock/version'
 Gem::Specification.new do |gem|
   gem.name          = "with_advisory_lock"
   gem.version       = WithAdvisoryLock::VERSION
-  gem.authors       = ["Matthew McEachen"]
-  gem.email         = ["matthew+github@mceachen.org"]
+  gem.authors       = ['Matthew McEachen']
+  gem.email         = %w(matthew+github@mceachen.org)
+  gem.homepage      = 'https://github.com/mceachen/with_advisory_lock'
+  gem.summary       = %q{Advisory locking for ActiveRecord}
   gem.description   = %q{Advisory locking for ActiveRecord}
-  gem.summary       = gem.description
   gem.license       = 'MIT'
-  gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
