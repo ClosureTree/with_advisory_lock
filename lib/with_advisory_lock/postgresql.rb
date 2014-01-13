@@ -16,8 +16,14 @@ module WithAdvisoryLock
       "t" == connection.select_value(sql).to_s
     end
 
-    def numeric_lock
-      @numeric_lock ||= stable_hashcode(lock_name)
+    def numeric_lock(name=lock_name)
+      stable_hashcode(name)
     end
+
+    def advisory_lock_exists?(name)
+      sql = "SELECT 't'::text FROM pg_locks WHERE objid = #{numeric_lock(name)} AND locktype = 'advisory'"
+      "t" == connection.select_value(sql).to_s
+    end
+
   end
 end
