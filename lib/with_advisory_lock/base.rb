@@ -22,8 +22,12 @@ module WithAdvisoryLock
       connection.quote(lock_name)
     end
 
-    def lock_stack
+    def self.lock_stack
       Thread.current[:with_advisory_lock_stack] ||= []
+    end
+
+    def lock_stack
+      self.class.lock_stack
     end
 
     def already_locked?

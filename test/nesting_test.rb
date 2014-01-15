@@ -11,9 +11,11 @@ describe "lock nesting" do
   end
 
   it "doesn't request the same lock twice" do
+    Tag.current_advisory_lock.must_be_nil
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
     impl.lock_stack.must_be_empty
     Tag.with_advisory_lock("first") do
+      Tag.current_advisory_lock.must_equal "first"
       impl.lock_stack.must_equal %w(first)
       # Even MySQL should be OK with this:
       Tag.with_advisory_lock("first") do

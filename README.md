@@ -44,6 +44,16 @@ The return value of ```with_advisory_lock``` will be the result of the yielded b
 if the lock was able to be acquired and the block yielded, or ```false```, if you provided
 a timeout_seconds value and the lock was not able to be acquired in time.
 
+### Testing for the current lock status
+
+If you needed to check if the advisory lock is currently being held, you can call
+```Tag.advisory_lock_exists?("foo")```, but realize the lock can be acquired between the time you
+test for the lock, and the time you try to acquire the lock.
+
+If you want to see if the current Thread is holding a lock, you can call ```Tag.current_advisory_lock```
+which will return the name of the current lock. If no lock is currently held,
+```.current_advisory_lock``` returns ```nil```.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -118,6 +128,14 @@ end
 ```
 
 ## Changelog
+
+
+### 1.0.0
+
+* Releasing 1.0.0. The interface will be stable.
+* Added ```advisory_lock_exists?```. Thanks, [Sean Devine](https://github.com/barelyknown), for the
+  great pull request!
+
 
 ### 0.0.10
 

@@ -31,6 +31,10 @@ module WithAdvisoryLock
         impl.advisory_lock_exists?(lock_name)
       end
 
+      def current_advisory_lock
+        WithAdvisoryLock::Base.lock_stack.first
+      end
+
     private
 
       def impl_class
