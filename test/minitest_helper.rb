@@ -20,6 +20,10 @@ require 'mocha/setup'
 
 Thread.abort_on_exception = true
 
+def test_lock_exists?
+  %w{mysql postgres}.include? env_db
+end
+
 class MiniTest::Spec
   before do
     ENV['FLOCK_DIR'] = Dir.mktmpdir

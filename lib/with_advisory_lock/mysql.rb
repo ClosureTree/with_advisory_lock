@@ -32,5 +32,12 @@ module WithAdvisoryLock
     def already_locked?
       lock_stack.last == @lock_name
     end
+
+    def advisory_lock_exists?(name)
+      quoted_name = connection.quote(name)
+      # See http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_is-used-lock
+      sql = "SELECT IS_USED_LOCK(#{quoted_name})"
+      connection.select_value(sql).present?
+    end
   end
 end
