@@ -1,6 +1,15 @@
 require 'minitest_helper'
 
 describe "lock nesting" do
+  # This simplifies what we expect from the lock name:
+  before :each do
+    @prior_prefix = ENV['WITH_ADVISORY_LOCK_PREFIX']
+    ENV['WITH_ADVISORY_LOCK_PREFIX'] = nil
+  end
+
+  after :each do
+    ENV['WITH_ADVISORY_LOCK_PREFIX'] = @prior_prefix
+  end
 
   it "doesn't request the same lock twice" do
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
