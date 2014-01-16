@@ -1,6 +1,6 @@
 # with_advisory_lock
 
-Adds advisory locking (mutexes) to ActiveRecord 3.0, 3.1, 3.2, and 4.0.0 when used with
+Adds advisory locking (mutexes) to ActiveRecord 3.0, 3.1, 3.2, 4.0 and 4.1 when used with
 [MySQL](http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_get-lock)
 or [PostgreSQL](http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
 SQLite resorts to file locking.
@@ -135,7 +135,7 @@ end
 * Releasing 1.0.0. The interface will be stable.
 * Added ```advisory_lock_exists?```. Thanks, [Sean Devine](https://github.com/barelyknown), for the
   great pull request!
-
+* Added Travis test for Rails 4.1
 
 ### 0.0.10
 
