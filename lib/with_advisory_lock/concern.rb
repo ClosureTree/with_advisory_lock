@@ -2,11 +2,6 @@
 # but rails autoloading is too clever by half. Pull requests are welcome.
 
 require 'active_support/concern'
-require 'with_advisory_lock/base'
-require 'with_advisory_lock/database_adapter_support'
-require 'with_advisory_lock/flock'
-require 'with_advisory_lock/mysql'
-require 'with_advisory_lock/postgresql'
 
 module WithAdvisoryLock
   module Concern
