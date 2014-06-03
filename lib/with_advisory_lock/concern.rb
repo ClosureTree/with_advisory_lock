@@ -7,7 +7,7 @@ module WithAdvisoryLock
   module Concern
     extend ActiveSupport::Concern
 
-    delegate :with_advisory_lock, :advisory_lock_exists?, to: :class
+    delegate :with_advisory_lock, :advisory_lock_exists?, to: 'self.class'
 
     module ClassMethods
       def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
