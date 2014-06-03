@@ -7,13 +7,7 @@ module WithAdvisoryLock
   module Concern
     extend ActiveSupport::Concern
 
-    def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
-      self.class.with_advisory_lock(lock_name, timeout_seconds, &block)
-    end
-
-    def advisory_lock_exists?(lock_name)
-      self.class.advisory_lock_exists?(lock_name)
-    end
+    delegate :with_advisory_lock, :advisory_lock_exists?, to: :class
 
     module ClassMethods
       def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
@@ -30,15 +24,15 @@ module WithAdvisoryLock
         WithAdvisoryLock::Base.lock_stack.first
       end
 
-    private
+      private
 
       def impl_class
-        das = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
-        impl_class = if das.postgresql?
+        case WithAdvisoryLock::DatabaseAdapterSupport.new(connection).adapter
+        when :postgresql
           WithAdvisoryLock::PostgreSQL
-        elsif das.mysql?
+        when :mysql
           WithAdvisoryLock::MySQL
-        else
+        else #sqlite
           WithAdvisoryLock::Flock
         end
       end
