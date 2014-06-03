@@ -58,7 +58,7 @@ module WithAdvisoryLock
 
     def yield_with_lock
       give_up_at = Time.now + @timeout_seconds if @timeout_seconds
-      while @timeout_seconds.nil? || Time.now < give_up_at do
+      begin
         if try_lock
           begin
             lock_stack.push(lock_name)
@@ -72,7 +72,7 @@ module WithAdvisoryLock
           # Randomizing sleep time may help reduce contention.
           sleep(rand * 0.15 + 0.05)
         end
-      end
+      end while @timeout_seconds.nil? || Time.now < give_up_at
       false # failed to get lock in time.
     end
   end
