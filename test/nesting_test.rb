@@ -26,7 +26,7 @@ describe "lock nesting" do
   end
 
   it "raises errors with MySQL when acquiring nested lock" do
-    skip unless env_db == 'mysql'
+    skip unless env_db == :mysql
     exc = proc {
       Tag.with_advisory_lock("first") do
         Tag.with_advisory_lock("second") do
@@ -37,7 +37,7 @@ describe "lock nesting" do
   end
 
   it "supports nested advisory locks with !MySQL" do
-    skip if env_db == 'mysql'
+    skip if env_db == :mysql
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
     impl.lock_stack.must_be_empty
     Tag.with_advisory_lock("first") do
