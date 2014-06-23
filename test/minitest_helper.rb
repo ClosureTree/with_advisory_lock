@@ -7,7 +7,7 @@ db_config = File.expand_path("database.yml", File.dirname(__FILE__))
 ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(db_config)).result)
 
 def env_db
-  ENV["DB"] || "mysql"
+  (ENV["DB"] || "mysql").to_sym
 end
 
 ActiveRecord::Base.establish_connection(env_db)

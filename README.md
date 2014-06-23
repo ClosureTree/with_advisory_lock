@@ -1,6 +1,6 @@
 # with_advisory_lock
 
-Adds advisory locking (mutexes) to ActiveRecord 3.0, 3.1, 3.2, 4.0 and 4.1 when used with
+Adds advisory locking (mutexes) to ActiveRecord 3.2, 4.0 and 4.1 when used with
 [MySQL](http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_get-lock)
 or [PostgreSQL](http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
 SQLite resorts to file locking.
@@ -9,7 +9,6 @@ SQLite resorts to file locking.
 [![Gem Version](https://badge.fury.io/rb/with_advisory_lock.png)](http://rubygems.org/gems/with_advisory_lock)
 [![Code Climate](https://codeclimate.com/github/mceachen/with_advisory_lock.png)](https://codeclimate.com/github/mceachen/with_advisory_lock)
 [![Dependency Status](https://gemnasium.com/mceachen/with_advisory_lock.png)](https://gemnasium.com/mceachen/with_advisory_lock)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mceachen/with_advisory_lock/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 ## What's an "Advisory Lock"?
 
@@ -129,6 +128,12 @@ end
 
 ## Changelog
 
+### 1.1.0
+
+* *Removed support for Rails 3.0, 3.1, and Ruby 1.8.7* as they are unsupported. 
+* [Pull request 11](https://github.com/mceachen/with_advisory_lock/pull/11) 
+  fixed a downstream issue with jruby support! Thanks, [Aaron Todd](https://github.com/ozzyaaron)!
+* Added Travis tests for jruby
 
 ### 1.0.0
 
