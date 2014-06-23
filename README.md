@@ -37,8 +37,14 @@ end
 The second parameter for ```with_advisory_lock``` is ```timeout_seconds```, and defaults to ```nil```,
 which means wait indefinitely for the lock.
 
-If a non-nil value is provided, the block may not be invoked.
+A value of zero will try the lock only once. If the lock is acquired, the block
+will be yielded to. If the lock is currently being held, the block will not be called.
 
+Note that if a non-nil value is provided for `timeout_seconds`, the block will not be invoked if
+the lock cannot be acquired within that timeframe.
+
+### Return values
+ 
 The return value of ```with_advisory_lock``` will be the result of the yielded block,
 if the lock was able to be acquired and the block yielded, or ```false```, if you provided
 a timeout_seconds value and the lock was not able to be acquired in time.
@@ -130,10 +136,14 @@ end
 
 ### 1.1.0
 
-* *Removed support for Rails 3.0, 3.1, and Ruby 1.8.7* as they are unsupported. 
+* Lock timeouts of 0 now attempt the lock once, as per suggested by 
+  [Jon Leighton](https://github.com/jonleighton) and implemented by 
+  [Abdelkader Boudih](https://github.com/seuros). Thanks to both of you!
 * [Pull request 11](https://github.com/mceachen/with_advisory_lock/pull/11) 
   fixed a downstream issue with jruby support! Thanks, [Aaron Todd](https://github.com/ozzyaaron)!
 * Added Travis tests for jruby
+* Dropped support for Rails 3.0, 3.1, and Ruby 1.8.7, as they are no longer
+  receiving security patches. See http://rubyonrails.org/security/ for more information. 
 
 ### 1.0.0
 
