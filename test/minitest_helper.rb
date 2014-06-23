@@ -21,7 +21,7 @@ require 'mocha/setup'
 Thread.abort_on_exception = true
 
 def test_lock_exists?
-  %w{mysql postgres}.include? env_db
+  [:mysql, :postgres].include? env_db
 end
 
 class MiniTest::Spec
