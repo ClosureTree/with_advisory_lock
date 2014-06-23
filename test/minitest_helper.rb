@@ -7,7 +7,7 @@ db_config = File.expand_path("database.yml", File.dirname(__FILE__))
 ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(db_config)).result)
 
 def env_db
-  (ENV["DB"] || "mysql").to_sym
+  (ENV["DB"] || :mysql).to_sym
 end
 
 ActiveRecord::Base.establish_connection(env_db)
@@ -21,7 +21,7 @@ require 'mocha/setup'
 Thread.abort_on_exception = true
 
 def test_lock_exists?
-  [:mysql, :postgres].include? env_db
+  [:mysql, :postgresql].include? env_db
 end
 
 class MiniTest::Spec
