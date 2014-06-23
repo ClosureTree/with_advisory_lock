@@ -26,9 +26,7 @@ module WithAdvisoryLock
       Thread.current[:with_advisory_lock_stack] ||= []
     end
 
-    def lock_stack
-      self.class.lock_stack
-    end
+    delegate :lock_stack, to: 'self.class'
 
     def already_locked?
       lock_stack.include? @lock_name
