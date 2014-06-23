@@ -18,14 +18,12 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^test/})
   gem.require_paths = %w(lib)
 
-  gem.add_runtime_dependency 'activerecord', '>= 3.0.0'
+  gem.add_runtime_dependency 'activerecord', '>= 3.2'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'minitest'
   gem.add_development_dependency 'minitest-great_expectations'
   gem.add_development_dependency 'mocha'
-  gem.add_development_dependency 'mysql2'
-  gem.add_development_dependency 'pg'
-  gem.add_development_dependency 'sqlite3'
+  gem.add_development_dependency 'appraisal'
 end

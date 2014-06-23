@@ -1,4 +1,3 @@
-require 'with_advisory_lock/nested_advisory_lock_error'
 module WithAdvisoryLock
   class MySQL < Base
 
