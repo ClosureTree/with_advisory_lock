@@ -12,8 +12,8 @@ end
 
 class Tag < ActiveRecord::Base
   after_save do
-    TagAudit.create { |ea| ea.tag_name = name }
-    Label.create { |ea| ea.name = name }
+    TagAudit.create(tag_name: name)
+    Label.create(name: name)
   end
 end
 

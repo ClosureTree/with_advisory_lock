@@ -31,7 +31,7 @@ describe "parallelism" do
   class FindOrCreateWorker < WorkerBase
     def work(name)
       Tag.transaction do
-        Tag.find_or_create_by_name(name: name)
+        Tag.where(name: name).first_or_create
       end
     end
   end
