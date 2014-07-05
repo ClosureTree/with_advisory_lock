@@ -24,9 +24,9 @@ module WithAdvisoryLock
     end
 
     def advisory_lock_exists?(name)
-      acquired = true
-      yield_with_lock(0) { acquired = false }
-      acquired
+      lock_exists = true
+      self.class.new(ignored = nil, name, 0).yield_with_lock { lock_exists = false }
+      lock_exists
     end
 
     def release_lock
