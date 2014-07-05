@@ -23,6 +23,12 @@ module WithAdvisoryLock
       0 == file_io.flock(File::LOCK_EX|File::LOCK_NB)
     end
 
+    def advisory_lock_exists?(name)
+      acquired = true
+      self.class.new(nil, name, 0).yield_with_lock { acquired = false }
+      acquired
+    end
+
     def release_lock
       0 == file_io.flock(File::LOCK_UN)
     end

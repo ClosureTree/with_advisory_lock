@@ -134,7 +134,7 @@ end
 
 ## Changelog
 
-### 1.1.0
+### 2.0.0
 
 * Lock timeouts of 0 now attempt the lock once, as per suggested by 
   [Jon Leighton](https://github.com/jonleighton) and implemented by 
@@ -144,6 +144,7 @@ end
 * Added Travis tests for jruby
 * Dropped support for Rails 3.0, 3.1, and Ruby 1.8.7, as they are no longer
   receiving security patches. See http://rubyonrails.org/security/ for more information. 
+  This required the major version bump.
 
 ### 1.0.0
 

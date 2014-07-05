@@ -1,7 +1,6 @@
 require 'minitest_helper'
 
 describe 'class methods' do
-
   let(:lock_name) { "test lock #{rand(1024)}" }
   let(:expected_lock_name) { "#{ENV['WITH_ADVISORY_LOCK_PREFIX']}#{lock_name}" }
 
@@ -38,5 +37,4 @@ describe 'class methods' do
       block_was_yielded.must_be_true
     end
   end
-
-end if test_lock_exists?
+end

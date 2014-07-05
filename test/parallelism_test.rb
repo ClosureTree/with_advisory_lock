@@ -1,58 +1,73 @@
 require 'minitest_helper'
 
-parallelism_is_broken = begin
-  # Rails < 3.2 has known bugs with parallelism
-  (ActiveRecord::VERSION::MAJOR <= 3 && ActiveRecord::VERSION::MINOR < 2) ||
-    # SQLite doesn't support parallel writes
-    ENV["DB"] =~ /sqlite/
-end
-
 describe "parallelism" do
-  def find_or_create_at(run_at, with_advisory_lock)
-    ActiveRecord::Base.connection.reconnect!
-    sleep(run_at - Time.now.to_f)
-    name = run_at.to_s
-    task = lambda do
-      Tag.transaction do
-        Tag.find_by_name(name) || Tag.create(:name => name)
-      end
-    end
-    if with_advisory_lock
-      Tag.with_advisory_lock(name, nil, &task)
-    else
-      task.call
-    end
-    ActiveRecord::Base.connection.close if ActiveRecord::Base.connection.respond_to?(:close)
-  end
-
-  def run_workers(with_advisory_lock)
-    skip if env_db == :sqlite
-    @iterations.times do
-      time = (Time.now.to_i + 4).to_f
-      threads = @workers.times.collect do
-        Thread.new do
-          find_or_create_at(time, with_advisory_lock)
+  class WorkerBase
+    def initialize(target, run_at, name, use_advisory_lock)
+      @thread = Thread.new do
+        ActiveRecord::Base.connection_pool.with_connection do
+          before_work
+          sleep((run_at - Time.now).to_f)
+          if use_advisory_lock
+            Tag.with_advisory_lock(name) { work(name) }
+          else
+            work(name)
+          end
         end
       end
-      threads.each { |ea| ea.join }
     end
-    puts "Created #{Tag.all.size} (lock = #{with_advisory_lock})"
+
+    def before_work
+    end
+
+    def work(name)
+      raise
+    end
+
+    def join
+      @thread.join
+    end
+  end
+
+  class FindOrCreateWorker < WorkerBase
+    def work(name)
+      Tag.transaction do
+        Tag.find_or_create_by_name(name: name)
+      end
+    end
+  end
+
+  def run_workers(use_advisory_lock, worker_class = FindOrCreateWorker)
+    all_workers = []
+    @names = @iterations.times.map { |iter| "iteration ##{iter}" }
+    @names.each do |name|
+      wake_time = 1.second.from_now
+      workers = @workers.times.map do
+        worker_class.new(@target, wake_time, name, use_advisory_lock)
+      end
+      workers.each(&:join)
+      all_workers += workers
+      puts name
+    end
+    # Ensure we're still connected:
+    ActiveRecord::Base.connection_pool.connection
+    all_workers
   end
 
   before :each do
+    ActiveRecord::Base.connection.reconnect!
     @iterations = 5
-    @workers = 5
+    @workers = 10
   end
 
-  it "parallel threads create multiple duplicate rows" do
-    run_workers(with_advisory_lock = false)
+  it "creates multiple duplicate rows without advisory locks" do
+    run_workers(use_advisory_lock = false)
     Tag.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
     TagAudit.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
     Label.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
-  end
+  end unless env_db == :sqlite
 
-  it "parallel threads with_advisory_lock don't create multiple duplicate rows" do
-    run_workers(with_advisory_lock = true)
+  it "doesn't create multiple duplicate rows with advisory locks" do
+    run_workers(use_advisory_lock = true)
     Tag.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
     TagAudit.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
     Label.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
@@ -61,37 +76,32 @@ describe "parallelism" do
   it "returns false if the lock wasn't acquirable" do
     t1_acquired_lock = false
     t1_return_value = nil
+    lock_name = "testing 1,2,3"
+
     t1 = Thread.new do
-      ActiveRecord::Base.connection.reconnect!
-      t1_return_value = Label.with_advisory_lock("testing 1,2,3") do
-        t1_acquired_lock = true
-        sleep(0.3)
-        "boom"
+      ActiveRecord::Base.connection_pool.with_connection do
+        t1_return_value = Label.with_advisory_lock(lock_name) do
+          t1_acquired_lock = true
+          sleep(0.5)
+          't1 finished'
+        end
       end
     end
 
-    # Make sure the lock is acquired:
     sleep(0.1)
-
-    # Now try to acquire the lock impatiently:
-    t2_acquired_lock = false
-    t2_return_value = nil
-    t2 = Thread.new do
-      ActiveRecord::Base.connection.reconnect!
-      t2_return_value = Label.with_advisory_lock("testing 1,2,3", 0.1) do
-        t2_acquired_lock = true
-        "not expected"
-      end
+    ActiveRecord::Base.connection.reconnect!
+    Label.with_advisory_lock(lock_name, 0) do
+      fail "lock should not be acquirable at this point"
     end
 
-    # Wait for them to finish:
     t1.join
-    t2.join
-
-    t1_acquired_lock.must_be_true
-    t1_return_value.must_equal "boom"
-
-    t2_acquired_lock.must_be_false
-    t2_return_value.must_be_false
+    t1_return_value.must_equal 't1 finished'
+    ActiveRecord::Base.connection.reconnect!
+    # We should now be able to acquire the lock immediately:
+    reacquired = false
+    Label.with_advisory_lock(lock_name, 0) do
+      reacquired = true
+    end.must_be_true
+    reacquired.must_be_true
   end
-end unless parallelism_is_broken
+end
