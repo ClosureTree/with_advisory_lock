@@ -2,6 +2,7 @@ require 'erb'
 require 'active_record'
 require 'with_advisory_lock'
 require 'tmpdir'
+require 'securerandom'
 
 db_config = File.expand_path("database.yml", File.dirname(__FILE__))
 ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(db_config)).result)
@@ -9,6 +10,8 @@ ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(db_config)).resul
 def env_db
   (ENV["DB"] || :mysql).to_sym
 end
+
+ENV["WITH_ADVISORY_LOCK_PREFIX"] ||= SecureRandom.base64
 
 ActiveRecord::Base.establish_connection(env_db)
 ActiveRecord::Migration.verbose = false
