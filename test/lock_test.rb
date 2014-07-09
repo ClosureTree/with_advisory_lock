@@ -23,7 +23,7 @@ describe 'class methods' do
 
     it 'returns the name of the last lock acquired' do
       Tag.with_advisory_lock(lock_name) do
-        Tag.advisory_lock_exists?(expected_lock_name).must_be_true
+        Tag.advisory_lock_exists?(lock_name).must_be_true
       end
     end
   end

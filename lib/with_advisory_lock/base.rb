@@ -32,10 +32,6 @@ module WithAdvisoryLock
       lock_stack.include? @lock_name
     end
 
-    def advisory_lock_exists?(name)
-      raise NoMethodError, "method must be implemented in implementation subclasses"
-    end
-
     def with_advisory_lock_if_needed
       if already_locked?
         yield
@@ -52,6 +48,12 @@ module WithAdvisoryLock
         # make sure we use a deterministic hash.
         Zlib.crc32(input.to_s)
       end
+    end
+
+    def advisory_lock_exists?
+      acquired_lock = try_lock
+    ensure
+      release_lock if acquired_lock
     end
 
     def yield_with_lock

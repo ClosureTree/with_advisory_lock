@@ -46,7 +46,6 @@ describe "parallelism" do
       end
       workers.each(&:join)
       all_workers += workers
-      puts name
     end
     # Ensure we're still connected:
     ActiveRecord::Base.connection_pool.connection
@@ -72,31 +71,47 @@ describe "parallelism" do
     TagAudit.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
     Label.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
   end
+end
 
-  it "returns false if the lock wasn't acquirable" do
-    t1_acquired_lock = false
-    t1_return_value = nil
-    lock_name = "testing 1,2,3"
+describe "separate thread tests" do
+  let(:lock_name) { "testing 1,2,3" }
 
-    t1 = Thread.new do
+  before do
+    @t1_acquired_lock = false
+    @t1_return_value = nil
+
+    @t1 = Thread.new do
       ActiveRecord::Base.connection_pool.with_connection do
-        t1_return_value = Label.with_advisory_lock(lock_name) do
+        @t1_return_value = Label.with_advisory_lock(lock_name) do
           t1_acquired_lock = true
-          sleep(0.5)
+          sleep(0.4)
           't1 finished'
         end
       end
     end
 
+    # Wait for the thread to acquire the lock:
     sleep(0.1)
     ActiveRecord::Base.connection.reconnect!
-    Label.with_advisory_lock(lock_name, 0) do
-      fail "lock should not be acquirable at this point"
-    end
+  end
 
-    t1.join
-    t1_return_value.must_equal 't1 finished'
-    ActiveRecord::Base.connection.reconnect!
+  after do
+    @t1.join
+  end
+
+  it "#with_advisory_lock with a 0 timeout returns false immediately" do
+    response = Label.with_advisory_lock(lock_name, 0) {}
+    response.must_be_false
+  end
+
+  it "#advisory_lock_exists? returns true when another thread has the lock" do
+    Tag.advisory_lock_exists?(lock_name).must_be_true
+  end
+
+  it "can re-establish the lock after the other thread releases it" do
+    @t1.join
+    @t1_return_value.must_equal 't1 finished'
+
     # We should now be able to acquire the lock immediately:
     reacquired = false
     Label.with_advisory_lock(lock_name, 0) do

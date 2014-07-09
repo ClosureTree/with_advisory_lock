@@ -16,8 +16,8 @@ module WithAdvisoryLock
       end
 
       def advisory_lock_exists?(lock_name)
-        impl = impl_class.new(connection, lock_name, nil)
-        impl.advisory_lock_exists?(lock_name)
+        impl = impl_class.new(connection, lock_name, 0)
+        impl.already_locked? || !impl.yield_with_lock { true }
       end
 
       def current_advisory_lock

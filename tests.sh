@@ -1,10 +1,10 @@
-#!/bin/sh -e
-export BUNDLE_GEMFILE DB
+#!/bin/bash -e
+export DB
 
-for BUNDLE_GEMFILE in gemfiles/*.gemfile ; do
-  for DB in mysql postgresql sqlite
-  do
-    echo $DB $BUNDLE_GEMFILE `ruby -v`
-    bundle exec rake
+for RUBY in 2.1.2 jruby-1.7.12 ; do
+  rbenv local $RUBY
+  for DB in mysql postgresql sqlite ; do
+    echo "$DB | $(ruby -v)"
+    appraisal rake test
   done
 done
