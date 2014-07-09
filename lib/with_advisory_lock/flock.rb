@@ -5,8 +5,8 @@ module WithAdvisoryLock
 
     def filename
       @filename ||= begin
-        safe = @lock_name.to_s.gsub(/[^a-z0-9]/i, '')
-        fn = ".lock-#{safe}-#{stable_hashcode(@lock_name)}"
+        safe = lock_str.to_s.gsub(/[^a-z0-9]/i, '')
+        fn = ".lock-#{safe}-#{stable_hashcode(lock_str)}"
         # Let the user specify a directory besides CWD.
         ENV['FLOCK_DIR'] ? File.expand_path(fn, ENV['FLOCK_DIR']) : fn
       end

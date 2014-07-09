@@ -2,7 +2,6 @@ require 'minitest_helper'
 
 describe 'class methods' do
   let(:lock_name) { "test lock #{rand(1024)}" }
-  let(:expected_lock_name) { "#{ENV['WITH_ADVISORY_LOCK_PREFIX']}#{lock_name}" }
 
   describe '.current_advisory_lock' do
     it "returns nil outside an advisory lock request" do
@@ -11,14 +10,14 @@ describe 'class methods' do
 
     it 'returns the name of the last lock acquired' do
       Tag.with_advisory_lock(lock_name) do
-        Tag.current_advisory_lock.must_equal expected_lock_name
+        Tag.current_advisory_lock.must_match /#{lock_name}/
       end
     end
   end
 
   describe '.advisory_lock_exists?' do
     it "returns false for an unacquired lock" do
-      Tag.advisory_lock_exists?(expected_lock_name).must_be_false
+      Tag.advisory_lock_exists?(lock_name).must_be_false
     end
 
     it 'returns the name of the last lock acquired' do

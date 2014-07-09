@@ -17,6 +17,10 @@ ActiveRecord::Base.establish_connection(env_db)
 ActiveRecord::Migration.verbose = false
 
 require 'test_models'
+begin
+  require 'minitest'
+rescue LoadError => rails_four_zero_is_lame
+end
 require 'minitest/autorun'
 require 'minitest/great_expectations'
 require 'mocha/setup'

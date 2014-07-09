@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gemspec
 
-
 platforms :ruby do
   gem 'mysql2'
   gem 'pg'

@@ -7,19 +7,11 @@ module WithAdvisoryLock
     def initialize(connection, lock_name, timeout_seconds)
       @connection = connection
       @lock_name = lock_name
-      lock_name_prefix = ENV['WITH_ADVISORY_LOCK_PREFIX']
-      if lock_name_prefix
-        @lock_name = if lock_name.is_a? Numeric
-          "#{lock_name_prefix.to_i}#{lock_name}".to_i
-        else
-          "#{lock_name_prefix}#{lock_name}"
-        end
-      end
       @timeout_seconds = timeout_seconds
     end
 
-    def quoted_lock_name
-      connection.quote(lock_name)
+    def lock_str
+      @lock_str ||= "#{ENV['WITH_ADVISORY_LOCK_PREFIX'].to_s}#{lock_name.to_s}"
     end
 
     def self.lock_stack
@@ -29,7 +21,7 @@ module WithAdvisoryLock
     delegate :lock_stack, to: 'self.class'
 
     def already_locked?
-      lock_stack.include? @lock_name
+      lock_stack.include? lock_str
     end
 
     def with_advisory_lock_if_needed
@@ -61,7 +53,7 @@ module WithAdvisoryLock
       begin
         if try_lock
           begin
-            lock_stack.push(lock_name)
+            lock_stack.push(lock_str)
             return yield
           ensure
             lock_stack.pop
@@ -74,6 +66,11 @@ module WithAdvisoryLock
         end
       end while @timeout_seconds.nil? || Time.now < give_up_at
       false # failed to get lock in time.
+    end
+
+    # The timestamp prevents AR from caching the result improperly, and is ignored.
+    def query_cache_buster
+      "AS t#{(Time.now.to_f * 1000).to_i}"
     end
   end
 end
