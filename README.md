@@ -145,6 +145,8 @@ end
 * Dropped support for Rails 3.0, 3.1, and Ruby 1.8.7, as they are no longer
   receiving security patches. See http://rubyonrails.org/security/ for more information. 
   This required the major version bump.
+* Refactored `advisory_lock_exists?` to use existing functionality
+* Fixed sqlite's implementation so parallel tests could be run against it 
 
 ### 1.0.0
 
