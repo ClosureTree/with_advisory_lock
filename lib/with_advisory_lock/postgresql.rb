@@ -15,12 +15,12 @@ module WithAdvisoryLock
 
     # PostgreSQL wants 2 32bit integers as the lock key.
     def lock_keys
-      @lock_key ||= [if lock_name.is_a? Numeric
-        lock_name.to_i
-      else
-        # The least significant 31 bits (first arg cannot be a bigint)
-        stable_hashcode(lock_name) & 0x7fffffff
-      end, ENV['WITH_ADVISORY_LOCK_PREFIX'].to_i]
+      @lock_keys ||= begin
+        [stable_hashcode(lock_name), ENV['WITH_ADVISORY_LOCK_PREFIX']].map do |ea|
+          # pg advisory args must be 31 bit ints
+          ea.to_i & 0x7fffffff
+        end
+      end
     end
   end
 end
