@@ -23,6 +23,9 @@ before_script:
   - mysql -e 'create database with_advisory_lock_test'
   - psql -c 'create database with_advisory_lock_test' -U postgres
 
+addons:
+  postgresql: "9.3"
+
 matrix:
   allow_failures:
     - gemfile: gemfiles/activerecord_edge.gemfile

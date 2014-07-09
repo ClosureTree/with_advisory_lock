@@ -2,7 +2,7 @@
 
 Adds advisory locking (mutexes) to ActiveRecord 3.2, 4.0 and 4.1 when used with
 [MySQL](http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_get-lock)
-or [PostgreSQL](http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
+or [PostgreSQL](http://www.postgresql.org/docs/9.3/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
 SQLite resorts to file locking.
 
 [![Build Status](https://api.travis-ci.org/mceachen/with_advisory_lock.png?branch=master)](https://travis-ci.org/mceachen/with_advisory_lock)
