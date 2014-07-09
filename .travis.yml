@@ -1,32 +1,33 @@
 language: ruby
 
 rvm:
-  - jruby-19mode
-  - 2.1.2
-  - 1.9.3
+  - jruby-head-19mode
+#  - 2.1.2
+#  - 1.9.3
 # TODO  - rbx-2
 
 gemfile:
-  - gemfiles/activerecord_3.2.gemfile
-  - gemfiles/activerecord_4.0.gemfile
+#  - gemfiles/activerecord_3.2.gemfile
+#  - gemfiles/activerecord_4.0.gemfile
   - gemfiles/activerecord_4.1.gemfile
-  - gemfiles/activerecord_edge.gemfile
+#  - gemfiles/activerecord_edge.gemfile
 
 env:
-  - DB=sqlite
-  - DB=mysql
+#  - DB=sqlite
+#  - DB=mysql
   - DB=postgresql
 
 script: WITH_ADVISORY_LOCK_PREFIX=$TRAVIS_JOB_ID bundle exec rake --trace
 
 before_script:
-  - mysql -e 'create database with_advisory_lock_test'
+#  - mysql -e 'create database with_advisory_lock_test'
   - psql -c 'create database with_advisory_lock_test' -U postgres
-
-addons:
-  postgresql: "9.3"
 
 matrix:
   allow_failures:
     - gemfile: gemfiles/activerecord_edge.gemfile
     - rvm: rbx-2
+    - rvm: jruby-head-19mode
+      env:
+        - DB=postgresql
+
