@@ -10,6 +10,7 @@ describe 'class methods' do
 
     it 'returns the name of the last lock acquired' do
       Tag.with_advisory_lock(lock_name) do
+        # The lock name may have a prefix if WITH_ADVISORY_LOCK_PREFIX env is set
         Tag.current_advisory_lock.must_match /#{lock_name}/
       end
     end
@@ -27,13 +28,12 @@ describe 'class methods' do
     end
   end
 
-  describe "0 timeout" do
+  describe "zero timeout_seconds" do
     it 'attempts the lock exactly once with no timeout' do
-      block_was_yielded = false
+      expected = SecureRandom.base64
       Tag.with_advisory_lock(lock_name, 0) do
-        block_was_yielded = true
-      end
-      block_was_yielded.must_be_true
+        expected
+      end.must_equal expected
     end
   end
 end

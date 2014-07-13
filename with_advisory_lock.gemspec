@@ -19,11 +19,13 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w(lib)
 
   gem.add_runtime_dependency 'activerecord', '>= 3.2'
+  gem.add_runtime_dependency 'thread_safe'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'minitest'
   gem.add_development_dependency 'minitest-great_expectations'
+  gem.add_development_dependency 'minitest-reporters'
   gem.add_development_dependency 'mocha'
   gem.add_development_dependency 'appraisal'
 end

@@ -4,14 +4,14 @@ require 'with_advisory_lock'
 require 'tmpdir'
 require 'securerandom'
 
-db_config = File.expand_path("database.yml", File.dirname(__FILE__))
-ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(db_config)).result)
-
 def env_db
-  (ENV["DB"] || :mysql).to_sym
+  (ENV['DB'] || :mysql).to_sym
 end
 
-ENV["WITH_ADVISORY_LOCK_PREFIX"] ||= SecureRandom.base64
+db_config = File.expand_path('database.yml', File.dirname(__FILE__))
+ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(db_config)).result)
+
+ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 
 ActiveRecord::Base.establish_connection(env_db)
 ActiveRecord::Migration.verbose = false
@@ -19,13 +19,15 @@ ActiveRecord::Migration.verbose = false
 require 'test_models'
 begin
   require 'minitest'
-rescue LoadError => rails_four_zero_is_lame
+rescue LoadError
+  puts 'Failed to load the minitest gem; built-in version will be used.'
 end
 require 'minitest/autorun'
 require 'minitest/great_expectations'
-require 'mocha/setup'
+require 'minitest/reporters'
+Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
-Thread.abort_on_exception = true
+require 'mocha/setup'
 
 class MiniTest::Spec
   before do

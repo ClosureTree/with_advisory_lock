@@ -15,11 +15,5 @@ module WithAdvisoryLock
     def sqlite?
       :sqlite3 == @sym_name
     end
-
-    def adapter
-      return :mysql if mysql?
-      return :postgresql if postgresql?
-      :sqlite3
-    end
   end
 end

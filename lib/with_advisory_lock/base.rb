@@ -1,6 +1,21 @@
 require 'zlib'
 
 module WithAdvisoryLock
+  class Result
+    attr_reader :result
+
+    def initialize(lock_was_acquired, result = false)
+      @lock_was_acquired = lock_was_acquired
+      @result = result
+    end
+
+    def lock_was_acquired?
+      @lock_was_acquired
+    end
+  end
+
+  FAILED_TO_LOCK = Result.new(false)
+
   class Base
     attr_reader :connection, :lock_name, :timeout_seconds
 
@@ -17,18 +32,19 @@ module WithAdvisoryLock
     def self.lock_stack
       Thread.current[:with_advisory_lock_stack] ||= []
     end
-
     delegate :lock_stack, to: 'self.class'
 
     def already_locked?
       lock_stack.include? lock_str
     end
 
-    def with_advisory_lock_if_needed
+    def with_advisory_lock_if_needed(&block)
       if already_locked?
         yield
+      elsif timeout_seconds == 0
+        yield_with_lock(&block).result
       else
-        yield_with_lock { yield }
+        yield_with_lock_and_timeout(&block).result
       end
     end
 
@@ -48,29 +64,35 @@ module WithAdvisoryLock
       release_lock if acquired_lock
     end
 
-    def yield_with_lock
+    def yield_with_lock_and_timeout(&block)
       give_up_at = Time.now + @timeout_seconds if @timeout_seconds
-      begin
-        if try_lock
-          begin
-            lock_stack.push(lock_str)
-            return yield
-          ensure
-            lock_stack.pop
-            release_lock
-          end
-        else
-          # sleep between 1/20 and ~1/5 of a second.
-          # Randomizing sleep time may help reduce contention.
-          sleep(rand * 0.15 + 0.05)
-        end
-      end while @timeout_seconds.nil? || Time.now < give_up_at
-      false # failed to get lock in time.
+      while @timeout_seconds.nil? || Time.now < give_up_at do
+        r = yield_with_lock(&block)
+        return r if r.lock_was_acquired?
+        # Randomizing sleep time may help reduce contention.
+        sleep(rand(0.05..0.15))
+      end
+      FAILED_TO_LOCK
     end
 
-    # The timestamp prevents AR from caching the result improperly, and is ignored.
-    def query_cache_buster
-      "AS t#{(Time.now.to_f * 1000).to_i}"
+    def yield_with_lock
+      if try_lock
+        begin
+          lock_stack.push(lock_str)
+          result = block_given? ? yield : nil
+          Result.new(true, result)
+        ensure
+          lock_stack.pop
+          release_lock
+        end
+      else
+        FAILED_TO_LOCK
+      end
+    end
+
+    # Prevent AR from caching results improperly
+    def unique_column_name
+      "t#{SecureRandom.hex}"
     end
   end
 end

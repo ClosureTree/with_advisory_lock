@@ -2,27 +2,34 @@ require 'minitest_helper'
 
 describe "parallelism" do
   class FindOrCreateWorker
-    def initialize(target, run_at, name, use_advisory_lock)
-      @thread = Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          sleep((run_at - Time.now).to_f)
-          if use_advisory_lock
-            Tag.with_advisory_lock(name) { work(name) }
-          else
-            work(name)
-          end
+  attr_reader :sleep_time
+    def initialize(run_at, name, use_advisory_lock)
+      @run_at = run_at
+      @name = name
+      @use_advisory_lock = use_advisory_lock
+      @thread = Thread.new { work_later }
+    end
+
+    def work_later
+      ActiveRecord::Base.connection_pool.with_connection do
+        @sleep_time = @run_at - Time.now.to_f
+        sleep(sleep_time)
+        if @use_advisory_lock
+          Tag.with_advisory_lock(@name) { work }
+        else
+          work
         end
       end
     end
 
-    def work(name)
+    def work
       Tag.transaction do
-        Tag.where(name: name).first_or_create
+        Tag.where(name: @name).first_or_create
       end
     end
 
-    def join
-      @thread.join
+    def join(time = 0.1)
+      @thread.join(time)
     end
   end
 
@@ -30,12 +37,14 @@ describe "parallelism" do
     all_workers = []
     @names = @iterations.times.map { |iter| "iteration ##{iter}" }
     @names.each do |name|
-      wake_time = 1.second.from_now
+      wake_time = Time.now.to_f + 0.7
       workers = @workers.times.map do
-        FindOrCreateWorker.new(@target, wake_time, name, @use_advisory_lock)
+        FindOrCreateWorker.new(wake_time, name, @use_advisory_lock)
       end
-      workers.each(&:join)
       all_workers += workers
+      while workers.present?
+        workers.delete_if { |w| w.join }
+      end
     end
     # Ensure we're still connected:
     ActiveRecord::Base.connection_pool.connection

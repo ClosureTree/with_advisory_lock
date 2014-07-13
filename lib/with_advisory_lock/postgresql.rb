@@ -2,14 +2,15 @@ module WithAdvisoryLock
   class PostgreSQL < Base
     # See http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
     def try_lock
-      # pg_try_advisory_lock will either obtain the lock immediately and return true
-      # or return false if the lock cannot be acquired immediately
-      sql = "SELECT pg_try_advisory_lock(#{lock_keys.join(',')}) #{query_cache_buster}"
-      't' == connection.select_value(sql).to_s
+      execute_successful?('pg_try_advisory_lock')
     end
 
     def release_lock
-      sql = "SELECT pg_advisory_unlock(#{lock_keys.join(',')}) #{query_cache_buster}"
+      execute_successful?('pg_advisory_unlock')
+    end
+
+    def execute_successful?(pg_function)
+      sql = "SELECT #{pg_function}(#{lock_keys.join(',')}) AS #{unique_column_name}"
       't' == connection.select_value(sql).to_s
     end
 

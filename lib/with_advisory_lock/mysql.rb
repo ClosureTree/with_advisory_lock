@@ -7,20 +7,15 @@ module WithAdvisoryLock
           "MySQL doesn't support nested Advisory Locks",
           lock_stack.dup)
       end
-      # Returns 1 if the lock was obtained successfully,
-      # 0 if the attempt timed out (for example, because another client has
-      # previously locked the name), or NULL if an error occurred
-      # (such as running out of memory or the thread was killed with mysqladmin kill).
-      sql = "SELECT GET_LOCK(#{quoted_lock_str}, 0) #{query_cache_buster}"
-      connection.select_value(sql).to_i > 0
+      execute_successful?("GET_LOCK(#{quoted_lock_str}, 0)")
     end
 
     def release_lock
-      # Returns > 0 if the lock was released,
-      # 0 if the lock was not established by this thread
-      # (in which case the lock is not released), and
-      # NULL if the named lock did not exist.
-      sql = "SELECT RELEASE_LOCK(#{quoted_lock_str}) #{query_cache_buster}"
+      execute_successful?("RELEASE_LOCK(#{quoted_lock_str})")
+    end
+
+    def execute_successful?(mysql_function)
+      sql = "SELECT #{mysql_function} AS #{unique_column_name}"
       connection.select_value(sql).to_i > 0
     end
 

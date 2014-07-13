@@ -1,12 +1,8 @@
-# Tried desperately to monkeypatch the polymorphic connection object,
-# but rails autoloading is too clever by half. Pull requests are welcome.
-
 require 'active_support/concern'
 
 module WithAdvisoryLock
   module Concern
     extend ActiveSupport::Concern
-
     delegate :with_advisory_lock, :advisory_lock_exists?, to: 'self.class'
 
     module ClassMethods
@@ -17,7 +13,7 @@ module WithAdvisoryLock
 
       def advisory_lock_exists?(lock_name)
         impl = impl_class.new(connection, lock_name, 0)
-        impl.already_locked? || !impl.yield_with_lock { true }
+        impl.already_locked? || !impl.yield_with_lock.lock_was_acquired?
       end
 
       def current_advisory_lock
@@ -27,12 +23,12 @@ module WithAdvisoryLock
       private
 
       def impl_class
-        case WithAdvisoryLock::DatabaseAdapterSupport.new(connection).adapter
-        when :postgresql
+        adapter = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
+        if adapter.postgresql?
           WithAdvisoryLock::PostgreSQL
-        when :mysql
+        elsif adapter.mysql?
           WithAdvisoryLock::MySQL
-        else #sqlite
+        else
           WithAdvisoryLock::Flock
         end
       end
