@@ -28,6 +28,5 @@ matrix:
     - gemfile: gemfiles/activerecord_edge.gemfile
     - rvm: rbx-2
     - rvm: jruby-head-19mode
-      env:
-        - DB=postgresql
+      env: DB=postgresql
 
