@@ -24,8 +24,8 @@ rescue LoadError
 end
 require 'minitest/autorun'
 require 'minitest/great_expectations'
-require 'minitest/reporters'
-Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
+# require 'minitest/reporters'
+# Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 require 'mocha/setup'
 
