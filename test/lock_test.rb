@@ -4,7 +4,7 @@ describe 'class methods' do
   let(:lock_name) { "test lock #{rand(1024)}" }
 
   describe '.current_advisory_lock' do
-    it "returns nil outside an advisory lock request" do
+    it 'returns nil outside an advisory lock request' do
       Tag.current_advisory_lock.must_be_nil
     end
 
@@ -17,7 +17,7 @@ describe 'class methods' do
   end
 
   describe '.advisory_lock_exists?' do
-    it "returns false for an unacquired lock" do
+    it 'returns false for an unacquired lock' do
       Tag.advisory_lock_exists?(lock_name).must_be_false
     end
 
@@ -28,12 +28,19 @@ describe 'class methods' do
     end
   end
 
-  describe "zero timeout_seconds" do
+  describe 'zero timeout_seconds' do
     it 'attempts the lock exactly once with no timeout' do
       expected = SecureRandom.base64
       Tag.with_advisory_lock(lock_name, 0) do
         expected
       end.must_equal expected
+    end
+  end
+
+  describe 'yield_with_lock' do
+    it 'does not yield to block if try_lock returns false' do
+      Tag.expects(:try_lock).returns(false)
+      Tag.with_advisory_lock(lock_name, 0).must_be_
     end
   end
 end

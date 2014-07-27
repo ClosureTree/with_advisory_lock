@@ -40,11 +40,11 @@ module WithAdvisoryLock
 
     def with_advisory_lock_if_needed(&block)
       if already_locked?
-        yield
+        Result.new(true, yield)
       elsif timeout_seconds == 0
-        yield_with_lock(&block).result
+        yield_with_lock(&block)
       else
-        yield_with_lock_and_timeout(&block).result
+        yield_with_lock_and_timeout(&block)
       end
     end
 
@@ -56,12 +56,6 @@ module WithAdvisoryLock
         # make sure we use a deterministic hash.
         Zlib.crc32(input.to_s)
       end
-    end
-
-    def advisory_lock_exists?
-      acquired_lock = try_lock
-    ensure
-      release_lock if acquired_lock
     end
 
     def yield_with_lock_and_timeout(&block)
@@ -77,12 +71,14 @@ module WithAdvisoryLock
 
     def yield_with_lock
       if try_lock
+        puts "#{Thread.current} got lock #{lock_str}"
         begin
           lock_stack.push(lock_str)
           result = block_given? ? yield : nil
           Result.new(true, result)
         ensure
           lock_stack.pop
+          puts "#{Thread.current} releasing lock #{lock_str}"
           release_lock
         end
       else

@@ -41,9 +41,14 @@ A value of zero will try the lock only once. If the lock is acquired, the block
 will be yielded to. If the lock is currently being held, the block will not be called.
 
 Note that if a non-nil value is provided for `timeout_seconds`, the block will not be invoked if
-the lock cannot be acquired within that timeframe.
+the lock cannot be acquired within that time-frame.
 
 ### Return values
+
+The return value of `with_advisory_lock_result` is a `WithAdvisoryLock::Result` instance,
+which has a `lock_was_acquired?` method and a `result` accessor method, which is
+the returned value of the given block. If your block may validly return false, you should use
+this method.
  
 The return value of ```with_advisory_lock``` will be the result of the yielded block,
 if the lock was able to be acquired and the block yielded, or ```false```, if you provided
@@ -134,6 +139,16 @@ end
 
 ## Changelog
 
+### 3.0.0
+
+* `yield_with_lock_and_timeout` and `yield_with_lock` now return instances of
+  `WithAdvisoryLock::Result`, so blocks that return `false` are not misinterpreted
+  as a failure to lock. As this changes the interface (albeit internal methods), the major version
+  number was incremented.
+* `with_advisory_lock_result` was introduced, which clarifies whether the lock was acquired
+  versus the yielded block returned false.  
+  
+ 
 ### 2.0.0
 
 * Lock timeouts of 0 now attempt the lock once, as per suggested by 

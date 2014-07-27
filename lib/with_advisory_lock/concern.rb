@@ -7,6 +7,10 @@ module WithAdvisoryLock
 
     module ClassMethods
       def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
+        with_advisory_lock_result(lock_name, timeout_seconds=nil, &block).result
+      end
+
+      def with_advisory_lock_result(lock_name, timeout_seconds=nil, &block)
         impl = impl_class.new(connection, lock_name, timeout_seconds)
         impl.with_advisory_lock_if_needed(&block)
       end
