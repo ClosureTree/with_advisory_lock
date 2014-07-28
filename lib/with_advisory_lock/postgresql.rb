@@ -11,7 +11,9 @@ module WithAdvisoryLock
 
     def execute_successful?(pg_function)
       sql = "SELECT #{pg_function}(#{lock_keys.join(',')}) AS #{unique_column_name}"
-      't' == connection.select_value(sql).to_s
+      result = connection.select_value(sql)
+      # MRI returns 't', jruby returns true. YAY!
+      result == 't' || !!result
     end
 
     # PostgreSQL wants 2 32bit integers as the lock key.

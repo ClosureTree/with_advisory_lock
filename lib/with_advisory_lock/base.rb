@@ -30,6 +30,7 @@ module WithAdvisoryLock
     end
 
     def self.lock_stack
+      # access doesn't need to be synchronized as it is only accessed by the current thread.
       Thread.current[:with_advisory_lock_stack] ||= []
     end
     delegate :lock_stack, to: 'self.class'
@@ -71,14 +72,12 @@ module WithAdvisoryLock
 
     def yield_with_lock
       if try_lock
-        puts "#{Thread.current} got lock #{lock_str}"
         begin
           lock_stack.push(lock_str)
           result = block_given? ? yield : nil
           Result.new(true, result)
         ensure
           lock_stack.pop
-          puts "#{Thread.current} releasing lock #{lock_str}"
           release_lock
         end
       else

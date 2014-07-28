@@ -7,7 +7,8 @@ module WithAdvisoryLock
 
     module ClassMethods
       def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
-        with_advisory_lock_result(lock_name, timeout_seconds=nil, &block).result
+        result = with_advisory_lock_result(lock_name, timeout_seconds, &block)
+        result.lock_was_acquired? ? result.result : false
       end
 
       def with_advisory_lock_result(lock_name, timeout_seconds=nil, &block)

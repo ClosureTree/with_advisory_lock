@@ -1,7 +1,7 @@
 require 'minitest_helper'
 
 describe 'class methods' do
-  let(:lock_name) { "test lock #{rand(1024)}" }
+  let(:lock_name) { 'test lock' }
 
   describe '.current_advisory_lock' do
     it 'returns nil outside an advisory lock request' do
@@ -34,13 +34,6 @@ describe 'class methods' do
       Tag.with_advisory_lock(lock_name, 0) do
         expected
       end.must_equal expected
-    end
-  end
-
-  describe 'yield_with_lock' do
-    it 'does not yield to block if try_lock returns false' do
-      Tag.expects(:try_lock).returns(false)
-      Tag.with_advisory_lock(lock_name, 0).must_be_
     end
   end
 end
