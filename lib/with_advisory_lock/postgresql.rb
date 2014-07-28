@@ -13,7 +13,7 @@ module WithAdvisoryLock
       sql = "SELECT #{pg_function}(#{lock_keys.join(',')}) AS #{unique_column_name}"
       result = connection.select_value(sql)
       # MRI returns 't', jruby returns true. YAY!
-      result == 't' || !!result
+      (result == 't' || result == true)
     end
 
     # PostgreSQL wants 2 32bit integers as the lock key.
