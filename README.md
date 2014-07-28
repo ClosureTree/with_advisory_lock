@@ -141,13 +141,17 @@ end
 
 ### 3.0.0
 
+* Added jruby/PostgreSQL support for Rails 4.x 
+* Reworked threaded tests to allow jruby tests to pass
+
+#### API changes
+
 * `yield_with_lock_and_timeout` and `yield_with_lock` now return instances of
   `WithAdvisoryLock::Result`, so blocks that return `false` are not misinterpreted
   as a failure to lock. As this changes the interface (albeit internal methods), the major version
   number was incremented.
 * `with_advisory_lock_result` was introduced, which clarifies whether the lock was acquired
   versus the yielded block returned false.  
-  
  
 ### 2.0.0
 
