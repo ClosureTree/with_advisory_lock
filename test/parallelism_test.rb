@@ -40,12 +40,10 @@ describe 'parallelism' do
       until workers.all? { |ea| ea.status == 'sleep' }
         sleep(0.1)
       end
-
       # OK, GO!
-      workers.each { |ea| ea.wakeup }
-
+      workers.each(&:wakeup)
       # Then wait for them to finish:
-      workers.each { |ea| ea.join }
+      workers.each(&:join)
     end
     # Ensure we're still connected:
     ActiveRecord::Base.connection_pool.connection
