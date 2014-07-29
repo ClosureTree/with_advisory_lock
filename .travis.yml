@@ -1,7 +1,7 @@
 language: ruby
 
 rvm:
-  - jruby-19mode
+  - jruby-head-19mode
   - 2.1.2
   - 1.9.3
 # TODO  - rbx-2
