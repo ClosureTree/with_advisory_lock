@@ -4,7 +4,7 @@ require 'forwardable'
 describe 'parallelism' do
   class FindOrCreateWorker
     extend Forwardable
-    def_delegators :@thread, :join, :wakeup, :join, :status, :to_s
+    def_delegators :@thread, :join, :wakeup, :status, :to_s
 
     def initialize(name, use_advisory_lock)
       @name = name
@@ -72,4 +72,3 @@ describe 'parallelism' do
     Label.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
   end
 end
-
