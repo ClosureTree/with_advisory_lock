@@ -13,8 +13,8 @@ describe 'parallelism' do
     end
 
     def work_later
+      sleep
       ActiveRecord::Base.connection_pool.with_connection do
-        sleep
         if @use_advisory_lock
           Tag.with_advisory_lock(@name) { work }
         else
