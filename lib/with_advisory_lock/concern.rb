@@ -33,6 +33,8 @@ module WithAdvisoryLock
           WithAdvisoryLock::PostgreSQL
         elsif adapter.mysql?
           WithAdvisoryLock::MySQL
+        elsif adapter.sqlserver?
+          WithAdvisoryLock::SQLServer
         else
           WithAdvisoryLock::Flock
         end

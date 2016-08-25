@@ -10,6 +10,7 @@ module WithAdvisoryLock
   autoload :MySQL, 'with_advisory_lock/mysql'
   autoload :NestedAdvisoryLockError
   autoload :PostgreSQL, 'with_advisory_lock/postgresql'
+  autoload :SQLServer, 'with_advisory_lock/sqlserver'
 end
 
 ActiveSupport.on_load :active_record do

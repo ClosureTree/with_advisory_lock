@@ -15,5 +15,9 @@ module WithAdvisoryLock
     def sqlite?
       :sqlite3 == @sym_name
     end
+
+    def sqlserver?
+      :sqlserver == @sym_name
+    end
   end
 end

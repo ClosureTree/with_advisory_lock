@@ -9,12 +9,14 @@ platforms :ruby do
   gem "mysql2"
   gem "pg"
   gem "sqlite3"
+  gem 'activerecord-sqlserver-adapter'
 end
 
 platforms :jruby do
   gem "activerecord-jdbcmysql-adapter"
   gem "activerecord-jdbcpostgresql-adapter"
   gem "activerecord-jdbcsqlite3-adapter"
+  gem 'activerecord-sqlserver-adapter'
 end
 
 gemspec :path => "../"
