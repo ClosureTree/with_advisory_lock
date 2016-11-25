@@ -2,17 +2,11 @@ module WithAdvisoryLock
   class PostgreSQL < Base
     # See http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
     def try_lock
-      if connection.open_transactions > 0
-        execute_successful?('pg_try_advisory_xact_lock')
-      else
-        execute_successful?('pg_try_advisory_lock')
-      end
+      execute_successful?('pg_try_advisory_lock')
     end
 
     def release_lock
-      if connection.open_transactions <= 0
-        execute_successful?('pg_advisory_unlock')
-      end
+      execute_successful?('pg_advisory_unlock')
     end
 
     def execute_successful?(pg_function)
