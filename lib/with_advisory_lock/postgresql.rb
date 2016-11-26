@@ -7,6 +7,14 @@ module WithAdvisoryLock
 
     def release_lock
       execute_successful?('pg_advisory_unlock')
+    rescue ActiveRecord::StatementInvalid => e
+      raise unless e.message =~ / ERROR: +current transaction is aborted,/
+      begin
+        connection.rollback_db_transaction
+        execute_successful?('pg_advisory_unlock')
+      ensure
+        connection.begin_db_transaction
+      end
     end
 
     def execute_successful?(pg_function)

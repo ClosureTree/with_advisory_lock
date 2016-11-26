@@ -23,5 +23,20 @@ describe 'transaction scoping' do
         pg_lock_count.must_equal 0
       end
     end
+
+    specify 'session locks release when transaction fails inside block' do
+      Tag.transaction do
+        pg_lock_count.must_equal 0
+
+        exception = proc {
+          Tag.with_advisory_lock 'test' do
+            Tag.connection.execute 'SELECT 1/0;'
+          end
+        }.must_raise ActiveRecord::StatementInvalid
+        exception.message.must_include 'division by zero'
+
+        pg_lock_count.must_equal 0
+      end
+    end
   end
 end
