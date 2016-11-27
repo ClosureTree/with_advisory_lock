@@ -6,13 +6,13 @@ module WithAdvisoryLock
     delegate :with_advisory_lock, :advisory_lock_exists?, to: 'self.class'
 
     module ClassMethods
-      def with_advisory_lock(lock_name, timeout_seconds=nil, &block)
-        result = with_advisory_lock_result(lock_name, timeout_seconds, &block)
+      def with_advisory_lock(lock_name, options={}, &block)
+        result = with_advisory_lock_result(lock_name, options, &block)
         result.lock_was_acquired? ? result.result : false
       end
 
-      def with_advisory_lock_result(lock_name, timeout_seconds=nil, &block)
-        impl = impl_class.new(connection, lock_name, timeout_seconds)
+      def with_advisory_lock_result(lock_name, options={}, &block)
+        impl = impl_class.new(connection, lock_name, options)
         impl.with_advisory_lock_if_needed(&block)
       end
 

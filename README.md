@@ -34,14 +34,16 @@ end
 
 ### Lock wait timeouts
 
-The second parameter for ```with_advisory_lock``` is ```timeout_seconds```, and defaults to ```nil```,
-which means wait indefinitely for the lock.
+```with_advisory_lock``` takes an options hash as the second parameter.
+The ```timeout_seconds``` option defaults to ```nil```, which means wait indefinitely for the lock.
 
 A value of zero will try the lock only once. If the lock is acquired, the block
 will be yielded to. If the lock is currently being held, the block will not be called.
 
 Note that if a non-nil value is provided for `timeout_seconds`, the block will not be invoked if
 the lock cannot be acquired within that time-frame.
+
+For backwards compatability, the timeout value can be specified directly as the second parameter.
 
 ### Return values
 

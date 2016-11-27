@@ -19,10 +19,13 @@ module WithAdvisoryLock
   class Base
     attr_reader :connection, :lock_name, :timeout_seconds
 
-    def initialize(connection, lock_name, timeout_seconds)
+    def initialize(connection, lock_name, options)
+      options = {timeout_seconds: options} unless options.respond_to?(:fetch)
+      options.assert_valid_keys :timeout_seconds
+
       @connection = connection
       @lock_name = lock_name
-      @timeout_seconds = timeout_seconds
+      @timeout_seconds = options.fetch(:timeout_seconds, nil)
     end
 
     def lock_str
