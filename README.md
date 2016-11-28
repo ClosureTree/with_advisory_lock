@@ -45,6 +45,14 @@ the lock cannot be acquired within that time-frame.
 
 For backwards compatability, the timeout value can be specified directly as the second parameter.
 
+### Shared locks
+
+The ```shared``` option defaults to ```false``` which means an exclusive lock will be obtained.
+Setting ```shared``` to ```true``` will allow locks to be obtained by multiple actors
+as long as they are all shared locks.
+
+Note: MySQL does not support shared locks.
+
 ### Return values
 
 The return value of `with_advisory_lock_result` is a `WithAdvisoryLock::Result` instance,

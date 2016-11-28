@@ -20,7 +20,7 @@ module WithAdvisoryLock
     end
 
     def try_lock
-      0 == file_io.flock(File::LOCK_EX|File::LOCK_NB)
+      0 == file_io.flock((shared ? File::LOCK_SH : File::LOCK_EX) | File::LOCK_NB)
     end
 
     def release_lock
