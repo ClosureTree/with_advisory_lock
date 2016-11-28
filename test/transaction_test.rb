@@ -5,6 +5,23 @@ describe 'transaction scoping' do
     env_db == :postgresql
   end
 
+  describe 'not supported' do
+    before do
+      skip if supported?
+    end
+
+    it 'raises an error when attempting to use transaction level locks' do
+      Tag.transaction do
+        exception = proc {
+          Tag.with_advisory_lock 'test', transaction: true do
+            raise 'should not get here'
+          end
+        }.must_raise ArgumentError
+        exception.message.must_include 'not supported'
+      end
+    end
+  end
+
   describe 'supported' do
     before do
       skip unless env_db == :postgresql
@@ -37,6 +54,17 @@ describe 'transaction scoping' do
 
         pg_lock_count.must_equal 0
       end
+    end
+
+    specify 'transaction level locks hold until the transaction completes' do
+      Tag.transaction do
+        pg_lock_count.must_equal 0
+        Tag.with_advisory_lock 'test', transaction: true do
+          pg_lock_count.must_equal 1
+        end
+        pg_lock_count.must_equal 1
+      end
+      pg_lock_count.must_equal 0
     end
   end
 end

@@ -2,11 +2,12 @@ module WithAdvisoryLock
   class PostgreSQL < Base
     # See http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
     def try_lock
-      pg_function = "pg_try_advisory_lock#{shared ? '_shared' : ''}"
+      pg_function = "pg_try_advisory#{transaction ? '_xact' : ''}_lock#{shared ? '_shared' : ''}"
       execute_successful?(pg_function)
     end
 
     def release_lock
+      return if transaction
       pg_function = "pg_advisory_unlock#{shared ? '_shared' : ''}"
       execute_successful?(pg_function)
     rescue ActiveRecord::StatementInvalid => e

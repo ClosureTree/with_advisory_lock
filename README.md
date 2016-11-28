@@ -53,6 +53,13 @@ as long as they are all shared locks.
 
 Note: MySQL does not support shared locks.
 
+### Transaction-level locks
+
+PostgreSQL supports transaction-level locks which remain held until the transaction completes.
+You can enable this by setting the ```transaction``` option to ```true```.
+
+Note: transaction-level locks will not be reflected by `.current_advisory_lock` when the block has returned.
+
 ### Return values
 
 The return value of `with_advisory_lock_result` is a `WithAdvisoryLock::Result` instance,

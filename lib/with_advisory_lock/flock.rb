@@ -20,6 +20,9 @@ module WithAdvisoryLock
     end
 
     def try_lock
+      if transaction
+        raise ArgumentError, 'transaction level locks are not supported on SQLite'
+      end
       0 == file_io.flock((shared ? File::LOCK_SH : File::LOCK_EX) | File::LOCK_NB)
     end
 

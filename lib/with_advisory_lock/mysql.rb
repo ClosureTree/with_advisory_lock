@@ -10,6 +10,9 @@ module WithAdvisoryLock
       if shared
         raise ArgumentError, 'shared locks are not supported on MySQL'
       end
+      if transaction
+        raise ArgumentError, 'transaction level locks are not supported on MySQL'
+      end
       execute_successful?("GET_LOCK(#{quoted_lock_str}, 0)")
     end
 

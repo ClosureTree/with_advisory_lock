@@ -17,16 +17,17 @@ module WithAdvisoryLock
   FAILED_TO_LOCK = Result.new(false)
 
   class Base
-    attr_reader :connection, :lock_name, :timeout_seconds, :shared
+    attr_reader :connection, :lock_name, :timeout_seconds, :shared, :transaction
 
     def initialize(connection, lock_name, options)
       options = {timeout_seconds: options} unless options.respond_to?(:fetch)
-      options.assert_valid_keys :timeout_seconds, :shared
+      options.assert_valid_keys :timeout_seconds, :shared, :transaction
 
       @connection = connection
       @lock_name = lock_name
       @timeout_seconds = options.fetch(:timeout_seconds, nil)
       @shared = options.fetch(:shared, false)
+      @transaction = options.fetch(:transaction, false)
     end
 
     def lock_str
