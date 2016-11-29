@@ -4,7 +4,7 @@ gemspec
 
 platforms :ruby do
   gem 'mysql2'
-  gem 'pg'
+  gem 'pg', '< 0.19' # 0.19 requires Ruby 2.0+
   gem 'sqlite3'
 end
 

@@ -7,7 +7,7 @@ gem "arel", :github => "rails/arel"
 
 platforms :ruby do
   gem "mysql2"
-  gem "pg"
+  gem "pg", "< 0.19"
   gem "sqlite3"
 end
 

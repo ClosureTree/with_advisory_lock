@@ -6,7 +6,7 @@ gem "activerecord", "~> 3.2.0"
 
 platforms :ruby do
   gem "mysql2"
-  gem "pg"
+  gem "pg", "< 0.19"
   gem "sqlite3"
 end
 
