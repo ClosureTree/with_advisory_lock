@@ -22,7 +22,8 @@ module WithAdvisoryLock
       end
 
       def current_advisory_lock
-        WithAdvisoryLock::Base.lock_stack.first
+        lock_stack_key = WithAdvisoryLock::Base.lock_stack.first
+        lock_stack_key && lock_stack_key[0]
       end
 
       private

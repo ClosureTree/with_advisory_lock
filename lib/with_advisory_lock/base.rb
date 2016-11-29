@@ -16,6 +16,8 @@ module WithAdvisoryLock
 
   FAILED_TO_LOCK = Result.new(false)
 
+  LockStackItem = Struct.new(:name, :shared)
+
   class Base
     attr_reader :connection, :lock_name, :timeout_seconds, :shared, :transaction
 
@@ -34,6 +36,10 @@ module WithAdvisoryLock
       @lock_str ||= "#{ENV['WITH_ADVISORY_LOCK_PREFIX'].to_s}#{lock_name.to_s}"
     end
 
+    def lock_stack_item
+      @lock_stack_item ||= LockStackItem.new(lock_str, shared)
+    end
+
     def self.lock_stack
       # access doesn't need to be synchronized as it is only accessed by the current thread.
       Thread.current[:with_advisory_lock_stack] ||= []
@@ -41,7 +47,7 @@ module WithAdvisoryLock
     delegate :lock_stack, to: 'self.class'
 
     def already_locked?
-      lock_stack.include? lock_str
+      lock_stack.include? lock_stack_item
     end
 
     def with_advisory_lock_if_needed(&block)
@@ -78,7 +84,7 @@ module WithAdvisoryLock
     def yield_with_lock
       if try_lock
         begin
-          lock_stack.push(lock_str)
+          lock_stack.push(lock_stack_item)
           result = block_given? ? yield : nil
           Result.new(true, result)
         ensure

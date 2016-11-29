@@ -106,5 +106,26 @@ describe 'shared locks' do
       one.cleanup!
       two.cleanup!
     end
+
+    describe 'PostgreSQL' do
+      before do
+        skip unless env_db == :postgresql
+      end
+
+      def pg_lock_modes
+        ActiveRecord::Base.connection.select_values("SELECT mode FROM pg_locks WHERE locktype = 'advisory';")
+      end
+
+      it 'allows shared lock to be upgraded to an exclusive lock' do
+        pg_lock_modes.must_equal %w[]
+        Tag.with_advisory_lock 'test', shared: true do
+          pg_lock_modes.must_equal %w[ShareLock]
+          Tag.with_advisory_lock 'test', shared: false do
+            pg_lock_modes.must_equal %w[ShareLock ExclusiveLock]
+          end
+        end
+        pg_lock_modes.must_equal %w[]
+      end
+    end
   end
 end

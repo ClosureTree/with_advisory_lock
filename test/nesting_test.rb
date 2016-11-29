@@ -15,12 +15,12 @@ describe "lock nesting" do
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
     impl.lock_stack.must_be_empty
     Tag.with_advisory_lock("first") do
-      impl.lock_stack.must_equal %w(first)
+      impl.lock_stack.map(&:name).must_equal %w(first)
       # Even MySQL should be OK with this:
       Tag.with_advisory_lock("first") do
-        impl.lock_stack.must_equal %w(first)
+        impl.lock_stack.map(&:name).must_equal %w(first)
       end
-      impl.lock_stack.must_equal %w(first)
+      impl.lock_stack.map(&:name).must_equal %w(first)
     end
     impl.lock_stack.must_be_empty
   end
@@ -33,7 +33,7 @@ describe "lock nesting" do
         end
       end
     }.must_raise WithAdvisoryLock::NestedAdvisoryLockError
-    exc.lock_stack.must_equal %w(first)
+    exc.lock_stack.map(&:name).must_equal %w(first)
   end
 
   it "supports nested advisory locks with !MySQL" do
@@ -41,19 +41,19 @@ describe "lock nesting" do
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
     impl.lock_stack.must_be_empty
     Tag.with_advisory_lock("first") do
-      impl.lock_stack.must_equal %w(first)
+      impl.lock_stack.map(&:name).must_equal %w(first)
       Tag.with_advisory_lock("second") do
-        impl.lock_stack.must_equal %w(first second)
+        impl.lock_stack.map(&:name).must_equal %w(first second)
         Tag.with_advisory_lock("first") do
           # Shouldn't ask for another lock:
-          impl.lock_stack.must_equal %w(first second)
+          impl.lock_stack.map(&:name).must_equal %w(first second)
           Tag.with_advisory_lock("second") do
             # Shouldn't ask for another lock:
-            impl.lock_stack.must_equal %w(first second)
+            impl.lock_stack.map(&:name).must_equal %w(first second)
           end
         end
       end
-      impl.lock_stack.must_equal %w(first)
+      impl.lock_stack.map(&:name).must_equal %w(first)
     end
     impl.lock_stack.must_be_empty
   end

@@ -27,7 +27,7 @@ module WithAdvisoryLock
 
     # MySQL doesn't support nested locks:
     def already_locked?
-      lock_stack.last == lock_str
+      lock_stack.last == lock_stack_item
     end
 
     # MySQL wants a string as the lock key.
