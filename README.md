@@ -8,7 +8,6 @@ SQLite resorts to file locking.
 [![Build Status](https://api.travis-ci.org/mceachen/with_advisory_lock.svg?branch=master)](http://travis-ci.org/mceachen/with_advisory_lock)
 [![Gem Version](https://badge.fury.io/rb/with_advisory_lock.svg)](https://badge.fury.io/rb/with_advisory_lock)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d3ad09915b964e128b0387000c2c2fcd)](https://www.codacy.com/app/matthew-github/with_advisory_lock?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mceachen/with_advisory_lock&amp;utm_campaign=Badge_Grade)
-[![Dependency Status](https://gemnasium.com/badges/github.com/mceachen/with_advisory_lock.svg)](https://gemnasium.com/github.com/mceachen/with_advisory_lock)
 
 ## What's an "Advisory Lock"?
 
