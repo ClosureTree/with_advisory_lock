@@ -1,6 +1,6 @@
 # with_advisory_lock
 
-Adds advisory locking (mutexes) to ActiveRecord 3.2, 4.0 and 4.1 when used with
+Adds advisory locking (mutexes) to ActiveRecord 4.2 and 5.0, with ruby 2.4, 2.3 or 2.2, when used with
 [MySQL](http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_get-lock)
 or [PostgreSQL](http://www.postgresql.org/docs/9.3/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
 SQLite resorts to file locking.
@@ -159,6 +159,12 @@ end
 ```
 
 ## Changelog
+
+### 3.1.0
+
+* [Jason Weathered](https://github.com/jasoncodes) Added new shared and transaction-level lock options ([Pull request 21](https://github.com/mceachen/with_advisory_lock/pull/21)). Thanks!
+* Added ActiveRecord 5.0 to build matrix. Dropped 3.2, 4.0, and 4.1 (which no longer get security updates: http://rubyonrails.org/security/)
+* Replaced ruby 1.9 and 2.0 (both EOL) with ruby 2.2 and 2.3 (see https://www.ruby-lang.org/en/downloads/)
 
 ### 3.0.0
 

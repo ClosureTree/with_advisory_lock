@@ -1,7 +1,7 @@
 #!/bin/bash -e
 export DB
 
-for RUBY in 2.1.2 jruby-1.7.13 ; do
+for RUBY in 2.4.0 jruby-1.7.13 ; do
   rbenv local $RUBY
   for DB in mysql postgresql sqlite ; do
     echo "$DB | $(ruby -v)"
