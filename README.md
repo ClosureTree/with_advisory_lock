@@ -5,9 +5,8 @@ Adds advisory locking (mutexes) to ActiveRecord 4.2 and 5.0, with ruby 2.4, 2.3 
 or [PostgreSQL](http://www.postgresql.org/docs/9.3/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
 SQLite resorts to file locking.
 
-[![Build Status](https://api.travis-ci.org/mceachen/with_advisory_lock.svg?branch=master)](http://travis-ci.org/mceachen/with_advisory_lock)
+[![Build Status](https://api.travis-ci.org/ClosureTree/with_advisory_lock.svg?branch=master)](http://travis-ci.org/ClosureTree/with_advisory_lock)
 [![Gem Version](https://badge.fury.io/rb/with_advisory_lock.svg)](https://badge.fury.io/rb/with_advisory_lock)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d3ad09915b964e128b0387000c2c2fcd)](https://www.codacy.com/app/matthew-github/with_advisory_lock?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mceachen/with_advisory_lock&amp;utm_campaign=Badge_Grade)
 
 ## What's an "Advisory Lock"?
 
@@ -113,7 +112,7 @@ most commonly used lock.**
 
 ### Table-level locks
 
-Provided through something like the [monogamy](https://github.com/mceachen/monogamy)
+Provided through something like the [monogamy](https://github.com/ClosureTree/monogamy)
 gem, these prevent concurrent access to **any instance of a model**. Their coarseness means they
 aren't going to be commonly applicable, and they can be a source of
 [deadlocks](http://en.wikipedia.org/wiki/Deadlock).
@@ -135,12 +134,12 @@ lock again, and the block given will be yielded to.
 
 ### Is clustered MySQL supported?
 
-[No.](https://github.com/mceachen/with_advisory_lock/issues/16)
+[No.](https://github.com/ClosureTree/with_advisory_lock/issues/16)
 
 ### There are many ```lock-*``` files in my project directory after test runs
 
 This is expected if you aren't using MySQL or Postgresql for your tests.
-See [issue 3](https://github.com/mceachen/with_advisory_lock/issues/3).
+See [issue 3](https://github.com/ClosureTree/with_advisory_lock/issues/3).
 
 SQLite doesn't have advisory locks, so we resort to file locking, which will only work
 if the ```FLOCK_DIR``` is set consistently for all ruby processes.
@@ -161,7 +160,7 @@ end
 
 ### 3.1.0
 
-* [Jason Weathered](https://github.com/jasoncodes) Added new shared and transaction-level lock options ([Pull request 21](https://github.com/mceachen/with_advisory_lock/pull/21)). Thanks!
+* [Jason Weathered](https://github.com/jasoncodes) Added new shared and transaction-level lock options ([Pull request 21](https://github.com/ClosureTree/with_advisory_lock/pull/21)). Thanks!
 * Added ActiveRecord 5.0 to build matrix. Dropped 3.2, 4.0, and 4.1 (which no longer get security updates: http://rubyonrails.org/security/)
 * Replaced ruby 1.9 and 2.0 (both EOL) with ruby 2.2 and 2.3 (see https://www.ruby-lang.org/en/downloads/)
 
@@ -184,7 +183,7 @@ end
 * Lock timeouts of 0 now attempt the lock once, as per suggested by 
   [Jon Leighton](https://github.com/jonleighton) and implemented by 
   [Abdelkader Boudih](https://github.com/seuros). Thanks to both of you!
-* [Pull request 11](https://github.com/mceachen/with_advisory_lock/pull/11) 
+* [Pull request 11](https://github.com/ClosureTree/with_advisory_lock/pull/11) 
   fixed a downstream issue with jruby support! Thanks, [Aaron Todd](https://github.com/ozzyaaron)!
 * Added Travis tests for jruby
 * Dropped support for Rails 3.0, 3.1, and Ruby 1.8.7, as they are no longer
@@ -206,9 +205,9 @@ end
 
 ### 0.0.9
 
-* Merged in Postgis Adapter Support to address [issue 7](https://github.com/mceachen/with_advisory_lock/issues/7)
+* Merged in Postgis Adapter Support to address [issue 7](https://github.com/ClosureTree/with_advisory_lock/issues/7)
   Thanks for the pull request, [Abdelkader Boudih](https://github.com/seuros)!
-* The database switching code had to be duplicated by [Closure Tree](https://github.com/mceachen/closure_tree),
+* The database switching code had to be duplicated by [Closure Tree](https://github.com/ClosureTree/closure_tree),
   so I extracted a new ```WithAdvisoryLock::DatabaseAdapterSupport``` one-trick pony.
 * Builds were failing on Travis, so I introduced a global lock prefix that can be set with the
   ```WITH_ADVISORY_LOCK_PREFIX``` environment variable. I'm not going to advertise this feature yet.
@@ -216,13 +215,13 @@ end
 
 ### 0.0.8
 
-* Addressed [issue 5](https://github.com/mceachen/with_advisory_lock/issues/5) by
+* Addressed [issue 5](https://github.com/ClosureTree/with_advisory_lock/issues/5) by
   using a deterministic hash for Postgresql + MRI >= 1.9.
   Thanks for the pull request, [Joel Turkel](https://github.com/jturkel)!
-* Addressed [issue 2](https://github.com/mceachen/with_advisory_lock/issues/2) by
+* Addressed [issue 2](https://github.com/ClosureTree/with_advisory_lock/issues/2) by
   using a cache-busting query for MySQL and Postgres to deal with AR value caching bug.
   Thanks for the pull request, [Jaime Giraldo](https://github.com/sposmen)!
-* Addressed [issue 4](https://github.com/mceachen/with_advisory_lock/issues/4) by
+* Addressed [issue 4](https://github.com/ClosureTree/with_advisory_lock/issues/4) by
   adding support for ```em-postgresql-adapter```.
   Thanks, [lestercsp](https://github.com/lestercsp)!
 
