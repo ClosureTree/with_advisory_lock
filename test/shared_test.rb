@@ -57,7 +57,7 @@ describe 'shared locks' do
 
     it 'raises an error when attempting to use a shared lock' do
       one = SharedTestWorker.new(true)
-      one.locked?.must_equal nil
+      one.locked?.must_be_nil
       exception = proc {
         one.cleanup!
       }.must_raise ArgumentError
