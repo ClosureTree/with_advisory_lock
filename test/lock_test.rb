@@ -11,7 +11,7 @@ describe 'class methods' do
     it 'returns the name of the last lock acquired' do
       Tag.with_advisory_lock(lock_name) do
         # The lock name may have a prefix if WITH_ADVISORY_LOCK_PREFIX env is set
-        Tag.current_advisory_lock.must_match /#{lock_name}/
+        Tag.current_advisory_lock.must_match(/#{lock_name}/)
       end
     end
   end

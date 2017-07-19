@@ -7,14 +7,14 @@ describe 'options parsing' do
 
   specify 'defaults (empty hash)' do
     impl = parse_options({})
-    impl.timeout_seconds.must_equal nil
+    impl.timeout_seconds.must_be_nil
     impl.shared.must_equal false
     impl.transaction.must_equal false
   end
 
   specify 'nil sets timeout to nil' do
     impl = parse_options(nil)
-    impl.timeout_seconds.must_equal nil
+    impl.timeout_seconds.must_be_nil
     impl.shared.must_equal false
     impl.transaction.must_equal false
   end
@@ -41,14 +41,14 @@ describe 'options parsing' do
 
   specify 'hash with shared option sets shared to true' do
     impl = parse_options(shared: true)
-    impl.timeout_seconds.must_equal nil
+    impl.timeout_seconds.must_be_nil
     impl.shared.must_equal true
     impl.transaction.must_equal false
   end
 
   specify 'hash with transaction option set transaction to true' do
     impl = parse_options(transaction: true)
-    impl.timeout_seconds.must_equal nil
+    impl.timeout_seconds.must_be_nil
     impl.shared.must_equal false
     impl.transaction.must_equal true
   end
