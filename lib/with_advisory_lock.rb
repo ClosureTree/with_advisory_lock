@@ -1,4 +1,5 @@
 require 'with_advisory_lock/version'
+require 'active_support'
 
 module WithAdvisoryLock
   extend ActiveSupport::Autoload
