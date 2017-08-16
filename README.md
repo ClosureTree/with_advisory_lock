@@ -158,6 +158,10 @@ end
 
 ## Changelog
 
+### 3.1.1
+
+* [Joel Turkel](https://github.com/jturkel) added `require 'active_support'` (it was required, but relied on downstream gems to pull in active_support before pulling in with_advisory_lock). Thanks!
+
 ### 3.1.0
 
 * [Jason Weathered](https://github.com/jasoncodes) Added new shared and transaction-level lock options ([Pull request 21](https://github.com/ClosureTree/with_advisory_lock/pull/21)). Thanks!
