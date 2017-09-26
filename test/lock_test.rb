@@ -14,6 +14,14 @@ describe 'class methods' do
         Tag.current_advisory_lock.must_match /#{lock_name}/
       end
     end
+
+    it 'can obtain a lock with a name that attempts to disrupt a SQL comment' do
+      dangerous_lock_name = 'test */ lock /*'
+      Tag.with_advisory_lock(dangerous_lock_name) do
+        Tag.current_advisory_lock.must_match(/#{Regexp.escape(dangerous_lock_name)}/)
+      end
+
+    end
   end
 
   describe '.advisory_lock_exists?' do
