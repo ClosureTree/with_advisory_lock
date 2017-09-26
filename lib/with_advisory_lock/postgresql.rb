@@ -10,7 +10,7 @@ module WithAdvisoryLock
     end
 
     def execute_successful?(pg_function)
-      sql = "SELECT #{pg_function}(#{lock_keys.join(',')}) AS #{unique_column_name}"
+      sql = "SELECT #{pg_function}(#{lock_keys.join(',')}) AS #{unique_column_name} /* #{lock_name} */"
       result = connection.select_value(sql)
       # MRI returns 't', jruby returns true. YAY!
       (result == 't' || result == true)
