@@ -161,7 +161,6 @@ end
 ### 3.2.0
 
 * [Joshua Flanagan](https://github.com/joshuaflanagan) [added a SQL comment to the lock query for PostgreSQL](https://github.com/ClosureTree/with_advisory_lock/pull/28). Thanks!
-
 * [Fernando Luizão](https://github.com/fernandoluizao) found a spurious requirement for `thread_safe`. Thanks for the [fix](https://github.com/ClosureTree/with_advisory_lock/pull/27)!
 
 ### 3.1.1
