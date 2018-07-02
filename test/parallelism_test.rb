@@ -54,14 +54,17 @@ describe 'parallelism' do
     @workers = 10
   end
 
+  # < SQLite, understandably, throws "The database file is locked (database is locked)"
+
   it 'creates multiple duplicate rows without advisory locks' do
+    skip if env_db == :sqlite
     @use_advisory_lock = false
     @iterations = 1
     run_workers
     Tag.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
     TagAudit.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
     Label.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
-  end unless env_db == :sqlite # < SQLite, understandably, throws "The database file is locked (database is locked)"
+  end
 
   it "doesn't create multiple duplicate rows with advisory locks" do
     @use_advisory_lock = true

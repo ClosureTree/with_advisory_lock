@@ -158,6 +158,11 @@ end
 
 ## Changelog
 
+### 4.0.0
+
+* Drop support for unsupported versions of activerecord
+* Drop support for unsupported versions of ruby
+
 ### 3.2.0
 
 * [Joshua Flanagan](https://github.com/joshuaflanagan) [added a SQL comment to the lock query for PostgreSQL](https://github.com/ClosureTree/with_advisory_lock/pull/28). Thanks!
