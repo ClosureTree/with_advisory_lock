@@ -8,7 +8,7 @@ module WithAdvisoryLock
     end
 
     def to_s
-      super + (lock_stack ? ": lock stack = #{lock_stack}" : "")
+      super + (lock_stack ? ": lock stack = #{lock_stack}" : '')
     end
   end
 end

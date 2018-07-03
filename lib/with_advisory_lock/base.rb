@@ -22,7 +22,7 @@ module WithAdvisoryLock
     attr_reader :connection, :lock_name, :timeout_seconds, :shared, :transaction
 
     def initialize(connection, lock_name, options)
-      options = {timeout_seconds: options} unless options.respond_to?(:fetch)
+      options = { timeout_seconds: options } unless options.respond_to?(:fetch)
       options.assert_valid_keys :timeout_seconds, :shared, :transaction
 
       @connection = connection
@@ -33,7 +33,7 @@ module WithAdvisoryLock
     end
 
     def lock_str
-      @lock_str ||= "#{ENV['WITH_ADVISORY_LOCK_PREFIX'].to_s}#{lock_name.to_s}"
+      @lock_str ||= "#{ENV['WITH_ADVISORY_LOCK_PREFIX']}#{lock_name}"
     end
 
     def lock_stack_item
@@ -72,7 +72,7 @@ module WithAdvisoryLock
 
     def yield_with_lock_and_timeout(&block)
       give_up_at = Time.now + @timeout_seconds if @timeout_seconds
-      while @timeout_seconds.nil? || Time.now < give_up_at do
+      while @timeout_seconds.nil? || Time.now < give_up_at
         r = yield_with_lock(&block)
         return r if r.lock_was_acquired?
         # Randomizing sleep time may help reduce contention.

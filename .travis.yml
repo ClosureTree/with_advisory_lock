@@ -4,11 +4,13 @@ dist: trusty
 sudo: required
 
 rvm:
+  - 2.5.1
   - 2.4.0
   - 2.3.3
-  - 2.2.6
+  - 2.2.10
 
 gemfile:
+  - gemfiles/activerecord_5.2.gemfile
   - gemfiles/activerecord_5.1.gemfile
   - gemfiles/activerecord_5.0.gemfile
   - gemfiles/activerecord_4.2.gemfile
@@ -28,10 +30,3 @@ before_script:
   - bash .travis.install-mysql-5.7.sh
   - mysql -e 'create database with_advisory_lock_test'
   - psql -c 'create database with_advisory_lock_test' -U postgres
-
-matrix:
-  allow_failures:
-    - gemfile: gemfiles/activerecord_edge.gemfile
-    - rvm: jruby-19mode # travis' version of jruby has issues. Tests pass with jruby 1.7.13/java 1.8.0_11 on mac.
-    - rvm: rbx-2
-

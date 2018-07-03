@@ -24,11 +24,6 @@ rescue LoadError
 end
 require 'minitest/autorun'
 require 'minitest/great_expectations'
-if ActiveRecord::VERSION::MAJOR > 3
-  # minitest-reporters-1.0.5/lib/minitest/old_activesupport_fix.rb:7:in `remove_method': method `run' not defined in ActiveSupport::Testing::SetupAndTeardown::ForMinitest (NameError)
-  require 'minitest/reporters'
-  Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
-end
 require 'mocha/setup'
 
 class MiniTest::Spec

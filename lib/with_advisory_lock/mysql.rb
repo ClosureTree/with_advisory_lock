@@ -5,11 +5,10 @@ module WithAdvisoryLock
       unless lock_stack.empty?
         raise NestedAdvisoryLockError.new(
           "MySQL doesn't support nested Advisory Locks",
-          lock_stack.dup)
+          lock_stack.dup
+        )
       end
-      if shared
-        raise ArgumentError, 'shared locks are not supported on MySQL'
-      end
+      raise ArgumentError, 'shared locks are not supported on MySQL' if shared
       if transaction
         raise ArgumentError, 'transaction level locks are not supported on MySQL'
       end

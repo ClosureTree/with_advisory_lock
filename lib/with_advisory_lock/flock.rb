@@ -2,7 +2,6 @@ require 'fileutils'
 
 module WithAdvisoryLock
   class Flock < Base
-
     def filename
       @filename ||= begin
         safe = lock_str.to_s.gsub(/[^a-z0-9]/i, '')

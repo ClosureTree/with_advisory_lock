@@ -14,5 +14,5 @@ module WithAdvisoryLock
 end
 
 ActiveSupport.on_load :active_record do
-  ActiveRecord::Base.send :include, WithAdvisoryLock::Concern
+  include WithAdvisoryLock::Concern
 end

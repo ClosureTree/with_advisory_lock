@@ -5,11 +5,11 @@ module WithAdvisoryLock
     end
 
     def mysql?
-      [:mysql, :mysql2].include? @sym_name
+      %i[mysql mysql2].include? @sym_name
     end
 
     def postgresql?
-      [:postgresql, :empostgresql, :postgis].include? @sym_name
+      %i[postgresql empostgresql postgis].include? @sym_name
     end
 
     def sqlite?
