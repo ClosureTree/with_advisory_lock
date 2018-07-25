@@ -16,7 +16,7 @@ server, as long as it isn't SQLite, your mutex spans hosts.
 
 ## Usage
 
-Where ```User``` is an ActiveRecord model, and ```lock_name``` is some string:
+This gem automatically includes the `WithAdvisoryLock` module in all of your ActiveRecord models. Here's an example of how to use it where ```User``` is an ActiveRecord model, and ```lock_name``` is some string:
 
 ```ruby
 User.with_advisory_lock(lock_name) do
