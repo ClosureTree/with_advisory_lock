@@ -33,7 +33,11 @@ module WithAdvisoryLock
         if adapter.postgresql?
           WithAdvisoryLock::PostgreSQL
         elsif adapter.mysql?
-          WithAdvisoryLock::MySQL
+          if adapter.mysql_nested_lock_support?
+            WithAdvisoryLock::MySQL
+          else
+            WithAdvisoryLock::MySQLNoNesting
+          end
         else
           WithAdvisoryLock::Flock
         end
