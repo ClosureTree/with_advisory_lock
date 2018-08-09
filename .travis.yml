@@ -5,9 +5,8 @@ sudo: required
 
 rvm:
   - 2.5.1
-  - 2.4.0
-  - 2.3.3
-  - 2.2.10
+  - 2.4.4
+  - 2.3.7
 
 gemfile:
   - gemfiles/activerecord_5.2.gemfile
