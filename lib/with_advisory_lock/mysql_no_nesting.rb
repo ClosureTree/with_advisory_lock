@@ -5,7 +5,7 @@ module WithAdvisoryLock
     def try_lock
       unless lock_stack.empty?
         raise NestedAdvisoryLockError.new(
-          "MySQL doesn't support nested Advisory Locks",
+          "MySQL < 5.7.5 doesn't support nested Advisory Locks",
           lock_stack.dup
         )
       end
