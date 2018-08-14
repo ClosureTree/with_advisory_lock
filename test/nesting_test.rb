@@ -36,6 +36,28 @@ describe "lock nesting" do
     exc.lock_stack.map(&:name).must_equal %w(first)
   end
 
+  it "does not raise errors with MySQL < 5.7.5 when acquiring nested error force enabled" do
+    skip unless env_db == :mysql && ENV['MYSQL_VERSION'] != '5.7'
+    impl = WithAdvisoryLock::Base.new(nil, nil, nil)
+    impl.lock_stack.must_be_empty
+    Tag.with_advisory_lock("first", force_nested_lock_support: true) do
+      impl.lock_stack.map(&:name).must_equal %w(first)
+      Tag.with_advisory_lock("second", force_nested_lock_support: true) do
+        impl.lock_stack.map(&:name).must_equal %w(first second)
+        Tag.with_advisory_lock("first", force_nested_lock_support: true) do
+          # Shouldn't ask for another lock:
+          impl.lock_stack.map(&:name).must_equal %w(first second)
+          Tag.with_advisory_lock("second", force_nested_lock_support: true) do
+            # Shouldn't ask for another lock:
+            impl.lock_stack.map(&:name).must_equal %w(first second)
+          end
+        end
+      end
+      impl.lock_stack.map(&:name).must_equal %w(first)
+    end
+    impl.lock_stack.must_be_empty
+  end
+
   it "supports nested advisory locks with !MySQL 5.6" do
     skip if env_db == :mysql && ENV['MYSQL_VERSION'] != '5.7'
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
@@ -56,5 +78,16 @@ describe "lock nesting" do
       impl.lock_stack.map(&:name).must_equal %w(first)
     end
     impl.lock_stack.must_be_empty
+  end
+
+  it "raises with !MySQL 5.6 and nested error force disabled" do
+    skip unless env_db == :mysql && ENV['MYSQL_VERSION'] != '5.7'
+    exc = proc {
+      Tag.with_advisory_lock("first", force_nested_lock_support: false) do
+        Tag.with_advisory_lock("second", force_nested_lock_support: false) do
+        end
+      end
+    }.must_raise WithAdvisoryLock::NestedAdvisoryLockError
+    exc.lock_stack.map(&:name).must_equal %w(first)
   end
 end

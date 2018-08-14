@@ -12,7 +12,7 @@ module WithAdvisoryLock
       end
 
       def with_advisory_lock_result(lock_name, options = {}, &block)
-        impl = impl_class.new(connection, lock_name, options)
+        impl = impl_class(options).new(connection, lock_name, options)
         impl.with_advisory_lock_if_needed(&block)
       end
 
@@ -28,12 +28,18 @@ module WithAdvisoryLock
 
       private
 
-      def impl_class
+      def impl_class(options = {})
         adapter = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
         if adapter.postgresql?
           WithAdvisoryLock::PostgreSQL
         elsif adapter.mysql?
-          if adapter.mysql_nested_lock_support?
+          nested_lock = if [true, false].include?(options[:force_nested_lock_support])
+                          options[:force_nested_lock_support]
+                        else
+                          adapter.mysql_nested_lock_support?
+                        end
+
+          if nested_lock
             WithAdvisoryLock::MySQL
           else
             WithAdvisoryLock::MySQLNoNesting
