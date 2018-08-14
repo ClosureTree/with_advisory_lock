@@ -12,9 +12,8 @@ module WithAdvisoryLock
       end
 
       def with_advisory_lock_result(lock_name, options = {}, &block)
-        class_options = options.slice(:force_nested_lock_support)
-        instance_options = options.except(:force_nested_lock_support)
-        impl = impl_class(class_options).new(connection, lock_name, instance_options)
+        class_options = options.extract!(:force_nested_lock_support) if options.respond_to?(:fetch)
+        impl = impl_class(class_options).new(connection, lock_name, options)
         impl.with_advisory_lock_if_needed(&block)
       end
 
