@@ -141,13 +141,17 @@ Advisory locks with MySQL and PostgreSQL ignore database transaction boundaries.
 
 You will want to wrap your block within a transaction to ensure consistency.
 
-### MySQL doesn't support nesting
+### MySQL < 5.7.5 doesn't support nesting
 
-With MySQL (at least <= v5.5), if you ask for a _different_ advisory lock within
+With MySQL < 5.7.5, if you ask for a _different_ advisory lock within
 a `with_advisory_lock` block, you will be releasing the parent lock (!!!). A
 `NestedAdvisoryLockError`will be raised in this case. If you ask for the same
 lock name, `with_advisory_lock` won't ask for the lock again, and the block
 given will be yielded to.
+
+This is not an issue in MySQL >= 5.7.5, and no error will be raised for nested
+lock usage. You can override this by passing `force_nested_lock_support: true`
+or `force_nested_lock_support: false` to the `with_advisory_lock` options.
 
 ### Is clustered MySQL supported?
 
