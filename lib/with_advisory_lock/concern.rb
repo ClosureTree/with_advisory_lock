@@ -29,13 +29,13 @@ module WithAdvisoryLock
 
       private
 
-      def impl_class(options = {})
+      def impl_class(options = nil)
         adapter = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
         if adapter.postgresql?
           WithAdvisoryLock::PostgreSQL
         elsif adapter.mysql?
-          nested_lock = if [true, false].include?(options[:force_nested_lock_support])
-                          options[:force_nested_lock_support]
+          nested_lock = if options.respond_to?(:fetch) && [true, false].include?(options.fetch(:force_nested_lock_support))
+                          options.fetch(:force_nested_lock_support)
                         else
                           adapter.mysql_nested_lock_support?
                         end
