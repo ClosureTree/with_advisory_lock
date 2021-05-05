@@ -61,17 +61,17 @@ describe 'parallelism' do
     @use_advisory_lock = false
     @iterations = 1
     run_workers
-    Tag.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
-    TagAudit.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
-    Label.all.size.must_be :>, @iterations # <- any duplicated rows will make me happy.
+    _(Tag.all.size).must_be :>, @iterations # <- any duplicated rows will make me happy.
+    _(TagAudit.all.size).must_be :>, @iterations # <- any duplicated rows will make me happy.
+    _(Label.all.size).must_be :>, @iterations # <- any duplicated rows will make me happy.
   end
 
   it "doesn't create multiple duplicate rows with advisory locks" do
     @use_advisory_lock = true
     @iterations = 10
     run_workers
-    Tag.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
-    TagAudit.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
-    Label.all.size.must_equal @iterations # <- any duplicated rows will NOT make me happy.
+    _(Tag.all.size).must_equal @iterations # <- any duplicated rows will NOT make me happy.
+    _(TagAudit.all.size).must_equal @iterations # <- any duplicated rows will NOT make me happy.
+    _(Label.all.size).must_equal @iterations # <- any duplicated rows will NOT make me happy.
   end
 end

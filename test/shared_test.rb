@@ -41,10 +41,10 @@ describe 'shared locks' do
 
   it 'does not allow two exclusive locks' do
     one = SharedTestWorker.new(false)
-    one.locked?.must_equal true
+    _(one.locked?).must_equal true
 
     two = SharedTestWorker.new(false)
-    two.locked?.must_equal false
+    _(two.locked?).must_equal false
 
     one.cleanup!
     two.cleanup!
@@ -57,11 +57,11 @@ describe 'shared locks' do
 
     it 'raises an error when attempting to use a shared lock' do
       one = SharedTestWorker.new(true)
-      one.locked?.must_be_nil
-      exception = proc {
+      _(one.locked?).must_be_nil
+      exception = _(proc {
         one.cleanup!
-      }.must_raise ArgumentError
-      exception.message.must_include 'not supported'
+      }).must_raise ArgumentError
+      _(exception.message).must_include 'not supported'
     end
   end
 
@@ -72,10 +72,10 @@ describe 'shared locks' do
 
     it 'does allow two shared locks' do
       one = SharedTestWorker.new(true)
-      one.locked?.must_equal true
+      _(one.locked?).must_equal true
 
       two = SharedTestWorker.new(true)
-      two.locked?.must_equal true
+      _(two.locked?).must_equal true
 
       one.cleanup!
       two.cleanup!
@@ -83,13 +83,13 @@ describe 'shared locks' do
 
     it 'does not allow exclusive lock with shared lock' do
       one = SharedTestWorker.new(true)
-      one.locked?.must_equal true
+      _(one.locked?).must_equal true
 
       two = SharedTestWorker.new(false)
-      two.locked?.must_equal false
+      _(two.locked?).must_equal false
 
       three = SharedTestWorker.new(true)
-      three.locked?.must_equal true
+      _(three.locked?).must_equal true
 
       one.cleanup!
       two.cleanup!
@@ -98,10 +98,10 @@ describe 'shared locks' do
 
     it 'does not allow shared lock with exclusive lock' do
       one = SharedTestWorker.new(false)
-      one.locked?.must_equal true
+      _(one.locked?).must_equal true
 
       two = SharedTestWorker.new(true)
-      two.locked?.must_equal false
+      _(two.locked?).must_equal false
 
       one.cleanup!
       two.cleanup!
@@ -117,14 +117,14 @@ describe 'shared locks' do
       end
 
       it 'allows shared lock to be upgraded to an exclusive lock' do
-        pg_lock_modes.must_equal %w[]
+        _(pg_lock_modes).must_equal %w[]
         Tag.with_advisory_lock 'test', shared: true do
-          pg_lock_modes.must_equal %w[ShareLock]
+          _(pg_lock_modes).must_equal %w[ShareLock]
           Tag.with_advisory_lock 'test', shared: false do
-            pg_lock_modes.must_equal %w[ShareLock ExclusiveLock]
+            _(pg_lock_modes).must_equal %w[ShareLock ExclusiveLock]
           end
         end
-        pg_lock_modes.must_equal %w[]
+        _(pg_lock_modes).must_equal %w[]
       end
     end
   end
