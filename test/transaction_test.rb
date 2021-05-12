@@ -12,12 +12,14 @@ describe 'transaction scoping' do
 
     it 'raises an error when attempting to use transaction level locks' do
       Tag.transaction do
-        exception = _(proc {
+        exception = assert_raises(ArgumentError) do
           Tag.with_advisory_lock 'test', transaction: true do
             raise 'should not get here'
           end
-        }).must_raise ArgumentError
-        _(exception.message).must_include 'not supported'
+        end
+
+        assert_match(/#{Regexp.escape('not supported')}/, exception.message)
+
       end
     end
   end
@@ -33,38 +35,38 @@ describe 'transaction scoping' do
 
     specify 'session locks release after the block executes' do
       Tag.transaction do
-        _(pg_lock_count).must_equal 0
+        assert_equal(0, pg_lock_count)
         Tag.with_advisory_lock 'test' do
-          _(pg_lock_count).must_equal 1
+          assert_equal(1, pg_lock_count)
         end
-        _(pg_lock_count).must_equal 0
+        assert_equal(0, pg_lock_count)
       end
     end
 
     specify 'session locks release when transaction fails inside block' do
       Tag.transaction do
-        _(pg_lock_count).must_equal 0
+        assert_equal(0, pg_lock_count)
 
-        exception = _(proc {
+        exception = assert_raises(ActiveRecord::StatementInvalid) do
           Tag.with_advisory_lock 'test' do
             Tag.connection.execute 'SELECT 1/0;'
           end
-        }).must_raise ActiveRecord::StatementInvalid
-        _(exception.message).must_include 'division by zero'
+        end
 
-        _(pg_lock_count).must_equal 0
+        assert_match(/#{Regexp.escape('division by zero')}/, exception.message)
+        assert_equal(0, pg_lock_count)
       end
     end
 
     specify 'transaction level locks hold until the transaction completes' do
       Tag.transaction do
-        _(pg_lock_count).must_equal 0
+        assert_equal(0, pg_lock_count)
         Tag.with_advisory_lock 'test', transaction: true do
-          _(pg_lock_count).must_equal 1
+          assert_equal(1, pg_lock_count)
         end
-        _(pg_lock_count).must_equal 1
+        assert_equal(1, pg_lock_count)
       end
-      _(pg_lock_count).must_equal 0
+      assert_equal(0, pg_lock_count)
     end
   end
 end
