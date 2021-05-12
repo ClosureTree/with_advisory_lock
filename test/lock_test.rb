@@ -26,7 +26,7 @@ describe 'class methods' do
 
   describe '.advisory_lock_exists?' do
     it 'returns false for an unacquired lock' do
-      refute Tag.advisory_lock_exists?(lock_name)
+      refute(Tag.advisory_lock_exists?(lock_name))
     end
 
     it 'returns the name of the last lock acquired' do

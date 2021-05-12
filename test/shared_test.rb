@@ -44,7 +44,7 @@ describe 'shared locks' do
     assert(one.locked?)
 
     two = SharedTestWorker.new(false)
-    refute two.locked?
+    refute(two.locked?)
 
     one.cleanup!
     two.cleanup!
@@ -88,7 +88,7 @@ describe 'shared locks' do
       assert(one.locked?)
 
       two = SharedTestWorker.new(false)
-      refute two.locked?
+      refute(two.locked?)
 
       three = SharedTestWorker.new(true)
       assert(three.locked?)
@@ -103,7 +103,7 @@ describe 'shared locks' do
       assert(one.locked?)
 
       two = SharedTestWorker.new(true)
-      refute two.locked?
+      refute(two.locked?)
 
       one.cleanup!
       two.cleanup!

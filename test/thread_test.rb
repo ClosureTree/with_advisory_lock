@@ -34,7 +34,7 @@ describe 'separate thread tests' do
     response = Label.with_advisory_lock(lock_name, 0) do
       fail 'should not be yielded to'
     end
-    refute response
+    refute(response)
   end
 
   it '#with_advisory_lock yields to the provided block' do
