@@ -34,27 +34,29 @@ describe 'separate thread tests' do
     response = Label.with_advisory_lock(lock_name, 0) do
       fail 'should not be yielded to'
     end
-    response.must_be_false
+    refute(response)
   end
 
   it '#with_advisory_lock yields to the provided block' do
-    @t1_acquired_lock.must_be_true
+    assert(@t1_acquired_lock)
   end
 
   it '#advisory_lock_exists? returns true when another thread has the lock' do
-    Tag.advisory_lock_exists?(lock_name).must_be_true
+    assert(Tag.advisory_lock_exists?(lock_name))
   end
 
   it 'can re-establish the lock after the other thread releases it' do
     @t1.wakeup
     @t1.join
-    @t1_return_value.must_equal 't1 finished'
+    assert_equal('t1 finished', @t1_return_value)
 
     # We should now be able to acquire the lock immediately:
     reacquired = false
-    Label.with_advisory_lock(lock_name, 0) do
+    lock_result = Label.with_advisory_lock(lock_name, 0) do
       reacquired = true
-    end.must_be_true
-    reacquired.must_be_true
+    end
+
+    assert(lock_result)
+    assert(reacquired)
   end
 end

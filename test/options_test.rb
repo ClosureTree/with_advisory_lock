@@ -7,58 +7,58 @@ describe 'options parsing' do
 
   specify 'defaults (empty hash)' do
     impl = parse_options({})
-    impl.timeout_seconds.must_be_nil
-    impl.shared.must_equal false
-    impl.transaction.must_equal false
+    assert_nil(impl.timeout_seconds)
+    refute(impl.shared)
+    refute(impl.transaction)
   end
 
   specify 'nil sets timeout to nil' do
     impl = parse_options(nil)
-    impl.timeout_seconds.must_be_nil
-    impl.shared.must_equal false
-    impl.transaction.must_equal false
+    assert_nil(impl.timeout_seconds)
+    refute(impl.shared)
+    refute(impl.transaction)
   end
 
   specify 'integer sets timeout to value' do
     impl = parse_options(42)
-    impl.timeout_seconds.must_equal 42
-    impl.shared.must_equal false
-    impl.transaction.must_equal false
+    assert_equal(42, impl.timeout_seconds)
+    refute(impl.shared)
+    refute(impl.transaction)
   end
 
   specify 'hash with invalid key errors' do
-    proc {
+    assert_raises(ArgumentError) do
       parse_options(foo: 42)
-    }.must_raise ArgumentError
+    end
   end
 
   specify 'hash with timeout_seconds sets timeout to value' do
     impl = parse_options(timeout_seconds: 123)
-    impl.timeout_seconds.must_equal 123
-    impl.shared.must_equal false
-    impl.transaction.must_equal false
+    assert_equal(123, impl.timeout_seconds)
+    refute(impl.shared)
+    refute(impl.transaction)
   end
 
   specify 'hash with shared option sets shared to true' do
     impl = parse_options(shared: true)
-    impl.timeout_seconds.must_be_nil
-    impl.shared.must_equal true
-    impl.transaction.must_equal false
+    assert_nil(impl.timeout_seconds)
+    assert(impl.shared)
+    refute(impl.transaction)
   end
 
   specify 'hash with transaction option set transaction to true' do
     impl = parse_options(transaction: true)
-    impl.timeout_seconds.must_be_nil
-    impl.shared.must_equal false
-    impl.transaction.must_equal true
+    assert_nil(impl.timeout_seconds)
+    refute(impl.shared)
+    assert(impl.transaction)
   end
 
   specify 'hash with multiple keys sets options' do
     foo = mock
     bar = mock
     impl = parse_options(timeout_seconds: foo, shared: bar)
-    impl.timeout_seconds.must_equal foo
-    impl.shared.must_equal bar
-    impl.transaction.must_equal false
+    assert_equal(foo, impl.timeout_seconds)
+    assert_equal(bar, impl.shared)
+    refute(impl.transaction)
   end
 end

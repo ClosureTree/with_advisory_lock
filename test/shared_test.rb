@@ -41,10 +41,10 @@ describe 'shared locks' do
 
   it 'does not allow two exclusive locks' do
     one = SharedTestWorker.new(false)
-    one.locked?.must_equal true
+    assert(one.locked?)
 
     two = SharedTestWorker.new(false)
-    two.locked?.must_equal false
+    refute(two.locked?)
 
     one.cleanup!
     two.cleanup!
@@ -57,11 +57,13 @@ describe 'shared locks' do
 
     it 'raises an error when attempting to use a shared lock' do
       one = SharedTestWorker.new(true)
-      one.locked?.must_be_nil
-      exception = proc {
+      assert_nil(one.locked?)
+
+      exception = assert_raises(ArgumentError) do
         one.cleanup!
-      }.must_raise ArgumentError
-      exception.message.must_include 'not supported'
+      end
+
+      assert_match(/#{Regexp.escape('not supported')}/, exception.message)
     end
   end
 
@@ -72,10 +74,10 @@ describe 'shared locks' do
 
     it 'does allow two shared locks' do
       one = SharedTestWorker.new(true)
-      one.locked?.must_equal true
+      assert(one.locked?)
 
       two = SharedTestWorker.new(true)
-      two.locked?.must_equal true
+      assert(two.locked?)
 
       one.cleanup!
       two.cleanup!
@@ -83,13 +85,13 @@ describe 'shared locks' do
 
     it 'does not allow exclusive lock with shared lock' do
       one = SharedTestWorker.new(true)
-      one.locked?.must_equal true
+      assert(one.locked?)
 
       two = SharedTestWorker.new(false)
-      two.locked?.must_equal false
+      refute(two.locked?)
 
       three = SharedTestWorker.new(true)
-      three.locked?.must_equal true
+      assert(three.locked?)
 
       one.cleanup!
       two.cleanup!
@@ -98,10 +100,10 @@ describe 'shared locks' do
 
     it 'does not allow shared lock with exclusive lock' do
       one = SharedTestWorker.new(false)
-      one.locked?.must_equal true
+      assert(one.locked?)
 
       two = SharedTestWorker.new(true)
-      two.locked?.must_equal false
+      refute(two.locked?)
 
       one.cleanup!
       two.cleanup!
@@ -117,14 +119,14 @@ describe 'shared locks' do
       end
 
       it 'allows shared lock to be upgraded to an exclusive lock' do
-        pg_lock_modes.must_equal %w[]
+        assert_equal(%w[], pg_lock_modes)
         Tag.with_advisory_lock 'test', shared: true do
-          pg_lock_modes.must_equal %w[ShareLock]
+          assert_equal(%w[ShareLock], pg_lock_modes)
           Tag.with_advisory_lock 'test', shared: false do
-            pg_lock_modes.must_equal %w[ShareLock ExclusiveLock]
+            assert_equal(%w[ShareLock ExclusiveLock], pg_lock_modes)
           end
         end
-        pg_lock_modes.must_equal %w[]
+        assert_equal(%w[], pg_lock_modes)
       end
     end
   end
