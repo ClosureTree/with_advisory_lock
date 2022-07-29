@@ -5,7 +5,7 @@ require 'tmpdir'
 require 'securerandom'
 
 def env_db
-  (ENV['DB'] || :mysql).to_sym
+  ENV.fetch('DB_ADAPTER', :sqlite).to_sym
 end
 
 db_config = File.expand_path('database.yml', File.dirname(__FILE__))
@@ -17,15 +17,12 @@ ActiveRecord::Base.establish_connection(env_db)
 ActiveRecord::Migration.verbose = false
 
 require 'test_models'
-begin
-  require 'minitest'
-rescue LoadError
-  puts 'Failed to load the minitest gem; built-in version will be used.'
-end
+require 'minitest'
 require 'minitest/autorun'
 require 'minitest/great_expectations'
 require 'mocha/setup'
 
+puts "Testing with #{env_db} database , ActiveRecord #{ActiveRecord.gem_version} and Ruby #{RUBY_VERSION}"
 class MiniTest::Spec
   before do
     ENV['FLOCK_DIR'] = Dir.mktmpdir

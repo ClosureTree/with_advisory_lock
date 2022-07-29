@@ -4,4 +4,10 @@ source "https://rubygems.org"
 
 gem "activerecord", "~> 7.0.0"
 
+platforms :ruby do
+  gem "sqlite3"
+  gem "mysql2"
+  gem "pg"
+end
+
 gemspec path: "../"

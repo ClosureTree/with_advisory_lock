@@ -6,16 +6,23 @@ on:
   - pull_request
 
 jobs:
-  rspec:
+  minitest:
     runs-on: ubuntu-latest
-
     services:
+      mysql:
+        image: mysql/mysql-server:8.0.30
+        ports:
+          - "3306:3306"
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: with_advisory_lock_test
+          MYSQL_ROOT_HOST: '%'
       postgres:
-        image: 'postgres:13'
+        image: 'postgres:14-alpine'
         ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: closure_tree
+          POSTGRES_DB: with_advisory_lock_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -40,8 +47,8 @@ jobs:
           - activerecord_4.2
           - activerecord_edge
         adapter:
-          - sqlite3
-          - mysql2
+          - sqlite
+          - mysql
           - postgresql
         exclude:
           - ruby: '2.7'
@@ -71,32 +78,13 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-
-      - name: Set DB Adapter
+          bundler-cache: true
+          rubygems: latest
         env:
-          RAILS_VERSION: ${{ matrix.rails }}
-          DB_ADAPTER: ${{ matrix.adapter }}
+          BUNDLE_GEMFILE:  gemfiles/${{ matrix.rails }}.gemfile
 
-        # See: https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md#mysql
-        run: |
-          if [ "${DB_ADAPTER}" = "mysql2" ]; then
-            sudo systemctl start mysql.service
-            mysql -u root -proot -e 'create database closure_tree;'
-          fi
-
-      - name: Bundle
+      - name: Test
         env:
-          RAILS_VERSION: ${{ matrix.rails }}
-          DB_ADAPTER: ${{ matrix.adapter }}
-          BUNDLE_GEMFILE: gemfiles/${{ matrix.rails }}.gemfile
-        run: |
-          gem install bundler
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
-
-      - name: RSpec
-        env:
-          RAILS_VERSION: ${{ matrix.rails }}
           DB_ADAPTER: ${{ matrix.adapter }}
           BUNDLE_GEMFILE: gemfiles/${{ matrix.rails }}.gemfile
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
