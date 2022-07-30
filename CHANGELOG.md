@@ -1,8 +1,10 @@
 ## Changelog
 
 ### 5.0.0
-- Drop support for EOL rubies and rails.
+- Drop support for EOL rubies and activerecord (ruby below 2.7 and activerecord below 6.0).
 - Allow lock name to be integer
+- Jruby support
+- Truffleruby support
 
 ### 4.6.0
 
