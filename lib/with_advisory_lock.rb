@@ -1,17 +1,13 @@
-require 'with_advisory_lock/version'
 require 'active_support'
+require 'zeitwerk'
+Zeitwerk::Loader.for_gem.tap do |loader|
+  loader.inflector.inflect 'mysql' => 'MySQL'
+  loader.inflector.inflect 'postgresql' => 'PostgreSQL'
+  loader.inflector.inflect 'mysql_no_nesting' => 'MySQLNoNesting'
+  loader.setup
+end
 
 module WithAdvisoryLock
-  extend ActiveSupport::Autoload
-
-  autoload :Concern
-  autoload :Base
-  autoload :DatabaseAdapterSupport
-  autoload :Flock
-  autoload :MySQL, 'with_advisory_lock/mysql'
-  autoload :MySQLNoNesting, 'with_advisory_lock/mysql_no_nesting'
-  autoload :NestedAdvisoryLockError
-  autoload :PostgreSQL, 'with_advisory_lock/postgresql'
 end
 
 ActiveSupport.on_load :active_record do
