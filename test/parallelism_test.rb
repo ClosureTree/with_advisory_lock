@@ -57,7 +57,7 @@ describe 'parallelism' do
   # < SQLite, understandably, throws "The database file is locked (database is locked)"
 
   it 'creates multiple duplicate rows without advisory locks' do
-    skip if env_db == :sqlite
+    skip if [:sqlite3, :jdbcsqlite3].include?(env_db)
     @use_advisory_lock = false
     @iterations = 1
     run_workers
