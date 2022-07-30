@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest_helper'
 
 describe 'separate thread tests' do
@@ -19,9 +21,7 @@ describe 'separate thread tests' do
     end
 
     # Wait for the thread to acquire the lock:
-    until @mutex.synchronize { @t1_acquired_lock } do
-      sleep(0.1)
-    end
+    sleep(0.1) until @mutex.synchronize { @t1_acquired_lock }
     ActiveRecord::Base.connection.reconnect!
   end
 
@@ -32,7 +32,7 @@ describe 'separate thread tests' do
 
   it '#with_advisory_lock with a 0 timeout returns false immediately' do
     response = Label.with_advisory_lock(lock_name, 0) do
-      fail 'should not be yielded to'
+      raise 'should not be yielded to'
     end
     refute(response)
   end

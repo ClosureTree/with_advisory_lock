@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest_helper'
 
 describe 'class methods' do
@@ -20,7 +22,6 @@ describe 'class methods' do
       Tag.with_advisory_lock(dangerous_lock_name) do
         assert_match(/#{Regexp.escape(dangerous_lock_name)}/, Tag.current_advisory_lock)
       end
-
     end
   end
 

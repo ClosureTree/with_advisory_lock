@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest_helper'
 
 describe 'transaction scoping' do
@@ -19,7 +21,6 @@ describe 'transaction scoping' do
         end
 
         assert_match(/#{Regexp.escape('not supported')}/, exception.message)
-
       end
     end
   end

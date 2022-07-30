@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest_helper'
 require 'forwardable'
 
@@ -37,9 +39,7 @@ describe 'parallelism' do
         FindOrCreateWorker.new(name, @use_advisory_lock)
       end
       # Wait for all the threads to get ready:
-      until workers.all? { |ea| ea.status == 'sleep' }
-        sleep(0.1)
-      end
+      sleep(0.1) until workers.all? { |ea| ea.status == 'sleep' }
       # OK, GO!
       workers.each(&:wakeup)
       # Then wait for them to finish:
