@@ -24,7 +24,7 @@ require 'minitest/autorun'
 require 'minitest/great_expectations'
 require 'mocha/minitest'
 
-puts "Testing with #{env_db} database , ActiveRecord #{ActiveRecord.gem_version} and Ruby #{RUBY_VERSION}"
+puts "Testing with #{env_db} database , ActiveRecord #{ActiveRecord.gem_version} and #{RUBY_ENGINE} #{RUBY_ENGINE_VERSION} as #{RUBY_VERSION}"
 module MiniTest
   class Spec
     before do

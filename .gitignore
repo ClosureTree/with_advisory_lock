@@ -18,3 +18,4 @@ test/tmp
 test/version_tmp
 tmp
 *.iml
+test/sqlite.db
