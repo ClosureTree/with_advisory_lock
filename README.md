@@ -1,7 +1,6 @@
 # with_advisory_lock
 
-Adds advisory locking (mutexes) to ActiveRecord 4.2, 5.x and 6.0, with ruby
-2.4, 2.5 and 2.6, when used with
+Adds advisory locking (mutexes) to ActiveRecord  6.0+, with ruby 2.7+, when used with
 [MySQL](https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_get-lock)
 or
 [PostgreSQL](https://www.postgresql.org/docs/current/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
@@ -123,7 +122,7 @@ row-level locks prevent concurrent modification to a given model.
 
 **If you're building a
 [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-application, this will be your most commonly used lock.**
+application, this will be2.4, 2.5 and  your most commonly used lock.**
 
 ### Table-level locks
 
