@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WithAdvisoryLock
   # For MySQL < 5.7.5 that does not support nested locks
   class MySQLNoNesting < MySQL

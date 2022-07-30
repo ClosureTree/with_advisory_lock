@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/concern'
 
 module WithAdvisoryLock
@@ -34,7 +36,9 @@ module WithAdvisoryLock
         if adapter.postgresql?
           WithAdvisoryLock::PostgreSQL
         elsif adapter.mysql?
-          nested_lock = if options.respond_to?(:fetch) && [true, false].include?(options.fetch(:force_nested_lock_support, nil))
+          nested_lock = if options.respond_to?(:fetch) && [true,
+                                                           false].include?(options.fetch(:force_nested_lock_support,
+                                                                                         nil))
                           options.fetch(:force_nested_lock_support)
                         else
                           adapter.mysql_nested_lock_support?

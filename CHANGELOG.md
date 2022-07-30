@@ -2,6 +2,7 @@
 
 ### 5.0.0
 - Drop support for EOL rubies and rails.
+- Allow lock name to be integer
 
 ### 4.6.0
 

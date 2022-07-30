@@ -22,7 +22,7 @@ require 'test_models'
 require 'minitest'
 require 'minitest/autorun'
 require 'minitest/great_expectations'
-require 'mocha/setup'
+require 'mocha/minitest'
 
 puts "Testing with #{env_db} database , ActiveRecord #{ActiveRecord.gem_version} and Ruby #{RUBY_VERSION}"
 module MiniTest

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'zlib'
 
 module WithAdvisoryLock
@@ -53,7 +55,7 @@ module WithAdvisoryLock
     def with_advisory_lock_if_needed(&block)
       if already_locked?
         Result.new(true, yield)
-      elsif timeout_seconds == 0
+      elsif timeout_seconds.zero?
         yield_with_lock(&block)
       else
         yield_with_lock_and_timeout(&block)
@@ -75,6 +77,7 @@ module WithAdvisoryLock
       while @timeout_seconds.nil? || Time.now < give_up_at
         r = yield_with_lock(&block)
         return r if r.lock_was_acquired?
+
         # Randomizing sleep time may help reduce contention.
         sleep(rand(0.05..0.15))
       end

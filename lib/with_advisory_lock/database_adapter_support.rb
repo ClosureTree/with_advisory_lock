@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WithAdvisoryLock
   class DatabaseAdapterSupport
     # Caches nested lock support by MySQL reported version
@@ -10,7 +12,7 @@ module WithAdvisoryLock
     end
 
     def mysql?
-      %i[mysql mysql2].include? @sym_name
+      @sym_name == :mysql2
     end
 
     # Nested lock support for MySQL was introduced in 5.7.5
@@ -21,7 +23,7 @@ module WithAdvisoryLock
 
       # We select the MySQL version this way and cache on it, as MySQL will report versions like "5.7.5", and MariaDB will
       # report versions like "10.3.8-MariaDB", which allow us to cache on features without introducing problems.
-      version = @connection.select_value("SELECT version()")
+      version = @connection.select_value('SELECT version()')
 
       @@mysql_nl_cache_mutex.synchronize do
         return @@mysql_nl_cache[version] if @@mysql_nl_cache.keys.include?(version)
@@ -33,7 +35,7 @@ module WithAdvisoryLock
         get_2  = @connection.select_value("SELECT GET_LOCK(#{lock_2}, 0) AS t#{SecureRandom.hex}")
 
         # Both locks should succeed in old and new MySQL versions with "1"
-        raise RuntimeError, "Unexpected nested lock acquire result #{get_1}, #{get_2}" unless [get_1, get_2] == [1, 1]
+        raise "Unexpected nested lock acquire result #{get_1}, #{get_2}" unless [get_1, get_2] == [1, 1]
 
         release_1 = @connection.select_value("SELECT RELEASE_LOCK(#{lock_1}) AS t#{SecureRandom.hex}")
         release_2 = @connection.select_value("SELECT RELEASE_LOCK(#{lock_2}) AS t#{SecureRandom.hex}")
@@ -47,7 +49,7 @@ module WithAdvisoryLock
                                     when [nil, 1]
                                       false
                                     else
-                                      raise RuntimeError, "Unexpected nested lock release result #{release_1}, #{release_2}"
+                                      raise "Unexpected nested lock release result #{release_1}, #{release_2}"
                                     end
       end
     end
@@ -57,7 +59,7 @@ module WithAdvisoryLock
     end
 
     def sqlite?
-      :sqlite3 == @sym_name
+      @sym_name == :sqlite3
     end
   end
 end

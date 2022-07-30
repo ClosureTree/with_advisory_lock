@@ -1,12 +1,13 @@
+# frozen_string_literal: true
+
 module WithAdvisoryLock
   # MySQL > 5.7.5 supports nested locks
   class MySQL < Base
     # See https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock
     def try_lock
       raise ArgumentError, 'shared locks are not supported on MySQL' if shared
-      if transaction
-        raise ArgumentError, 'transaction level locks are not supported on MySQL'
-      end
+      raise ArgumentError, 'transaction level locks are not supported on MySQL' if transaction
+
       execute_successful?("GET_LOCK(#{quoted_lock_str}, 0)")
     end
 
@@ -16,7 +17,7 @@ module WithAdvisoryLock
 
     def execute_successful?(mysql_function)
       sql = "SELECT #{mysql_function} AS #{unique_column_name}"
-      connection.select_value(sql).to_i > 0
+      connection.select_value(sql).to_i.positive?
     end
 
     # MySQL wants a string as the lock key.
