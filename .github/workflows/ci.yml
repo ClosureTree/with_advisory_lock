@@ -48,7 +48,16 @@ jobs:
           - sqlite3:///tmp/test.sqlite3
           - mysql2://root:root@0/with_advisory_lock_test
           - postgres://closure_tree:closure_tree@0/with_advisory_lock_test
-
+        include:
+          - ruby: jruby
+            rails: activerecord_6.0
+            adapter: jdbcmysql://root:root@0/with_advisory_lock_test?PublicKeyRetrieval=false&useSSL=false
+          - ruby: jruby
+            rails: activerecord_6.0
+            adapter: jdbcsqlite3:///tmp/test.sqlite3
+          - ruby: jruby
+            rails: activerecord_6.0
+            adapter: jdbcpostgresql://closure_tree:closure_tree@0/with_advisory_lock_test
     steps:
       - name: Checkout
         uses: actions/checkout@v2
