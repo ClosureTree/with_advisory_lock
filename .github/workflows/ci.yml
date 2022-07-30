@@ -51,7 +51,7 @@ jobs:
         include:
           - ruby: jruby
             rails: activerecord_6.0
-            adapter: jdbcmysql://root:root@0/with_advisory_lock_test?PublicKeyRetrieval=false&useSSL=false
+            adapter: jdbcmysql://root:root@0/with_advisory_lock_test?allowPublicKeyRetrieval=true&useSSL=false
           - ruby: jruby
             rails: activerecord_6.0
             adapter: jdbcsqlite3:///tmp/test.sqlite3
