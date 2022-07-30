@@ -6,7 +6,12 @@ require 'with_advisory_lock'
 require 'tmpdir'
 require 'securerandom'
 
-ActiveRecord::Base.configurations = { default_env: { url: ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/#{SecureRandom.hex}.sqlite3") } }
+ActiveRecord::Base.configurations = {
+  default_env: {
+    url: ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/#{SecureRandom.hex}.sqlite3"),
+    properties: { allowPublicKeyRetrieval: true } # for JRuby madness
+  }
+}
 
 ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 

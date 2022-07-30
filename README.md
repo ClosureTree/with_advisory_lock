@@ -1,13 +1,13 @@
 # with_advisory_lock
 
-Adds advisory locking (mutexes) to ActiveRecord  6.0+, with ruby 2.7+, when used with
+Adds advisory locking (mutexes) to ActiveRecord  6.0+, with ruby 2.7+, jruby or truffleruby, when used with
 [MySQL](https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_get-lock)
 or
 [PostgreSQL](https://www.postgresql.org/docs/current/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
 SQLite resorts to file locking.
 
-[![Build Status](https://api.travis-ci.org/ClosureTree/with_advisory_lock.svg?branch=master)](https://travis-ci.org/ClosureTree/with_advisory_lock)
 [![Gem Version](https://badge.fury.io/rb/with_advisory_lock.svg)](https://badge.fury.io/rb/with_advisory_lock)
+[![CI](https://github.com/ClosureTree/with_advisory_lock/actions/workflows/ci.yml/badge.svg)](https://github.com/ClosureTree/with_advisory_lock/actions/workflows/ci.yml)
 
 ## What's an "Advisory Lock"?
 

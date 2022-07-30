@@ -3,8 +3,8 @@
 require 'minitest_helper'
 
 describe 'transaction scoping' do
-  def supported?
-    env_db == :postgresql
+  def supported? 
+    [:postgresql, :jdbcpostgresql].include?(env_db)
   end
 
   describe 'not supported' do

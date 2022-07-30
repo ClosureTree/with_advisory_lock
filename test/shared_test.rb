@@ -4,7 +4,7 @@ require 'minitest_helper'
 
 describe 'shared locks' do
   def supported?
-    ![:mysql2].include?(env_db)
+    ![:mysql2, :jdbcmysql].include?(env_db)
   end
 
   class SharedTestWorker

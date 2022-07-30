@@ -7,6 +7,11 @@ appraise 'activerecord-6.0' do
     gem 'mysql2'
     gem 'pg'
   end
+  platforms :jruby do
+    gem "activerecord-jdbcmysql-adapter"
+    gem "activerecord-jdbcpostgresql-adapter"
+    gem "activerecord-jdbcsqlite3-adapter"
+  end
 end
 
 appraise 'activerecord-6.1' do
@@ -15,6 +20,11 @@ appraise 'activerecord-6.1' do
     gem 'sqlite3'
     gem 'mysql2'
     gem 'pg'
+  end
+  platforms :jruby do
+    gem "activerecord-jdbcmysql-adapter"
+    gem "activerecord-jdbcpostgresql-adapter"
+    gem "activerecord-jdbcsqlite3-adapter"
   end
 end
 
