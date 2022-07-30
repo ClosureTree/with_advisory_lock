@@ -55,7 +55,7 @@ module WithAdvisoryLock
     def with_advisory_lock_if_needed(&block)
       if already_locked?
         Result.new(true, yield)
-      elsif timeout_seconds.zero?
+      elsif timeout_seconds == 0
         yield_with_lock(&block)
       else
         yield_with_lock_and_timeout(&block)
