@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 
 module WithAdvisoryLock
@@ -19,14 +21,13 @@ module WithAdvisoryLock
     end
 
     def try_lock
-      if transaction
-        raise ArgumentError, 'transaction level locks are not supported on SQLite'
-      end
-      0 == file_io.flock((shared ? File::LOCK_SH : File::LOCK_EX) | File::LOCK_NB)
+      raise ArgumentError, 'transaction level locks are not supported on SQLite' if transaction
+
+      file_io.flock((shared ? File::LOCK_SH : File::LOCK_EX) | File::LOCK_NB).zero?
     end
 
     def release_lock
-      0 == file_io.flock(File::LOCK_UN)
+      file_io.flock(File::LOCK_UN).zero?
     end
   end
 end

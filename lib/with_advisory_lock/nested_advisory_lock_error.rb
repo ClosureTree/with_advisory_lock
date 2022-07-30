@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WithAdvisoryLock
   class NestedAdvisoryLockError < StandardError
     attr_accessor :lock_stack
