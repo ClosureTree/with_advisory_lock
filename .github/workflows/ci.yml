@@ -35,6 +35,7 @@ jobs:
         ruby:
           - '3.0'
           - '2.7'
+          - '3.1'
         rails:
           - activerecord_7.0
           - activerecord_6.1
