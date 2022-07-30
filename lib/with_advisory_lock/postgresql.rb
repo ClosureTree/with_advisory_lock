@@ -21,7 +21,7 @@ module WithAdvisoryLock
     end
 
     def execute_successful?(pg_function)
-      comment = lock_name.gsub(/(\/\*)|(\*\/)/, '--')
+      comment = lock_name.to_s.gsub(/(\/\*)|(\*\/)/, '--')
       sql = "SELECT #{pg_function}(#{lock_keys.join(',')}) AS #{unique_column_name} /* #{comment} */"
       result = connection.select_value(sql)
       # MRI returns 't', jruby returns true. YAY!
