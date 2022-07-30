@@ -73,7 +73,6 @@ jobs:
 
       - name: Test
         env:
-          DB_ADAPTER: ${{ matrix.adapter }}
           BUNDLE_GEMFILE: gemfiles/${{ matrix.rails }}.gemfile
           DATABASE_URL: ${{ matrix.adapter }}
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
