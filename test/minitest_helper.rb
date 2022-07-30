@@ -6,16 +6,20 @@ require 'with_advisory_lock'
 require 'tmpdir'
 require 'securerandom'
 
-def env_db
-  ENV.fetch('DB_ADAPTER', :sqlite).to_sym
-end
-
-db_config = File.expand_path('database.yml', File.dirname(__FILE__))
-ActiveRecord::Base.configurations = YAML.safe_load(ERB.new(IO.read(db_config)).result)
+ActiveRecord::Base.configurations = { default_env: { url: ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/#{SecureRandom.hex}.sqlite3") } }
 
 ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 
-ActiveRecord::Base.establish_connection(env_db)
+ActiveRecord::Base.establish_connection
+
+def env_db
+  @env_db ||= if ActiveRecord::Base.respond_to?(:connection_db_config)
+                ActiveRecord::Base.connection_db_config.adapter
+              else
+                ActiveRecord::Base.connection_config[:adapter]
+              end.to_sym
+end
+
 ActiveRecord::Migration.verbose = false
 
 require 'test_models'
@@ -24,7 +28,7 @@ require 'minitest/autorun'
 require 'minitest/great_expectations'
 require 'mocha/minitest'
 
-puts "Testing with #{env_db} database , ActiveRecord #{ActiveRecord.gem_version} and #{RUBY_ENGINE} #{RUBY_ENGINE_VERSION} as #{RUBY_VERSION}"
+puts "Testing with #{env_db} database, ActiveRecord #{ActiveRecord.gem_version} and #{RUBY_ENGINE} #{RUBY_ENGINE_VERSION} as #{RUBY_VERSION}"
 module MiniTest
   class Spec
     before do
