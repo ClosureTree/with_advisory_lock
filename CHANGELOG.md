@@ -1,5 +1,8 @@
 ## Changelog
 
+### 5.0.0
+- Drop support for EOL rubies and rails.
+
 ### 4.6.0
 
 - Support for ActiveRecord 6
