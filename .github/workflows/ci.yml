@@ -51,12 +51,21 @@ jobs:
         include:
           - ruby: jruby
             rails: activerecord_6.0
-            adapter: jdbcmysql://root:root@0/with_advisory_lock_test?allowPublicKeyRetrieval=true&useSSL=false
+            adapter: jdbcmysql://root:root@0/with_advisory_lock_test
           - ruby: jruby
             rails: activerecord_6.0
             adapter: jdbcsqlite3:///tmp/test.sqlite3
           - ruby: jruby
             rails: activerecord_6.0
+            adapter: jdbcpostgresql://closure_tree:closure_tree@0/with_advisory_lock_test
+          - ruby: jruby
+            rails: activerecord_6.1
+            adapter: jdbcmysql://root:root@0/with_advisory_lock_test
+          - ruby: jruby
+            rails: activerecord_6.1
+            adapter: jdbcsqlite3:///tmp/test.sqlite3
+          - ruby: jruby
+            rails: activerecord_6.1
             adapter: jdbcpostgresql://closure_tree:closure_tree@0/with_advisory_lock_test
     steps:
       - name: Checkout
