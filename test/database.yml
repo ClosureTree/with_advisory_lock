@@ -6,12 +6,15 @@ sqlite:
 postgresql:
   adapter: postgresql
   username: postgres
+  password: postgres
+  host: 0
   database: with_advisory_lock_test
   min_messages: ERROR
   pool: 50
 mysql:
   adapter: mysql2
-  host: localhost
+  host: 0
   username: root
+  password: root
   database: with_advisory_lock_test
   pool: 50

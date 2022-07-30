@@ -25,19 +25,6 @@ describe "lock nesting" do
     assert_empty(impl.lock_stack)
   end
 
-  it "raises errors with MySQL < 5.7.5 when acquiring nested lock" do
-    skip unless env_db == :mysql && ENV['MYSQL_VERSION'] != '5.7'
-
-    exc = assert_raises(WithAdvisoryLock::NestedAdvisoryLockError) do
-      Tag.with_advisory_lock("first") do
-        Tag.with_advisory_lock("second") do
-        end
-      end
-    end
-
-    assert_equal(%w(first), exc.lock_stack.map(&:name))
-  end
-
   it "does not raise errors with MySQL < 5.7.5 when acquiring nested error force enabled" do
     skip unless env_db == :mysql && ENV['MYSQL_VERSION'] != '5.7'
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
