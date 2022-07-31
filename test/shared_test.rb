@@ -4,7 +4,7 @@ require 'minitest_helper'
 
 describe 'shared locks' do
   def supported?
-    ![:mysql2, :jdbcmysql].include?(env_db)
+    %i[mysql2 jdbcmysql].exclude?(env_db)
   end
 
   class SharedTestWorker
@@ -43,7 +43,7 @@ describe 'shared locks' do
 
   it 'does not allow two exclusive locks' do
     one = SharedTestWorker.new(false)
-    assert(one.locked?)
+    assert_predicate(one, :locked?)
 
     two = SharedTestWorker.new(false)
     refute(two.locked?)
@@ -76,10 +76,10 @@ describe 'shared locks' do
 
     it 'does allow two shared locks' do
       one = SharedTestWorker.new(true)
-      assert(one.locked?)
+      assert_predicate(one, :locked?)
 
       two = SharedTestWorker.new(true)
-      assert(two.locked?)
+      assert_predicate(two, :locked?)
 
       one.cleanup!
       two.cleanup!
@@ -87,13 +87,13 @@ describe 'shared locks' do
 
     it 'does not allow exclusive lock with shared lock' do
       one = SharedTestWorker.new(true)
-      assert(one.locked?)
+      assert_predicate(one, :locked?)
 
       two = SharedTestWorker.new(false)
       refute(two.locked?)
 
       three = SharedTestWorker.new(true)
-      assert(three.locked?)
+      assert_predicate(three, :locked?)
 
       one.cleanup!
       two.cleanup!
@@ -102,7 +102,7 @@ describe 'shared locks' do
 
     it 'does not allow shared lock with exclusive lock' do
       one = SharedTestWorker.new(false)
-      assert(one.locked?)
+      assert_predicate(one, :locked?)
 
       two = SharedTestWorker.new(true)
       refute(two.locked?)
@@ -121,14 +121,14 @@ describe 'shared locks' do
       end
 
       it 'allows shared lock to be upgraded to an exclusive lock' do
-        assert_equal(%w[], pg_lock_modes)
+        assert_empty(pg_lock_modes)
         Tag.with_advisory_lock 'test', shared: true do
           assert_equal(%w[ShareLock], pg_lock_modes)
           Tag.with_advisory_lock 'test', shared: false do
             assert_equal(%w[ShareLock ExclusiveLock], pg_lock_modes)
           end
         end
-        assert_equal(%w[], pg_lock_modes)
+        assert_empty(pg_lock_modes)
       end
     end
   end
