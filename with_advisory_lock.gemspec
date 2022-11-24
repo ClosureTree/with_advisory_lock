@@ -29,4 +29,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'minitest-reporters'
   gem.add_development_dependency 'mocha'
   gem.add_development_dependency 'yard'
+  gem.add_development_dependency 'sqlite3', '~> 1.3', '>= 1.3.11'
 end
