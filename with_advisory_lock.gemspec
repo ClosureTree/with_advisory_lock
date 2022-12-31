@@ -5,28 +5,29 @@ lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require_relative 'lib/with_advisory_lock/version'
 
-Gem::Specification.new do |gem|
-  gem.name          = 'with_advisory_lock'
-  gem.version       = WithAdvisoryLock::VERSION
-  gem.authors       = ['Matthew McEachen', 'Abdelkader Boudih']
-  gem.email         = %w[matthew+github@mceachen.org terminale@gmail.com]
-  gem.homepage      = 'https://github.com/ClosureTree/with_advisory_lock'
-  gem.summary       = 'Advisory locking for ActiveRecord'
-  gem.description   = 'Advisory locking for ActiveRecord'
-  gem.license       = 'MIT'
+Gem::Specification.new do |spec|
+  spec.name          = 'with_advisory_lock'
+  spec.version       = WithAdvisoryLock::VERSION
+  spec.authors       = ['Matthew McEachen', 'Abdelkader Boudih']
+  spec.email         = %w[matthew+github@mceachen.org terminale@gmail.com]
+  spec.homepage      = 'https://github.com/ClosureTree/with_advisory_lock'
+  spec.summary       = 'Advisory locking for ActiveRecord'
+  spec.description   = 'Advisory locking for ActiveRecord'
+  spec.license       = 'MIT'
 
-  gem.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
-  gem.test_files    = gem.files.grep(%r{^test/})
-  gem.require_paths = %w[lib]
-  gem.metadata      = { "rubygems_mfa_required" => "true" }
-  gem.required_ruby_version = '>= 2.6.8'
+  spec.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
+  spec.test_files    = spec.files.grep(%r{^test/})
+  spec.require_paths = %w[lib]
+  spec.metadata      = { "rubyspecs_mfa_required" => "true" }
+  spec.required_ruby_version = '>= 2.6.8'
+  spec.metadata["yard.run"] = "yri"
 
-  gem.add_runtime_dependency 'activerecord', '>= 6.0'
+  spec.add_runtime_dependency 'activerecord', '>= 6.0'
 
-  gem.add_development_dependency 'appraisal'
-  gem.add_development_dependency 'minitest'
-  gem.add_development_dependency 'minitest-great_expectations'
-  gem.add_development_dependency 'minitest-reporters'
-  gem.add_development_dependency 'mocha'
-  gem.add_development_dependency 'yard'
+  spec.add_development_dependency 'appraisal'
+  spec.add_development_dependency 'maxitest'
+  spec.add_development_dependency 'minitest-great_expectations'
+  spec.add_development_dependency 'minitest-reporters'
+  spec.add_development_dependency 'mocha'
+  spec.add_development_dependency 'yard'
 end

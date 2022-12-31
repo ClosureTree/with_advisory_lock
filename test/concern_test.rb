@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'minitest_helper'
+require 'test_helper'
 
 describe 'with_advisory_lock.concern' do
   it 'adds with_advisory_lock to ActiveRecord classes' do

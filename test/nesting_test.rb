@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'minitest_helper'
+require 'test_helper'
 
 describe 'lock nesting' do
   # This simplifies what we expect from the lock name:

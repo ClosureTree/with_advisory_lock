@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'minitest_helper'
+require 'test_helper'
 
 describe 'separate thread tests' do
   let(:lock_name) { 'testing 1,2,3' } # OMG COMMAS
