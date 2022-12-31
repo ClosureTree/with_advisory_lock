@@ -29,7 +29,7 @@ ActiveRecord::Migration.verbose = false
 
 require 'test_models'
 require 'minitest'
-require 'minitest/autorun'
+require 'maxitest/autorun'
 require 'minitest/great_expectations'
 require 'mocha/minitest'
 

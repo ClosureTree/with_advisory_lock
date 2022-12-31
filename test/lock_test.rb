@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'minitest_helper'
+require 'test_helper'
 
 describe 'class methods' do
   let(:lock_name) { 'test lock' }
