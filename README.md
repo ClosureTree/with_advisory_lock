@@ -122,7 +122,7 @@ row-level locks prevent concurrent modification to a given model.
 
 **If you're building a
 [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-application, this will be2.4, 2.5 and  your most commonly used lock.**
+application, this will be 2.4, 2.5 and  your most commonly used lock.**
 
 ### Table-level locks
 
