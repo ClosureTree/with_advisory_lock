@@ -44,8 +44,9 @@ A value of zero will try the lock only once. If the lock is acquired, the block
 will be yielded to. If the lock is currently being held, the block will not be
 called.
 
-Note that if a non-nil value is provided for `timeout_seconds`, the block will
-not be invoked if the lock cannot be acquired within that time-frame.
+> **Note**
+> If a non-nil value is provided for `timeout_seconds`, the block will
+*not* be invoked if the lock cannot be acquired within that time-frame. In this case, `with_advisory_lock` will return `false`, while `with_advisory_lock!` will raise a `WithAdvisoryLock::FailedToAcquireLock` error.
 
 For backwards compatability, the timeout value can be specified directly as the
 second parameter.
@@ -78,6 +79,8 @@ The return value of `with_advisory_lock` will be the result of the yielded
 block, if the lock was able to be acquired and the block yielded, or `false`, if
 you provided a timeout_seconds value and the lock was not able to be acquired in
 time.
+
+`with_advisory_lock!` is similar to `with_advisory_lock`, but raises a `WithAdvisoryLock::FailedToAcquireLock` error if the lock was not able to be acquired in time. 
 
 ### Testing for the current lock status
 

@@ -5,12 +5,21 @@ require 'active_support/concern'
 module WithAdvisoryLock
   module Concern
     extend ActiveSupport::Concern
-    delegate :with_advisory_lock, :advisory_lock_exists?, to: 'self.class'
+    delegate :with_advisory_lock, :with_advisory_lock!, :advisory_lock_exists?, to: 'self.class'
 
     module ClassMethods
       def with_advisory_lock(lock_name, options = {}, &block)
         result = with_advisory_lock_result(lock_name, options, &block)
         result.lock_was_acquired? ? result.result : false
+      end
+
+      def with_advisory_lock!(lock_name, options = {}, &block)
+        result = with_advisory_lock_result(lock_name, options, &block)
+        unless result.lock_was_acquired?
+          raise WithAdvisoryLock::FailedToAcquireLock, lock_name
+        end
+
+        result.result
       end
 
       def with_advisory_lock_result(lock_name, options = {}, &block)
