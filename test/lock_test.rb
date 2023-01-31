@@ -45,13 +45,13 @@ describe 'class methods' do
 
     it 'returns false on lock acquisition failure' do
       thread_with_lock = Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          Tag.with_advisory_lock(lock_name, timeout_seconds: 0) do
-            sleep 0.01 while true
-          end
+        Tag.with_advisory_lock(lock_name, timeout_seconds: 0) do
+          @locked_elsewhere = true
+          sleep 0.01 while true
         end
       end
 
+      sleep 0.01 until @locked_elsewhere
       assert_false(Tag.with_advisory_lock(lock_name, timeout_seconds: 0) { return_val })
 
       thread_with_lock.kill
@@ -65,13 +65,13 @@ describe 'class methods' do
 
     it 'raises an error on lock acquisition failure' do
       thread_with_lock = Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          Tag.with_advisory_lock(lock_name, timeout_seconds: 0) do
-            sleep 0.01 while true
-          end
+        Tag.with_advisory_lock(lock_name, timeout_seconds: 0) do
+          @locked_elsewhere = true
+          sleep 0.01 while true
         end
       end
 
+      sleep 0.01 until @locked_elsewhere
       assert_raises(WithAdvisoryLock::FailedToAcquireLock) do
         Tag.with_advisory_lock!(lock_name, timeout_seconds: 0) { return_val }
       end

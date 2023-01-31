@@ -45,6 +45,7 @@ will be yielded to. If the lock is currently being held, the block will not be
 called.
 
 > **Note**
+> 
 > If a non-nil value is provided for `timeout_seconds`, the block will
 *not* be invoked if the lock cannot be acquired within that time-frame. In this case, `with_advisory_lock` will return `false`, while `with_advisory_lock!` will raise a `WithAdvisoryLock::FailedToAcquireLock` error.
 
