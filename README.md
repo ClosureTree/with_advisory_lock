@@ -90,6 +90,14 @@ If you want to see if the current Thread is holding a lock, you can call
 `Tag.current_advisory_lock` which will return the name of the current lock. If
 no lock is currently held, `.current_advisory_lock` returns `nil`.
 
+### ActiveRecord Query Cache
+
+You can optionally pass `disable_query_cache: true` to the options hash of
+`with_advisory_lock` in order to disable ActiveRecord's query cache. This can
+prevent problems when you query the database from within the lock and it returns
+stale results. More info on why this can be a problem can be
+[found here](https://github.com/ClosureTree/with_advisory_lock/issues/52)
+
 ## Installation
 
 Add this line to your application's Gemfile:
