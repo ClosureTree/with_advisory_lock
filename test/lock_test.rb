@@ -4,6 +4,7 @@ require 'test_helper'
 
 describe 'class methods' do
   let(:lock_name) { 'test lock' }
+  let(:return_val) { 1900 }
 
   describe '.current_advisory_lock' do
     it 'returns nil outside an advisory lock request' do
@@ -34,6 +35,48 @@ describe 'class methods' do
       Tag.with_advisory_lock(lock_name) do
         assert(Tag.advisory_lock_exists?(lock_name))
       end
+    end
+  end
+
+  describe '.with_advisory_lock' do
+    it 'returns block return value if lock successful' do
+      assert_equal(return_val, Tag.with_advisory_lock!(lock_name) { return_val })
+    end
+
+    it 'returns false on lock acquisition failure' do
+      thread_with_lock = Thread.new do
+        Tag.with_advisory_lock(lock_name, timeout_seconds: 0) do
+          @locked_elsewhere = true
+          sleep 0.01 while true
+        end
+      end
+
+      sleep 0.01 until @locked_elsewhere
+      assert_false(Tag.with_advisory_lock(lock_name, timeout_seconds: 0) { return_val })
+
+      thread_with_lock.kill
+    end
+  end
+
+  describe '.with_advisory_lock!' do
+    it 'returns block return value if lock successful' do
+      assert_equal(return_val, Tag.with_advisory_lock!(lock_name) { return_val })
+    end
+
+    it 'raises an error on lock acquisition failure' do
+      thread_with_lock = Thread.new do
+        Tag.with_advisory_lock(lock_name, timeout_seconds: 0) do
+          @locked_elsewhere = true
+          sleep 0.01 while true
+        end
+      end
+
+      sleep 0.01 until @locked_elsewhere
+      assert_raises(WithAdvisoryLock::FailedToAcquireLock) do
+        Tag.with_advisory_lock!(lock_name, timeout_seconds: 0) { return_val }
+      end
+
+      thread_with_lock.kill
     end
   end
 

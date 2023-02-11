@@ -11,6 +11,7 @@ module WithAdvisoryLock
   autoload :MySQL, 'with_advisory_lock/mysql'
   autoload :MySQLNoNesting, 'with_advisory_lock/mysql_no_nesting'
   autoload :NestedAdvisoryLockError
+  autoload :FailedToAcquireLock
   autoload :PostgreSQL, 'with_advisory_lock/postgresql'
 end
 
