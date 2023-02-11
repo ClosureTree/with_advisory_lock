@@ -21,17 +21,18 @@ module WithAdvisoryLock
   LockStackItem = Struct.new(:name, :shared)
 
   class Base
-    attr_reader :connection, :lock_name, :timeout_seconds, :shared, :transaction
+    attr_reader :connection, :lock_name, :timeout_seconds, :shared, :transaction, :disable_query_cache
 
     def initialize(connection, lock_name, options)
       options = { timeout_seconds: options } unless options.respond_to?(:fetch)
-      options.assert_valid_keys :timeout_seconds, :shared, :transaction
+      options.assert_valid_keys :timeout_seconds, :shared, :transaction, :disable_query_cache
 
       @connection = connection
       @lock_name = lock_name
       @timeout_seconds = options.fetch(:timeout_seconds, nil)
       @shared = options.fetch(:shared, false)
       @transaction = options.fetch(:transaction, false)
+      @disable_query_cache = options.fetch(:disable_query_cache, false)
     end
 
     def lock_str
@@ -53,6 +54,16 @@ module WithAdvisoryLock
     end
 
     def with_advisory_lock_if_needed(&block)
+      if disable_query_cache
+        return lock_and_yield do
+          ActiveRecord::Base.uncached(&block)
+        end
+      end
+
+      lock_and_yield(&block)
+    end
+
+    def lock_and_yield(&block)
       if already_locked?
         Result.new(true, yield)
       elsif timeout_seconds == 0
