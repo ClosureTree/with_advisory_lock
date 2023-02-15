@@ -1,6 +1,7 @@
 ## Changelog
 
 - Add `with_advisory_lock!`, which raises an error if the lock acquisition fails
+- Add a `disable_query_cache` option to `with_advisory_lock`
 
 ### 5.0.0
 - Drop support for EOL rubies and activerecord (ruby below 2.7 and activerecord below 6.0).
