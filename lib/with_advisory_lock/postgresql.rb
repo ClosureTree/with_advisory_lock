@@ -14,6 +14,8 @@ module WithAdvisoryLock
       pg_function = "pg_advisory_unlock#{shared ? '_shared' : ''}"
       execute_successful?(pg_function)
     rescue ActiveRecord::StatementInvalid => e
+      # If something goes real bad, pg will close the connection. in that case the lock is no longer held
+      return if e.message =~ /PG::ConnectionBad:/
       raise unless e.message =~ / ERROR: +current transaction is aborted,/
 
       begin
