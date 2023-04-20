@@ -37,6 +37,7 @@ puts "Testing with #{env_db} database, ActiveRecord #{ActiveRecord.gem_version} 
 module MiniTest
   class Spec
     before do
+      ActiveRecord::Base.establish_connection
       ENV['FLOCK_DIR'] = Dir.mktmpdir
       Tag.delete_all
       TagAudit.delete_all

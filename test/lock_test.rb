@@ -56,6 +56,12 @@ describe 'class methods' do
 
       thread_with_lock.kill
     end
+
+    it 'handles lost connection gracefully' do
+      Tag.with_advisory_lock(lock_name) { Tag.connection.disconnect! }
+
+      assert_nil(Tag.current_advisory_lock)
+    end
   end
 
   describe '.with_advisory_lock!' do
