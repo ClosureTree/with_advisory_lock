@@ -69,5 +69,15 @@ describe 'transaction scoping' do
       end
       assert_equal(0, pg_lock_count)
     end
+
+    specify 'transaction level locks fail if not in transaction' do
+      exception = assert_raises do
+        Tag.with_advisory_lock 'test', transaction: true do
+          raise 'should not get here'
+        end
+      end
+
+      assert_match(/#{Regexp.escape('requires transaction')}/, exception.message)
+    end
   end
 end

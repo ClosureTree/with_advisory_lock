@@ -5,6 +5,9 @@ module WithAdvisoryLock
     # See http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
     def try_lock
       pg_function = "pg_try_advisory#{transaction ? '_xact' : ''}_lock#{shared ? '_shared' : ''}"
+      
+      raise "#{pg_function} requires transaction" if transaction && !ActiveRecord::Base.connection.transaction_open?
+      
       execute_successful?(pg_function)
     end
 
