@@ -1,13 +1,12 @@
 ## Changelog
 
-- Add `with_advisory_lock!`, which raises an error if the lock acquisition fails
-- Add a `disable_query_cache` option to `with_advisory_lock`
-
-### 5.0.0
+### Next (5.0.0)
 - Drop support for EOL rubies and activerecord (ruby below 2.7 and activerecord below 6.0).
 - Allow lock name to be integer
 - Jruby support
 - Truffleruby support
+- Add `with_advisory_lock!`, which raises an error if the lock acquisition fails
+- Add a `disable_query_cache` option to `with_advisory_lock`
 
 ### 4.6.0
 
