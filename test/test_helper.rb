@@ -18,11 +18,7 @@ ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 ActiveRecord::Base.establish_connection
 
 def env_db
-  @env_db ||= if ActiveRecord::Base.respond_to?(:connection_db_config)
-                ActiveRecord::Base.connection_db_config.adapter
-              else
-                ActiveRecord::Base.connection_config[:adapter]
-              end.to_sym
+  @env_db ||= ActiveRecord::Base.connection_db_config.adapter.to_sym
 end
 
 ActiveRecord::Migration.verbose = false
