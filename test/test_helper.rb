@@ -30,20 +30,18 @@ ActiveRecord::Migration.verbose = false
 require 'test_models'
 require 'minitest'
 require 'maxitest/autorun'
-require 'minitest/great_expectations'
 require 'mocha/minitest'
 
-puts "Testing with #{env_db} database, ActiveRecord #{ActiveRecord.gem_version} and #{RUBY_ENGINE} #{RUBY_ENGINE_VERSION} as #{RUBY_VERSION}"
-module MiniTest
-  class Spec
-    before do
-      ENV['FLOCK_DIR'] = Dir.mktmpdir
-      Tag.delete_all
-      TagAudit.delete_all
-      Label.delete_all
-    end
-    after do
-      FileUtils.remove_entry_secure ENV['FLOCK_DIR']
-    end
+class GemTestCase < ActiveSupport::TestCase
+  setup do
+    ENV['FLOCK_DIR'] = Dir.mktmpdir
+    Tag.delete_all
+    TagAudit.delete_all
+    Label.delete_all
+  end
+  teardown do
+    FileUtils.remove_entry_secure ENV['FLOCK_DIR']
   end
 end
+
+puts "Testing with #{env_db} database, ActiveRecord #{ActiveRecord.gem_version} and #{RUBY_ENGINE} #{RUBY_ENGINE_VERSION} as #{RUBY_VERSION}"

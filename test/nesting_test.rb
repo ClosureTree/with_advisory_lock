@@ -2,18 +2,17 @@
 
 require 'test_helper'
 
-describe 'lock nesting' do
-  # This simplifies what we expect from the lock name:
-  before :each do
+class LockNestingTest < GemTestCase
+  setup do
     @prior_prefix = ENV['WITH_ADVISORY_LOCK_PREFIX']
     ENV['WITH_ADVISORY_LOCK_PREFIX'] = nil
   end
 
-  after :each do
+  teardown do
     ENV['WITH_ADVISORY_LOCK_PREFIX'] = @prior_prefix
   end
 
-  it "doesn't request the same lock twice" do
+  test "doesn't request the same lock twice" do
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
     assert_empty(impl.lock_stack)
     Tag.with_advisory_lock('first') do
@@ -27,7 +26,7 @@ describe 'lock nesting' do
     assert_empty(impl.lock_stack)
   end
 
-  it 'does not raise errors with MySQL < 5.7.5 when acquiring nested error force enabled' do
+  test 'does not raise errors with MySQL < 5.7.5 when acquiring nested error force enabled' do
     skip unless [:mysql2].include?(env_db)
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
     assert_empty(impl.lock_stack)
@@ -49,7 +48,7 @@ describe 'lock nesting' do
     assert_empty(impl.lock_stack)
   end
 
-  it 'supports nested advisory locks with !MySQL 5.6' do
+  test 'supports nested advisory locks with !MySQL 5.6' do
     skip if [:mysql2].include? env_db
     impl = WithAdvisoryLock::Base.new(nil, nil, nil)
     assert_empty(impl.lock_stack)
@@ -71,7 +70,7 @@ describe 'lock nesting' do
     assert_empty(impl.lock_stack)
   end
 
-  it 'raises with !MySQL 5.6 and nested error force disabled' do
+  test 'raises with !MySQL 5.6 and nested error force disabled' do
     skip unless [:mysql2].include?(env_db)
 
     exc = assert_raises(WithAdvisoryLock::NestedAdvisoryLockError) do

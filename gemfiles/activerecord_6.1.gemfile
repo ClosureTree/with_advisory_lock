@@ -8,6 +8,7 @@ platforms :ruby do
   gem "sqlite3"
   gem "mysql2"
   gem "pg"
+  gem "activerecord-trilogy-adapter"
 end
 
 platforms :jruby do
