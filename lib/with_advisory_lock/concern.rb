@@ -7,7 +7,7 @@ module WithAdvisoryLock
     extend ActiveSupport::Concern
     delegate :with_advisory_lock, :with_advisory_lock!, :advisory_lock_exists?, to: 'self.class'
 
-    module ClassMethods
+    class_methods do
       def with_advisory_lock(lock_name, options = {}, &block)
         result = with_advisory_lock_result(lock_name, options, &block)
         result.lock_was_acquired? ? result.result : false
@@ -23,8 +23,7 @@ module WithAdvisoryLock
       end
 
       def with_advisory_lock_result(lock_name, options = {}, &block)
-        class_options = options.extract!(:force_nested_lock_support) if options.respond_to?(:fetch)
-        impl = impl_class(class_options).new(connection, lock_name, options)
+        impl = impl_class.new(connection, lock_name, options)
         impl.with_advisory_lock_if_needed(&block)
       end
 
@@ -40,24 +39,12 @@ module WithAdvisoryLock
 
       private
 
-      def impl_class(options = nil)
+      def impl_class
         adapter = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
         if adapter.postgresql?
           WithAdvisoryLock::PostgreSQL
         elsif adapter.mysql?
-          nested_lock = if options.respond_to?(:fetch) && [true,
-                                                           false].include?(options.fetch(:force_nested_lock_support,
-                                                                                         nil))
-                          options.fetch(:force_nested_lock_support)
-                        else
-                          adapter.mysql_nested_lock_support?
-                        end
-
-          if nested_lock
-            WithAdvisoryLock::MySQL
-          else
-            WithAdvisoryLock::MySQLNoNesting
-          end
+          WithAdvisoryLock::MySQL
         else
           WithAdvisoryLock::Flock
         end
