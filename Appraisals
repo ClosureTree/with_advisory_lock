@@ -6,6 +6,7 @@ appraise 'activerecord-6.0' do
     gem 'sqlite3'
     gem 'mysql2'
     gem 'pg'
+    gem 'activerecord-trilogy-adapter'
   end
   platforms :jruby do
     gem "activerecord-jdbcmysql-adapter"
@@ -20,6 +21,7 @@ appraise 'activerecord-6.1' do
     gem 'sqlite3'
     gem 'mysql2'
     gem 'pg'
+    gem 'activerecord-trilogy-adapter'
   end
   platforms :jruby do
     gem "activerecord-jdbcmysql-adapter"
@@ -34,6 +36,7 @@ appraise 'activerecord-7.0' do
     gem 'sqlite3'
     gem 'mysql2'
     gem 'pg'
+    gem 'activerecord-trilogy-adapter'
   end
 end
 
@@ -42,6 +45,8 @@ appraise 'activerecord-edge' do
   platforms :ruby do
     gem 'sqlite3'
     gem 'mysql2'
+    gem 'activerecord-trilogy-adapter'
+    gem 'trilogy'
     gem 'pg'
   end
 end

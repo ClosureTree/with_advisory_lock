@@ -12,7 +12,7 @@ module WithAdvisoryLock
     end
 
     def mysql?
-      @sym_name == :mysql2
+      @sym_name == :mysql2 || @sym_name == :trilogy
     end
 
     # Nested lock support for MySQL was introduced in 5.7.5
