@@ -5,6 +5,15 @@ require 'active_record'
 require 'with_advisory_lock'
 require 'tmpdir'
 require 'securerandom'
+begin
+  require 'activerecord-trilogy-adapter'
+  ActiveSupport.on_load(:active_record) do
+    require "trilogy_adapter/connection"
+    ActiveRecord::Base.public_send :extend, TrilogyAdapter::Connection
+  end
+rescue LoadError
+  # do nothing
+end
 
 ActiveRecord::Base.configurations = {
   default_env: {
