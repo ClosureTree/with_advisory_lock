@@ -37,7 +37,7 @@ end
 
 class SharedLocksTest < GemTestCase
   def supported?
-    %i[mysql2 jdbcmysql].exclude?(env_db)
+    %i[trilogy mysql2 jdbcmysql].exclude?(env_db)
   end
 
   test 'does not allow two exclusive locks' do
