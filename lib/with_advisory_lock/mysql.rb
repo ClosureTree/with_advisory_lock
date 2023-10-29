@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module WithAdvisoryLock
-  # MySQL > 5.7.5 supports nested locks
   class MySQL < Base
     # See https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock
     def try_lock

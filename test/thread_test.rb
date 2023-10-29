@@ -2,17 +2,16 @@
 
 require 'test_helper'
 
-describe 'separate thread tests' do
-  let(:lock_name) { 'testing 1,2,3' } # OMG COMMAS
-
-  before do
+class SeparateThreadTest < GemTestCase
+  setup do
+    @lock_name = 'testing 1,2,3' # OMG COMMAS
     @mutex = Mutex.new
     @t1_acquired_lock = false
     @t1_return_value = nil
 
     @t1 = Thread.new do
       ActiveRecord::Base.connection_pool.with_connection do
-        @t1_return_value = Label.with_advisory_lock(lock_name) do
+        @t1_return_value = Label.with_advisory_lock(@lock_name) do
           @mutex.synchronize { @t1_acquired_lock = true }
           sleep
           't1 finished'
@@ -25,34 +24,34 @@ describe 'separate thread tests' do
     ActiveRecord::Base.connection.reconnect!
   end
 
-  after do
+  teardown do
     @t1.wakeup if @t1.status == 'sleep'
     @t1.join
   end
 
-  it '#with_advisory_lock with a 0 timeout returns false immediately' do
-    response = Label.with_advisory_lock(lock_name, 0) do
+  test '#with_advisory_lock with a 0 timeout returns false immediately' do
+    response = Label.with_advisory_lock(@lock_name, 0) do
       raise 'should not be yielded to'
     end
-    refute(response)
+    assert_not(response)
   end
 
-  it '#with_advisory_lock yields to the provided block' do
+  test '#with_advisory_lock yields to the provided block' do
     assert(@t1_acquired_lock)
   end
 
-  it '#advisory_lock_exists? returns true when another thread has the lock' do
-    assert(Tag.advisory_lock_exists?(lock_name))
+  test '#advisory_lock_exists? returns true when another thread has the lock' do
+    assert(Tag.advisory_lock_exists?(@lock_name))
   end
 
-  it 'can re-establish the lock after the other thread releases it' do
+  test 'can re-establish the lock after the other thread releases it' do
     @t1.wakeup
     @t1.join
     assert_equal('t1 finished', @t1_return_value)
 
     # We should now be able to acquire the lock immediately:
     reacquired = false
-    lock_result = Label.with_advisory_lock(lock_name, 0) do
+    lock_result = Label.with_advisory_lock(@lock_name, 0) do
       reacquired = true
     end
 

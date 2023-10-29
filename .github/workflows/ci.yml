@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mysql:
-        image: mysql/mysql-server:8.0.30
+        image: mysql/mysql-server:5.7
         ports:
           - "3306:3306"
         env:
@@ -41,24 +41,15 @@ jobs:
           - '2.7'
           - 'truffleruby'
         rails:
+          - activerecord_7.1
           - activerecord_7.0
           - activerecord_6.1
-          - activerecord_6.0
-          - activerecord_edge
         adapter:
           - sqlite3:///tmp/test.sqlite3
           - mysql2://root:root@0/with_advisory_lock_test
+          - trilogy://root:root@0/with_advisory_lock_test
           - postgres://closure_tree:closure_tree@0/with_advisory_lock_test
         include:
-          - ruby: jruby
-            rails: activerecord_6.0
-            adapter: jdbcmysql://root:root@0/with_advisory_lock_test
-          - ruby: jruby
-            rails: activerecord_6.0
-            adapter: jdbcsqlite3:///tmp/test.sqlite3
-          - ruby: jruby
-            rails: activerecord_6.0
-            adapter: jdbcpostgresql://closure_tree:closure_tree@0/with_advisory_lock_test
           - ruby: jruby
             rails: activerecord_6.1
             adapter: jdbcmysql://root:root@0/with_advisory_lock_test
@@ -70,7 +61,7 @@ jobs:
             adapter: jdbcpostgresql://closure_tree:closure_tree@0/with_advisory_lock_test
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1

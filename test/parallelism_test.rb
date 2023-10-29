@@ -3,35 +3,35 @@
 require 'test_helper'
 require 'forwardable'
 
-describe 'parallelism' do
-  class FindOrCreateWorker
-    extend Forwardable
-    def_delegators :@thread, :join, :wakeup, :status, :to_s
+class FindOrCreateWorker
+  extend Forwardable
+  def_delegators :@thread, :join, :wakeup, :status, :to_s
 
-    def initialize(name, use_advisory_lock)
-      @name = name
-      @use_advisory_lock = use_advisory_lock
-      @thread = Thread.new { work_later }
-    end
+  def initialize(name, use_advisory_lock)
+    @name = name
+    @use_advisory_lock = use_advisory_lock
+    @thread = Thread.new { work_later }
+  end
 
-    def work_later
-      sleep
-      ActiveRecord::Base.connection_pool.with_connection do
-        if @use_advisory_lock
-          Tag.with_advisory_lock(@name) { work }
-        else
-          work
-        end
-      end
-    end
-
-    def work
-      Tag.transaction do
-        Tag.where(name: @name).first_or_create
+  def work_later
+    sleep
+    ActiveRecord::Base.connection_pool.with_connection do
+      if @use_advisory_lock
+        Tag.with_advisory_lock(@name) { work }
+      else
+        work
       end
     end
   end
 
+  def work
+    Tag.transaction do
+      Tag.where(name: @name).first_or_create
+    end
+  end
+end
+
+class ParallelismTest < GemTestCase
   def run_workers
     @names = @iterations.times.map { |iter| "iteration ##{iter}" }
     @names.each do |name|
@@ -49,14 +49,12 @@ describe 'parallelism' do
     ActiveRecord::Base.connection_pool.connection
   end
 
-  before :each do
+  setup do
     ActiveRecord::Base.connection.reconnect!
     @workers = 10
   end
 
-  # < SQLite, understandably, throws "The database file is locked (database is locked)"
-
-  it 'creates multiple duplicate rows without advisory locks' do
+  test 'creates multiple duplicate rows without advisory locks' do
     skip if %i[sqlite3 jdbcsqlite3].include?(env_db)
     @use_advisory_lock = false
     @iterations = 1
@@ -66,7 +64,7 @@ describe 'parallelism' do
     assert_operator(Label.all.size,    :>, @iterations) # <- any duplicated rows will make me happy.
   end
 
-  it "doesn't create multiple duplicate rows with advisory locks" do
+  test "doesn't create multiple duplicate rows with advisory locks" do
     @use_advisory_lock = true
     @iterations = 10
     run_workers
