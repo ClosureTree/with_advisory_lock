@@ -29,7 +29,7 @@ class TransactionScopingTest < GemTestCase
       end
     end
 
-    test 'session locks release after the block executes' do
+    test 'without timeout, the session locks release after the block executes' do
       Tag.transaction do
         assert_equal(0, @pg_lock_count.call)
         Tag.with_advisory_lock 'test' do
@@ -39,7 +39,17 @@ class TransactionScopingTest < GemTestCase
       end
     end
 
-    test 'session locks release when transaction fails inside block' do
+    test 'with timeout, the session locks release after the block executes' do
+      Tag.transaction do
+        assert_equal(0, @pg_lock_count.call)
+        Tag.with_advisory_lock 'test', timeout_seconds: 1  do
+          assert_equal(1, @pg_lock_count.call)
+        end
+        assert_equal(0, @pg_lock_count.call)
+      end
+    end
+
+    test 'without timeout, the session locks release when transaction fails inside block' do
       Tag.transaction do
         assert_equal(0, @pg_lock_count.call)
 
@@ -54,10 +64,36 @@ class TransactionScopingTest < GemTestCase
       end
     end
 
-    test 'transaction level locks hold until the transaction completes' do
+    test 'with timeout, the session locks release when transaction fails inside block' do
+      Tag.transaction do
+        assert_equal(0, @pg_lock_count.call)
+
+        exception = assert_raises(ActiveRecord::StatementInvalid) do
+          Tag.with_advisory_lock 'test', timeout_seconds: 1 do
+            Tag.connection.execute 'SELECT 1/0;'
+          end
+        end
+
+        assert_match(/#{Regexp.escape('division by zero')}/, exception.message)
+        assert_equal(0, @pg_lock_count.call)
+      end
+    end
+
+    test 'without timeout, the transaction level locks hold until the transaction completes' do
       Tag.transaction do
         assert_equal(0, @pg_lock_count.call)
         Tag.with_advisory_lock 'test', transaction: true do
+          assert_equal(1, @pg_lock_count.call)
+        end
+        assert_equal(1, @pg_lock_count.call)
+      end
+      assert_equal(0, @pg_lock_count.call)
+    end
+
+    test 'with timeout, the transaction level locks hold until the transaction completes' do
+      Tag.transaction do
+        assert_equal(0, @pg_lock_count.call)
+        Tag.with_advisory_lock 'test', timeout_seconds: 1, transaction: true do
           assert_equal(1, @pg_lock_count.call)
         end
         assert_equal(1, @pg_lock_count.call)
