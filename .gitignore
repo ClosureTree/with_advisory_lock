@@ -20,3 +20,4 @@ tmp
 *.iml
 test/sqlite.db
 .env
+/test/dummy/log/

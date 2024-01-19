@@ -1,48 +1,22 @@
 # frozen_string_literal: true
 
-require 'erb'
-require 'active_record'
-require 'with_advisory_lock'
-require 'tmpdir'
-require 'securerandom'
-begin
-  require 'activerecord-trilogy-adapter'
-  ActiveSupport.on_load(:active_record) do
-    require "trilogy_adapter/connection"
-    ActiveRecord::Base.public_send :extend, TrilogyAdapter::Connection
-  end
-rescue LoadError
-  # do nothing
-end
+ENV['RAILS_ENV'] = 'test'
 
-ActiveRecord::Base.configurations = {
-  default_env: {
-    url: ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/#{SecureRandom.hex}.sqlite3"),
-    properties: { allowPublicKeyRetrieval: true } # for JRuby madness
-  }
-}
+require_relative 'dummy/config/environment'
+ActiveRecord::Migrator.migrations_paths = [File.expand_path('../test/dummy/db/migrate', __dir__)]
+require 'rails/test_help'
 
 ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 
-ActiveRecord::Base.establish_connection
-
 def env_db
-  @env_db ||= ActiveRecord::Base.connection_db_config.adapter.to_sym
+  @env_db ||= ApplicationRecord.connection_db_config.adapter.to_sym
 end
 
-ActiveRecord::Migration.verbose = false
-
-require 'test_models'
-require 'minitest'
-require 'maxitest/autorun'
 require 'mocha/minitest'
 
 class GemTestCase < ActiveSupport::TestCase
   setup do
     ENV['FLOCK_DIR'] = Dir.mktmpdir
-    Tag.delete_all
-    TagAudit.delete_all
-    Label.delete_all
   end
   teardown do
     FileUtils.remove_entry_secure ENV['FLOCK_DIR']

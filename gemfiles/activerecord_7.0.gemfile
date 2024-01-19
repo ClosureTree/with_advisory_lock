@@ -2,6 +2,7 @@
 
 source "https://rubygems.org"
 
+gem "railties"
 gem "activerecord", "~> 7.0.0"
 
 platforms :ruby do

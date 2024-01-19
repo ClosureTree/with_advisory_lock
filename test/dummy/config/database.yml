@@ -1,0 +1,4 @@
+test:
+  database: <%= ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/#{SecureRandom.hex}.sqlite3") %>
+  properties:
+    allowPublicKeyRetrieval: true
