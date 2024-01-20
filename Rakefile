@@ -17,6 +17,3 @@ Rake::TestTask.new do |t|
 end
 
 task :default => :test
-##
-# load task from the dummy app
-

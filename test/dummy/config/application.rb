@@ -4,9 +4,8 @@ require_relative 'boot'
 
 require 'rails'
 require 'active_record/railtie'
-require 'with_advisory_lock'
-
 Bundler.require(*Rails.groups)
+require 'with_advisory_lock'
 
 module Dummy
   class Application < Rails::Application

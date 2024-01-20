@@ -1,4 +1,4 @@
 test:
-  database: <%= ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/#{SecureRandom.hex}.sqlite3") %>
+  url: <%= ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/with_advisory_lock-#{Rails.gem_version}-#{RUBY_VERSION}.sqlite3") %>
   properties:
     allowPublicKeyRetrieval: true

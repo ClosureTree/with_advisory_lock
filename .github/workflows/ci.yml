@@ -77,4 +77,4 @@ jobs:
           BUNDLE_GEMFILE: gemfiles/${{ matrix.rails }}.gemfile
           DATABASE_URL: ${{ matrix.adapter }}
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
-        run: bin/rails db:create db:migrate test
+        run: bin/rails db:reset test
