@@ -55,8 +55,7 @@ class ParallelismTest < GemTestCase
   end
 
   test 'creates multiple duplicate rows without advisory locks' do
-    skip if %i[sqlite3 jdbcsqlite3].include?(env_db)
-    erererere
+    skip if is_sqlite3_adapter?
     @use_advisory_lock = false
     @iterations = 1
     run_workers

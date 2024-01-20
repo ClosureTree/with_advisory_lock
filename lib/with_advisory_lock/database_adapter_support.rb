@@ -20,7 +20,7 @@ module WithAdvisoryLock
     end
 
     def sqlite?
-      @sym_name == :sqlite3
+      [:sqlite3, :sqlite].include? @sym_name
     end
   end
 end
