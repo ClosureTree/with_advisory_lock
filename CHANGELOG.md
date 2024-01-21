@@ -1,5 +1,27 @@
 ## Changelog
 
+## [5.1.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.0.1...with_advisory_lock/v5.1.0) (2024-01-21)
+
+
+### Features
+
+* use zeitwerk loader instead of ActiveSupport::Autoload ([b5082fd](https://github.com/ClosureTree/with_advisory_lock/commit/b5082fddacacacff48139f5bf509601a37945a0e))
+
+## 5.0.1 (2024-01-21)
+
+
+### Features
+
+* add release workflow ([5d32520](https://github.com/ClosureTree/with_advisory_lock/commit/5d325201c82974991381a9fbc4d1714c9739dc4f))
+* add ruby 3.1 test/support ([#60](https://github.com/ClosureTree/with_advisory_lock/issues/60)) ([514f042](https://github.com/ClosureTree/with_advisory_lock/commit/514f0420d957ef30911a00d54685385bec5867c3))
+* Add testing for activerecord 7.1 and support for trilogy adapter ([#77](https://github.com/ClosureTree/with_advisory_lock/issues/77)) ([69c23fe](https://github.com/ClosureTree/with_advisory_lock/commit/69c23fe09887fc5d97ac7b0194825c21efe244a5))
+* add truffleruby support ([#62](https://github.com/ClosureTree/with_advisory_lock/issues/62)) ([ec34bd4](https://github.com/ClosureTree/with_advisory_lock/commit/ec34bd448e3505e5df631daaf47bb83f2f5316dc))
+
+
+### Bug Fixes
+
+* User may sometimes pass in non-strings, such as integers ([#55](https://github.com/ClosureTree/with_advisory_lock/issues/55)) ([9885597](https://github.com/ClosureTree/with_advisory_lock/commit/988559747363ef00958fcf782317e76c40ffa2a3))
+
 ### 5.0.0
 - Drop support for EOL rubies and activerecord (ruby below 2.7 and activerecord below 6.1).
 - Allow lock name to be integer

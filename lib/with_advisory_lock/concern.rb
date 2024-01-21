@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'active_support/concern'
-
 module WithAdvisoryLock
   module Concern
     extend ActiveSupport::Concern
@@ -15,9 +13,7 @@ module WithAdvisoryLock
 
       def with_advisory_lock!(lock_name, options = {}, &block)
         result = with_advisory_lock_result(lock_name, options, &block)
-        unless result.lock_was_acquired?
-          raise WithAdvisoryLock::FailedToAcquireLock, lock_name
-        end
+        raise WithAdvisoryLock::FailedToAcquireLock, lock_name unless result.lock_was_acquired?
 
         result.result
       end
