@@ -25,7 +25,7 @@ class TransactionScopingTest < GemTestCase
     setup do
       skip unless env_db == :postgresql
       @pg_lock_count = lambda do
-        ActiveRecord::Base.connection.select_value("SELECT COUNT(*) FROM pg_locks WHERE locktype = 'advisory';").to_i
+        ApplicationRecord.connection.select_value("SELECT COUNT(*) FROM pg_locks WHERE locktype = 'advisory';").to_i
       end
     end
 

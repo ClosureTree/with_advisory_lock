@@ -24,7 +24,7 @@ class SharedTestWorker
   private
 
   def work
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
       Tag.with_advisory_lock('test', timeout_seconds: 0, shared: @shared) do
         @locked = true
         sleep 0.01 until @cleanup
@@ -117,7 +117,7 @@ class SupportedEnvironmentTest < SharedLocksTest
     end
 
     def pg_lock_modes
-      ActiveRecord::Base.connection.select_values("SELECT mode FROM pg_locks WHERE locktype = 'advisory';")
+      ApplicationRecord.connection.select_values("SELECT mode FROM pg_locks WHERE locktype = 'advisory';")
     end
 
     test 'allows shared lock to be upgraded to an exclusive lock' do

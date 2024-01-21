@@ -15,7 +15,7 @@ class FindOrCreateWorker
 
   def work_later
     sleep
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
       if @use_advisory_lock
         Tag.with_advisory_lock(@name) { work }
       else
@@ -46,11 +46,11 @@ class ParallelismTest < GemTestCase
       workers.each(&:join)
     end
     # Ensure we're still connected:
-    ActiveRecord::Base.connection_pool.connection
+    ApplicationRecord.connection_pool.connection
   end
 
   setup do
-    ActiveRecord::Base.connection.reconnect!
+    ApplicationRecord.connection.reconnect!
     @workers = 10
   end
 

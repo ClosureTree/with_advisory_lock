@@ -56,7 +56,9 @@ module WithAdvisoryLock
     def with_advisory_lock_if_needed(&block)
       if disable_query_cache
         return lock_and_yield do
-          ActiveRecord::Base.uncached(&block)
+          connection.uncached do
+            yield
+          end
         end
       end
 
