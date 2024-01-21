@@ -79,7 +79,7 @@ module WithAdvisoryLock
       else
         # Ruby MRI's String#hash is randomly seeded as of Ruby 1.9 so
         # make sure we use a deterministic hash.
-        Zlib.crc32(input.to_s)
+        Zlib.crc32(input.to_s, 0)
       end
     end
 
