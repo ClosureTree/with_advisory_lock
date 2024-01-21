@@ -17,7 +17,7 @@ end
 
 ActiveRecord::Base.configurations = {
   default_env: {
-    url: ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/#{SecureRandom.hex}.sqlite3"),
+    url: ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/with_advisory_lock_test#{RUBY_VERSION}-#{ActiveRecord.gem_version}.sqlite3"),
     properties: { allowPublicKeyRetrieval: true } # for JRuby madness
   }
 }
