@@ -1,0 +1,9 @@
+{
+  "release-type": "ruby",
+  "packages": {
+    ".": {
+      "release-type": "ruby",
+      "package-name": "with_advisory_lock"
+    }
+  }
+}
