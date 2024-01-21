@@ -1,5 +1,12 @@
 ## Changelog
 
+## [5.1.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.0.1...with_advisory_lock/v5.1.0) (2024-01-21)
+
+
+### Features
+
+* use zeitwerk loader instead of ActiveSupport::Autoload ([b5082fd](https://github.com/ClosureTree/with_advisory_lock/commit/b5082fddacacacff48139f5bf509601a37945a0e))
+
 ## 5.0.1 (2024-01-21)
 
 
