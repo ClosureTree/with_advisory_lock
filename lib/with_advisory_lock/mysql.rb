@@ -2,12 +2,20 @@
 
 module WithAdvisoryLock
   class MySQL < Base
-    # See https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock
+    # See https://dev.mysql.com/doc/refman/en/locking-functions.html
     def try_lock
       raise ArgumentError, 'shared locks are not supported on MySQL' if shared
       raise ArgumentError, 'transaction level locks are not supported on MySQL' if transaction
 
       execute_successful?("GET_LOCK(#{quoted_lock_str}, 0)")
+    end
+
+    # See https://dev.mysql.com/doc/refman/en/locking-functions.html
+    def lock
+      raise ArgumentError, 'shared locks are not supported on MySQL' if shared
+      raise ArgumentError, 'transaction level locks are not supported on MySQL' if transaction
+
+      execute_successful?("GET_LOCK(#{quoted_lock_str}, #{timeout.nil? ? -1 : timeout})")
     end
 
     def release_lock

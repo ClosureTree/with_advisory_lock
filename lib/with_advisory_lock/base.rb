@@ -84,27 +84,16 @@ module WithAdvisoryLock
     end
 
     def yield_with_lock_and_timeout(&block)
-      give_up_at = Time.now + @timeout_seconds if @timeout_seconds
-      while @timeout_seconds.nil? || Time.now < give_up_at
-        r = yield_with_lock(&block)
-        return r if r.lock_was_acquired?
-
-        # Randomizing sleep time may help reduce contention.
-        sleep(rand(0.05..0.15))
+      if lock
+        yield_with_acquired_lock(&block)
+      else
+        FAILED_TO_LOCK
       end
-      FAILED_TO_LOCK
     end
 
-    def yield_with_lock
+    def yield_with_lock(&block)
       if try_lock
-        begin
-          lock_stack.push(lock_stack_item)
-          result = block_given? ? yield : nil
-          Result.new(true, result)
-        ensure
-          lock_stack.pop
-          release_lock
-        end
+        yield_with_acquired_lock(&block)
       else
         FAILED_TO_LOCK
       end
@@ -113,6 +102,31 @@ module WithAdvisoryLock
     # Prevent AR from caching results improperly
     def unique_column_name
       "t#{SecureRandom.hex}"
+    end
+
+    private
+
+    def yield_with_acquired_lock
+      begin
+        lock_stack.push(lock_stack_item)
+        result = block_given? ? yield : nil
+        Result.new(true, result)
+      ensure
+        lock_stack.pop
+        release_lock
+      end
+    end
+
+    def lock_via_sleep_loop
+      give_up_at = Time.now + timeout_seconds if timeout_seconds
+      loop do
+        return true if try_lock
+
+        # Randomizing sleep time may help reduce contention.
+        sleep(rand(0.05..0.15))
+
+        return false if timeout_seconds && Time.now > give_up_at
+      end
     end
   end
 end

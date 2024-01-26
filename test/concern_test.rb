@@ -21,7 +21,7 @@ class WithAdvisoryLockConcernTest < GemTestCase
 end
 
 class ActiveRecordQueryCacheTest < GemTestCase
-  test 'does not disable quary cache by default' do
+  test 'does not disable query cache by default' do
     ActiveRecord::Base.expects(:uncached).never
     Tag.with_advisory_lock('lock') { Tag.first }
   end

@@ -26,6 +26,10 @@ module WithAdvisoryLock
       0 == file_io.flock((shared ? File::LOCK_SH : File::LOCK_EX) | File::LOCK_NB)
     end
 
+    def lock
+      lock_via_sleep_loop
+    end
+
     def release_lock
       0 == file_io.flock(File::LOCK_UN)
     end

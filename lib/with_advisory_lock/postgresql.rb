@@ -8,6 +8,16 @@ module WithAdvisoryLock
       execute_successful?(pg_function)
     end
 
+    # See http://www.postgresql.org/docs/9.1/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
+    def lock
+      if timeout.nil?
+        pg_function = "pg_advisory#{transaction ? '_xact' : ''}_lock#{shared ? '_shared' : ''}"
+        execute_successful?(pg_function)
+      else
+        lock_via_sleep_loop
+      end
+    end
+
     def release_lock
       return if transaction
 
