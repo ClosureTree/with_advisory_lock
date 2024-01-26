@@ -1,10 +1,7 @@
 ---
 name: CI
 
-on:
-  pull_request:
-    branches:
-      - master
+on: [push, pull_request]
 
 jobs:
   minitest:
@@ -76,5 +73,10 @@ jobs:
         env:
           BUNDLE_GEMFILE: gemfiles/${{ matrix.rails }}.gemfile
           DATABASE_URL: ${{ matrix.adapter }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: d7412082-8deb-455b-9468-c259f4abb3e5
+
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
         run: bundle exec rake
