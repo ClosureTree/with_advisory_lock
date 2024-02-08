@@ -1,19 +1,29 @@
----
-name: CI
-
+name: CI Postgresql
 on:
   pull_request:
     branches:
       - master
-
 jobs:
   minitest:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: 'postgres:14-alpine'
+        ports: ['5432:5432']
+        env:
+          POSTGRES_USER: with_advisory
+          POSTGRES_PASSWORD: with_advisory_pass
+          POSTGRES_DB: with_advisory_lock_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
         ruby:
-          - '3.2'  
+          - '3.2'
           - '3.1'
           - '3.0'
           - '2.7'
@@ -24,15 +34,14 @@ jobs:
           - 7.0
           - 6.1
         adapter:
-          - sqlite3:///tmp/test.sqlite3
+          - postgres://with_advisory:with_advisory_pass@0/with_advisory_lock_test
         include:
           - ruby: jruby
             rails: activerecord_6.1
-            adapter: jdbcsqlite3:///tmp/test.sqlite3
+            adapter: jdbcpostgresql://with_advisory:with_advisory_pass@0/with_advisory_lock_test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -40,11 +49,10 @@ jobs:
           bundler-cache: true
           rubygems: latest
         env:
-          BUNDLE_GEMFILE: gemfiles/activerecord_${{ matrix.rails }}.gemfile
-
+          BUNDLE_GEMFILE:  gemfiles/activerecord_${{ matrix.rails }}.gemfile
       - name: Test
         env:
-          BUNDLE_GEMFILE: gemfiles/activerecord_${{ matrix.rails }}.gemfile
+          BUNDLE_GEMFILE:  gemfiles/activerecord_${{ matrix.rails }}.gemfile
           DATABASE_URL: ${{ matrix.adapter }}
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
         run: bundle exec rake
