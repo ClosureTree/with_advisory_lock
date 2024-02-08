@@ -36,10 +36,6 @@ class SharedTestWorker
 end
 
 class SharedLocksTest < GemTestCase
-  def supported?
-    %i[trilogy mysql2 jdbcmysql].exclude?(env_db)
-  end
-
   test 'does not allow two exclusive locks' do
     one = SharedTestWorker.new(false)
     assert_predicate(one, :locked?)
@@ -54,7 +50,7 @@ end
 
 class NotSupportedEnvironmentTest < SharedLocksTest
   setup do
-    skip if supported?
+    skip if is_mysql_adapter?
   end
 
   test 'raises an error when attempting to use a shared lock' do
@@ -71,7 +67,7 @@ end
 
 class SupportedEnvironmentTest < SharedLocksTest
   setup do
-    skip unless supported?
+    skip unless is_mysql_adapter?
   end
 
   test 'does allow two shared locks' do
@@ -113,7 +109,7 @@ class SupportedEnvironmentTest < SharedLocksTest
 
   class PostgreSQLTest < SupportedEnvironmentTest
     setup do
-      skip unless env_db == :postgresql
+      skip unless is_postgresql_adapter?
     end
 
     def pg_lock_modes

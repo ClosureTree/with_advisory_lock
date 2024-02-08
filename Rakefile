@@ -5,6 +5,8 @@ YARD::Rake::YardocTask.new do |t|
   t.files = ['lib/**/*.rb', 'README.md']
 end
 
+APP_RAKEFILE = File.expand_path("test/dummy/Rakefile", __dir__)
+load APP_RAKEFILE
 require 'rake/testtask'
 
 Rake::TestTask.new do |t|
