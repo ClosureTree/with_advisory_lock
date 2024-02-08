@@ -10,7 +10,7 @@ class SeparateThreadTest < GemTestCase
     @t1_return_value = nil
 
     @t1 = Thread.new do
-      ActiveRecord::Base.connection_pool.with_connection do
+      ApplicationRecord.connection_pool.with_connection do
         @t1_return_value = Label.with_advisory_lock(@lock_name) do
           @mutex.synchronize { @t1_acquired_lock = true }
           sleep
@@ -21,7 +21,7 @@ class SeparateThreadTest < GemTestCase
 
     # Wait for the thread to acquire the lock:
     sleep(0.1) until @mutex.synchronize { @t1_acquired_lock }
-    ActiveRecord::Base.connection.reconnect!
+    ApplicationRecord.connection.reconnect!
   end
 
   teardown do

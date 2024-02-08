@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 1) do
   create_table 'tags', force: true do |t|
     t.string 'name'
   end
@@ -12,15 +12,19 @@ ActiveRecord::Schema.define(version: 0) do
   end
 end
 
-class Tag < ActiveRecord::Base
+class ApplicationRecord < ActiveRecord::Base
+  self.abstract_class = true
+end
+
+class Tag < ApplicationRecord
   after_save do
     TagAudit.create(tag_name: name)
     Label.create(name: name)
   end
 end
 
-class TagAudit < ActiveRecord::Base
+class TagAudit < ApplicationRecord
 end
 
-class Label < ActiveRecord::Base
+class Label < ApplicationRecord
 end

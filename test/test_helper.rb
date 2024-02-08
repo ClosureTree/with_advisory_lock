@@ -17,7 +17,7 @@ end
 
 ActiveRecord::Base.configurations = {
   default_env: {
-    url: ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/#{SecureRandom.hex}.sqlite3"),
+    url: ENV.fetch('DATABASE_URL', "sqlite3://#{Dir.tmpdir}/with_advisory_lock_test#{RUBY_VERSION}-#{ActiveRecord.gem_version}.sqlite3"),
     properties: { allowPublicKeyRetrieval: true } # for JRuby madness
   }
 }
@@ -38,14 +38,24 @@ require 'maxitest/autorun'
 require 'mocha/minitest'
 
 class GemTestCase < ActiveSupport::TestCase
+
+  parallelize(workers: 1)
+  def adapter_support
+    @adapter_support ||= WithAdvisoryLock::DatabaseAdapterSupport.new(ActiveRecord::Base.connection)
+  end
+  def is_sqlite3_adapter?; adapter_support.sqlite?; end
+  def is_mysql_adapter?; adapter_support.mysql?; end
+  def is_postgresql_adapter?; adapter_support.postgresql?; end
+
   setup do
-    ENV['FLOCK_DIR'] = Dir.mktmpdir
+    ENV['FLOCK_DIR'] = Dir.mktmpdir if is_sqlite3_adapter?
     Tag.delete_all
     TagAudit.delete_all
     Label.delete_all
   end
+
   teardown do
-    FileUtils.remove_entry_secure ENV['FLOCK_DIR']
+    FileUtils.remove_entry_secure(ENV['FLOCK_DIR'], true) if is_sqlite3_adapter?
   end
 end
 
