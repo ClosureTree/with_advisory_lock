@@ -8,8 +8,6 @@ require 'rails/test_help'
 
 ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 
-
-
 require 'mocha/minitest'
 
 class GemTestCase < ActiveSupport::TestCase

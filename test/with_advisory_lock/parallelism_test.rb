@@ -4,31 +4,31 @@ require 'test_helper'
 require 'forwardable'
 
 class FindOrCreateWorker
-extend Forwardable
-def_delegators :@thread, :join, :wakeup, :status, :to_s
+  extend Forwardable
+  def_delegators :@thread, :join, :wakeup, :status, :to_s
 
-def initialize(name, use_advisory_lock)
-  @name = name
-  @use_advisory_lock = use_advisory_lock
-  @thread = Thread.new { work_later }
-end
+  def initialize(name, use_advisory_lock)
+    @name = name
+    @use_advisory_lock = use_advisory_lock
+    @thread = Thread.new { work_later }
+  end
 
-def work_later
-  sleep
-  ApplicationRecord.connection_pool.with_connection do
-    if @use_advisory_lock
-      Tag.with_advisory_lock(@name) { work }
-    else
-      work
+  def work_later
+    sleep
+    ApplicationRecord.connection_pool.with_connection do
+      if @use_advisory_lock
+        Tag.with_advisory_lock(@name) { work }
+      else
+        work
+      end
     end
   end
-end
 
-def work
-  Tag.transaction do
-    Tag.where(name: @name).first_or_create
+  def work
+    Tag.transaction do
+      Tag.where(name: @name).first_or_create
+    end
   end
-end
 end
 
 class ParallelismTest < GemTestCase
@@ -55,7 +55,7 @@ class ParallelismTest < GemTestCase
   end
 
   test 'creates multiple duplicate rows without advisory locks' do
-    skip if is_sqlite3_adapter?
+    skip if %i[sqlite3 jdbcsqlite3].include?(env_db)
     @use_advisory_lock = false
     @iterations = 1
     run_workers

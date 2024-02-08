@@ -19,3 +19,18 @@ class WithAdvisoryLockConcernTest < GemTestCase
     assert_respond_to(Label.new, :advisory_lock_exists?)
   end
 end
+<<<<<<<< HEAD:test/with_advisory_lock/with_advisory_lock_concern_test.rb
+========
+
+class ActiveRecordQueryCacheTest < GemTestCase
+  test 'does not disable quary cache by default' do
+    Tag.connection.expects(:uncached).never
+    Tag.with_advisory_lock('lock') { Tag.first }
+  end
+
+  test 'can disable ActiveRecord query cache' do
+    Tag.connection.expects(:uncached).once
+    Tag.with_advisory_lock('a-lock', disable_query_cache: true) { Tag.first }
+  end
+end
+>>>>>>>> origin/master:test/with_advisory_lock/concern_test.rb
