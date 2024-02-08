@@ -31,13 +31,13 @@ jobs:
           - 'truffleruby'
         rails:
           - 7.1
-          - 7.0
+          - "7.0"
           - 6.1
         adapter:
           - postgres://with_advisory:with_advisory_pass@0/with_advisory_lock_test
         include:
           - ruby: jruby
-            rails: activerecord_6.1
+            rails: 6.1
             adapter: jdbcpostgresql://with_advisory:with_advisory_pass@0/with_advisory_lock_test
     steps:
       - name: Checkout

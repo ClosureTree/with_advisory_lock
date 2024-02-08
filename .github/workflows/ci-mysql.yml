@@ -29,14 +29,14 @@ jobs:
           - 'truffleruby'
         rails:
           - 7.1
-          - 7.0
+          - "7.0"
           - 6.1
         adapter:
-          - mysql2://with_advisory:with_advisory_lock_test@0/with_advisory_lock_test
-          - trilogy://with_advisory:with_advisory_lock_test@0/with_advisory_lock_test
+          - mysql2://with_advisory:with_advisory_pass@0/with_advisory_lock_test
+          - trilogy://with_advisory:with_advisory_pass@0/with_advisory_lock_test
         include:
           - ruby: jruby
-            rails: activerecord_6.1
+            rails: 6.1
             adapter: jdbcmysql://with_advisory:with_advisory_pass@0/with_advisory_lock_test
     steps:
       - name: Checkout

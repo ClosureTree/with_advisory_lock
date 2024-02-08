@@ -21,13 +21,13 @@ jobs:
           - 'truffleruby'
         rails:
           - 7.1
-          - 7.0
+          - "7.0"
           - 6.1
         adapter:
           - sqlite3:///tmp/test.sqlite3
         include:
           - ruby: jruby
-            rails: activerecord_6.1
+            rails: 6.1
             adapter: jdbcsqlite3:///tmp/test.sqlite3
     steps:
       - name: Checkout
