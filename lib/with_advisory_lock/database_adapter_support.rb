@@ -2,25 +2,22 @@
 
 module WithAdvisoryLock
   class DatabaseAdapterSupport
-    # Caches nested lock support by MySQL reported version
-    @@mysql_nl_cache       = {}
-    @@mysql_nl_cache_mutex = Mutex.new
-
+    attr_reader :adapter_name
     def initialize(connection)
       @connection = connection
-      @sym_name   = connection.adapter_name.downcase.to_sym
+      @adapter_name   = connection.adapter_name.downcase.to_sym
     end
 
     def mysql?
-      %i[mysql2 trilogy].include? @sym_name
+      %i[mysql2 trilogy].include? adapter_name
     end
 
     def postgresql?
-      %i[postgresql empostgresql postgis].include? @sym_name
+      %i[postgresql empostgresql postgis].include? adapter_name
     end
 
     def sqlite?
-      @sym_name == :sqlite3
+      [:sqlite3, :sqlite].include? adapter_name
     end
   end
 end
