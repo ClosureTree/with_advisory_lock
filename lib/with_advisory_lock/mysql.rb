@@ -5,7 +5,8 @@ module WithAdvisoryLock
     # Caches nested lock support by MySQL reported version
     @@mysql_nl_cache       = {}
     @@mysql_nl_cache_mutex = Mutex.new
-    # See https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock
+    # See https://dev.mysql.com/doc/refman/5.7/en/locking-functions.html
+    # See https://dev.mysql.com/doc/refman/8.0/en/locking-functions.html
     def try_lock
       raise ArgumentError, 'shared locks are not supported on MySQL' if shared
       raise ArgumentError, 'transaction level locks are not supported on MySQL' if transaction
@@ -18,8 +19,8 @@ module WithAdvisoryLock
     end
 
     def execute_successful?(mysql_function)
-      sql = "SELECT #{mysql_function} AS #{unique_column_name}"
-      connection.select_value(sql).to_i.positive?
+      sql = "SELECT #{mysql_function}"
+      connection.query_value(sql) == 1
     end
 
     # MySQL wants a string as the lock key.
