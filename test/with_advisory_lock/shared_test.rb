@@ -24,7 +24,7 @@ class SharedTestWorker
   private
 
   def work
-    Tag.connection_pool.with_connection do |connection|
+    Tag.connection_pool.with_connection do
       Tag.with_advisory_lock('test', timeout_seconds: 0, shared: @shared) do
         @locked = true
         sleep 0.01 until @cleanup
