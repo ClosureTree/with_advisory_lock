@@ -3,9 +3,10 @@
 module WithAdvisoryLock
   class DatabaseAdapterSupport
     attr_reader :adapter_name
+
     def initialize(connection)
       @connection = connection
-      @adapter_name   = connection.adapter_name.downcase.to_sym
+      @adapter_name = connection.adapter_name.downcase.to_sym
     end
 
     def mysql?
@@ -17,7 +18,7 @@ module WithAdvisoryLock
     end
 
     def sqlite?
-      [:sqlite3, :sqlite].include? adapter_name
+      %i[sqlite3 sqlite].include? adapter_name
     end
   end
 end

@@ -15,7 +15,7 @@ class FindOrCreateWorker
 
   def work_later
     sleep
-    ApplicationRecord.connection_pool.with_connection do
+    Tag.connection_pool.with_connection do
       if @use_advisory_lock
         Tag.with_advisory_lock(@name) { work }
       else
@@ -46,16 +46,16 @@ class ParallelismTest < GemTestCase
       workers.each(&:join)
     end
     # Ensure we're still connected:
-    ApplicationRecord.connection_pool.connection
+    Tag.connection_pool.connection
   end
 
   setup do
-    ApplicationRecord.connection.reconnect!
+    Tag.connection.reconnect!
     @workers = 10
   end
 
   test 'creates multiple duplicate rows without advisory locks' do
-    skip if %i[sqlite3 jdbcsqlite3].include?(env_db)
+    skip if is_sqlite3_adapter?
     @use_advisory_lock = false
     @iterations = 1
     run_workers
