@@ -2,6 +2,9 @@
 
 module WithAdvisoryLock
   class MySQL < Base
+    # Caches nested lock support by MySQL reported version
+    @@mysql_nl_cache       = {}
+    @@mysql_nl_cache_mutex = Mutex.new
     # See https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html#function_get-lock
     def try_lock
       raise ArgumentError, 'shared locks are not supported on MySQL' if shared

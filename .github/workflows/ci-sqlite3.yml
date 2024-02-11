@@ -1,10 +1,14 @@
 ---
-name: CI
+name: CI Sqlite3
 
 on:
   pull_request:
     branches:
       - master
+
+concurrency:
+  group: ci-sqlite3-${{ github.head_ref }}
+  cancel-in-progress: true
 
 jobs:
   minitest:
