@@ -4,7 +4,7 @@ require 'test_helper'
 
 class TransactionScopingTest < GemTestCase
   def supported?
-    %i[postgresql jdbcpostgresql].include?(env_db)
+    is_postgresql_adapter?
   end
 
   test 'raises an error when attempting to use transaction level locks if not supported' do
@@ -23,7 +23,7 @@ class TransactionScopingTest < GemTestCase
 
   class PostgresqlTest < TransactionScopingTest
     setup do
-      skip unless env_db == :postgresql
+      skip unless is_postgresql_adapter?
       @pg_lock_count = lambda do
         ApplicationRecord.connection.select_value("SELECT COUNT(*) FROM pg_locks WHERE locktype = 'advisory';").to_i
       end

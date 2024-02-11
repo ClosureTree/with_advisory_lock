@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+ActiveRecord::Base.establish_connection(:default_env)
+
 ActiveRecord::Schema.define(version: 1) do
   create_table 'tags', force: true do |t|
     t.string 'name'

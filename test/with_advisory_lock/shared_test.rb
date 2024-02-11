@@ -24,7 +24,7 @@ class SharedTestWorker
   private
 
   def work
-    ApplicationRecord.connection_pool.with_connection do
+    Tag.connection_pool.with_connection do |connection|
       Tag.with_advisory_lock('test', timeout_seconds: 0, shared: @shared) do
         @locked = true
         sleep 0.01 until @cleanup
@@ -36,9 +36,6 @@ class SharedTestWorker
 end
 
 class SharedLocksTest < GemTestCase
-  def supported?
-    %i[trilogy mysql2 jdbcmysql].exclude?(env_db)
-  end
 
   test 'does not allow two exclusive locks' do
     one = SharedTestWorker.new(false)
@@ -52,12 +49,14 @@ class SharedLocksTest < GemTestCase
   end
 end
 
-class NotSupportedEnvironmentTest < SharedLocksTest
-  setup do
-    skip if supported?
+class NotSupportedEnvironmentTest < GemTestCase
+  def supported?
+    !is_mysql_adapter?
   end
 
   test 'raises an error when attempting to use a shared lock' do
+    skip "Not supported" unless supported?
+
     one = SharedTestWorker.new(true)
     assert_nil(one.locked?)
 
@@ -69,7 +68,11 @@ class NotSupportedEnvironmentTest < SharedLocksTest
   end
 end
 
-class SupportedEnvironmentTest < SharedLocksTest
+class SupportedEnvironmentTest < GemTestCase
+  def supported?
+    !is_mysql_adapter?
+  end
+
   setup do
     skip unless supported?
   end
@@ -113,7 +116,7 @@ class SupportedEnvironmentTest < SharedLocksTest
 
   class PostgreSQLTest < SupportedEnvironmentTest
     setup do
-      skip unless env_db == :postgresql
+      skip unless is_postgresql_adapter?
     end
 
     def pg_lock_modes
