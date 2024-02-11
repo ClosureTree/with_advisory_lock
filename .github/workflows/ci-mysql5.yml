@@ -1,28 +1,26 @@
-name: CI Postgresql
+name: CI Mysql 5.7
 on:
   pull_request:
     branches:
       - master
 concurrency:
-    group: ci-postgresql-${{ github.head_ref }}
-    cancel-in-progress: true
+  group: ci-mysql5-${{ github.head_ref }}
+  cancel-in-progress: true
 
 jobs:
   minitest:
     runs-on: ubuntu-latest
+    name: Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
     services:
-      postgres:
-        image: 'postgres:14-alpine'
-        ports: ['5432:5432']
+      mysql:
+        image: mysql/mysql-server:5.7
+        ports:
+          - "3306:3306"
         env:
-          POSTGRES_USER: with_advisory
-          POSTGRES_PASSWORD: with_advisory_pass
-          POSTGRES_DB: with_advisory_lock_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          MYSQL_USER: with_advisory
+          MYSQL_PASSWORD: with_advisory_pass
+          MYSQL_DATABASE: with_advisory_lock_test
+          MYSQL_ROOT_HOST: '%'
     strategy:
       fail-fast: false
       matrix:
@@ -38,11 +36,12 @@ jobs:
           - "7.0"
           - 6.1
         adapter:
-          - postgres://with_advisory:with_advisory_pass@0/with_advisory_lock_test
+          - mysql2://with_advisory:with_advisory_pass@0/with_advisory_lock_test
+          - trilogy://with_advisory:with_advisory_pass@0/with_advisory_lock_test
         include:
           - ruby: jruby
             rails: 6.1
-            adapter: jdbcpostgresql://with_advisory:with_advisory_pass@0/with_advisory_lock_test
+            adapter: jdbcmysql://with_advisory:with_advisory_pass@0/with_advisory_lock_test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,7 +55,7 @@ jobs:
           BUNDLE_GEMFILE:  gemfiles/activerecord_${{ matrix.rails }}.gemfile
       - name: Test
         env:
-          BUNDLE_GEMFILE:  gemfiles/activerecord_${{ matrix.rails }}.gemfile
+          BUNDLE_GEMFILE: gemfiles/activerecord_${{ matrix.rails }}.gemfile
           DATABASE_URL: ${{ matrix.adapter }}
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
         run: bundle exec rake

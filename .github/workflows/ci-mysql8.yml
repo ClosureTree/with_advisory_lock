@@ -1,15 +1,20 @@
-name: CI Mysql
+name: CI Mysql 8.0
 on:
   pull_request:
     branches:
       - master
+
+concurrency:
+  group: ci-mysql8-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   minitest:
     runs-on: ubuntu-latest
     name: Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
     services:
       mysql:
-        image: mysql/mysql-server:5.7
+        image: mysql/mysql-server
         ports:
           - "3306:3306"
         env:
@@ -33,7 +38,7 @@ jobs:
           - 6.1
         adapter:
           - mysql2://with_advisory:with_advisory_pass@0/with_advisory_lock_test
-          - trilogy://with_advisory:with_advisory_pass@0/with_advisory_lock_test
+#          - trilogy://with_advisory:with_advisory_pass@0/with_advisory_lock_test  Trilogy is not supported by mysql 8 with new encryption
         include:
           - ruby: jruby
             rails: 6.1
