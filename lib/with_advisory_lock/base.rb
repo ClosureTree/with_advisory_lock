@@ -36,7 +36,7 @@ module WithAdvisoryLock
     end
 
     def lock_str
-      @lock_str ||= "#{ENV['WITH_ADVISORY_LOCK_PREFIX']}#{lock_name}"
+      @lock_str ||= "#{ENV[LOCK_PREFIX_ENV]}#{lock_name}"
     end
 
     def lock_stack_item
@@ -56,9 +56,7 @@ module WithAdvisoryLock
     def with_advisory_lock_if_needed(&block)
       if disable_query_cache
         return lock_and_yield do
-          connection.uncached do
-            yield
-          end
+          connection.uncached(&block)
         end
       end
 

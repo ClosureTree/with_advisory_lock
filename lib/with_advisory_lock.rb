@@ -10,6 +10,7 @@ loader.inflector.inflect(
 loader.setup
 
 module WithAdvisoryLock
+  LOCK_PREFIX_ENV = 'WITH_ADVISORY_LOCK_PREFIX'.freeze
 end
 
 ActiveSupport.on_load :active_record do
