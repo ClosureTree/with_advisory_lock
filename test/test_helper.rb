@@ -49,9 +49,11 @@ class GemTestCase < ActiveSupport::TestCase
 
   setup do
     ENV['FLOCK_DIR'] = Dir.mktmpdir if is_sqlite3_adapter?
-    Tag.delete_all
-    TagAudit.delete_all
-    Label.delete_all
+    ApplicationRecord.connection.truncate_tables(
+      Tag.table_name,
+      TagAudit.table_name,
+      Label.table_name
+    )
   end
 
   teardown do
@@ -60,3 +62,4 @@ class GemTestCase < ActiveSupport::TestCase
 end
 
 puts "Testing with #{env_db} database, ActiveRecord #{ActiveRecord.gem_version} and #{RUBY_ENGINE} #{RUBY_ENGINE_VERSION} as #{RUBY_VERSION}"
+puts "Connection Pool size: #{ActiveRecord::Base.connection_pool.size}"

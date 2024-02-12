@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  pg:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: with_advisory
+      POSTGRES_PASSWORD: with_advisory_pass
+      POSTGRES_DB: with_advisory_lock_test
+    ports:
+      - "5432:5432"
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_USER: with_advisory
+      MYSQL_PASSWORD: with_advisory_pass
+      MYSQL_DATABASE: with_advisory_lock_test
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3306:3306"
