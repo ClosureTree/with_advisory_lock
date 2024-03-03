@@ -29,6 +29,10 @@ module WithAdvisoryLock
       end
     end
 
+    def release_all_locks
+      connection.execute("SELECT pg_advisory_unlock_all()")
+    end
+
     def advisory_try_lock_function(transaction_scope)
       [
         'pg_try_advisory',
