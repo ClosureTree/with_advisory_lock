@@ -15,6 +15,10 @@ module WithAdvisoryLock
       execute_successful?("RELEASE_LOCK(#{quoted_lock_str})")
     end
 
+    def release_all_locks
+      execute_query("RELEASE_ALL_LOCKS()")
+    end
+
     def execute_successful?(mysql_function)
       execute_query(mysql_function) == 1
     end
