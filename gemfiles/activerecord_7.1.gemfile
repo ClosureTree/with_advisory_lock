@@ -11,4 +11,10 @@ platforms :ruby do
   gem "pg"
 end
 
+platforms :jruby do
+  gem "activerecord-jdbcmysql-adapter", github: "jruby/activerecord-jdbc-adapter", ref: "master"
+  gem "activerecord-jdbcpostgresql-adapter", github: "jruby/activerecord-jdbc-adapter", ref: "master"
+  gem "activerecord-jdbcsqlite3-adapter", github: "jruby/activerecord-jdbc-adapter", ref: "master"
+end
+
 gemspec path: "../"
