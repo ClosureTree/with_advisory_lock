@@ -19,12 +19,12 @@ module WithAdvisoryLock
       end
 
       def with_advisory_lock_result(lock_name, options = {}, &block)
-        impl = impl_class.new(connection, lock_name, options)
+        impl = with_advisory_lock_impl_class.new(connection, lock_name, options)
         impl.with_advisory_lock_if_needed(&block)
       end
 
       def advisory_lock_exists?(lock_name)
-        impl = impl_class.new(connection, lock_name, 0)
+        impl = with_advisory_lock_impl_class.new(connection, lock_name, 0)
         impl.already_locked? || !impl.yield_with_lock.lock_was_acquired?
       end
 
@@ -35,7 +35,7 @@ module WithAdvisoryLock
 
       private
 
-      def impl_class
+      def with_advisory_lock_impl_class
         adapter = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
         if adapter.postgresql?
           WithAdvisoryLock::PostgreSQL
