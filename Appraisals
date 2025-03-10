@@ -8,6 +8,12 @@ appraise 'activerecord-7.1' do
     gem 'trilogy'
     gem 'pg'
   end
+  platforms :jruby do
+    jdbc_version = {github: 'jruby/activerecord-jdbc-adapter', ref: 'master'}
+    gem "activerecord-jdbcmysql-adapter", **jdbc_version
+    gem "activerecord-jdbcpostgresql-adapter", **jdbc_version
+    gem "activerecord-jdbcsqlite3-adapter", **jdbc_version
+  end
 end
 
 appraise 'activerecord-7.0' do
@@ -20,9 +26,10 @@ appraise 'activerecord-7.0' do
     gem 'pg'
   end
   platforms :jruby do
-    gem "activerecord-jdbcmysql-adapter"
-    gem "activerecord-jdbcpostgresql-adapter"
-    gem "activerecord-jdbcsqlite3-adapter"
+    jdbc_version = '~> 70.0'
+    gem "activerecord-jdbcmysql-adapter", jdbc_version
+    gem "activerecord-jdbcpostgresql-adapter", jdbc_version
+    gem "activerecord-jdbcsqlite3-adapter", jdbc_version
   end
 end
 
@@ -37,9 +44,10 @@ appraise 'activerecord-6.1' do
     gem 'pg'
   end
   platforms :jruby do
-    gem "activerecord-jdbcmysql-adapter"
-    gem "activerecord-jdbcpostgresql-adapter"
-    gem "activerecord-jdbcsqlite3-adapter"
+    jdbc_version = '~> 61.0'
+    gem "activerecord-jdbcmysql-adapter", jdbc_version
+    gem "activerecord-jdbcpostgresql-adapter", jdbc_version
+    gem "activerecord-jdbcsqlite3-adapter", jdbc_version
   end
 end
 
