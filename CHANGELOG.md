@@ -1,5 +1,17 @@
 ## Changelog
 
+## [5.2.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.1.0...with_advisory_lock/v5.2.0) (2025-04-24)
+
+
+### Features
+
+* use current connnection instead of the one in ActiveRecord::Base ([#90](https://github.com/ClosureTree/with_advisory_lock/issues/90)) ([c28a172](https://github.com/ClosureTree/with_advisory_lock/commit/c28a172a5a64594448b6090501fc0b8cbace06f6))
+
+
+### Bug Fixes
+
+* Removed MySQL unused lock variable and broaden SQLite detection. ([#94](https://github.com/ClosureTree/with_advisory_lock/issues/94)) ([f818a18](https://github.com/ClosureTree/with_advisory_lock/commit/f818a181dde6711c8439c4cbf67c4525a09d346e))
+
 ## [5.1.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.0.1...with_advisory_lock/v5.1.0) (2024-01-21)
 
 
