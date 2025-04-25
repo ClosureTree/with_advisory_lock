@@ -1,6 +1,13 @@
-Copyright (c) 2013 Matthew McEachen
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: with_advisory_lock
+Upstream-Contact: matthew-debian@mceachen.org, terminale+debian@gmail.com
+Source: https://github.com/ClosureTree/with_advisory_lock
 
-MIT License
+Files: *
+Copyright: 2013 Matthew McEachen
+           2013-2025 Abdelkader Boudih
+
+License: MIT
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
