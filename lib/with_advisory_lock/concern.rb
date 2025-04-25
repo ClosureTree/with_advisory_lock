@@ -33,6 +33,10 @@ module WithAdvisoryLock
         lock_stack_key && lock_stack_key[0]
       end
 
+      def current_advisory_locks
+        WithAdvisoryLock::Base.lock_stack.map(&:name)
+      end
+
       private
 
       def impl_class
