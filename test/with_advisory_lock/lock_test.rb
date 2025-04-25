@@ -77,4 +77,35 @@ class LockTest < GemTestCase
 
     assert_equal(expected, actual)
   end
+
+  test 'current_advisory_locks returns empty array outside an advisory lock request' do
+    assert_equal([], Tag.current_advisory_locks)
+  end
+
+  test 'current_advisory_locks returns an array with names of the acquired locks' do
+    Tag.with_advisory_lock(@lock_name) do
+      locks = Tag.current_advisory_locks
+      assert_equal(1, locks.size)
+      assert_match(/#{@lock_name}/, locks.first)
+    end
+  end
+
+  test 'current_advisory_locks returns array of all nested lock names' do
+    first_lock = 'outer lock'
+    second_lock = 'inner lock'
+
+    Tag.with_advisory_lock(first_lock) do
+      Tag.with_advisory_lock(second_lock) do
+        locks = Tag.current_advisory_locks
+        assert_equal(2, locks.size)
+        assert_match(/#{first_lock}/, locks.first)
+        assert_match(/#{second_lock}/, locks.last)
+      end
+
+      locks = Tag.current_advisory_locks
+      assert_equal(1, locks.size)
+      assert_match(/#{first_lock}/, locks.first)
+    end
+    assert_equal([], Tag.current_advisory_locks)
+  end
 end
