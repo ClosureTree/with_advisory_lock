@@ -2,7 +2,6 @@
 
 module WithAdvisoryLock
   class MySQL < Base
-    # See https://dev.mysql.com/doc/refman/5.7/en/locking-functions.html
     # See https://dev.mysql.com/doc/refman/8.0/en/locking-functions.html
     def try_lock
       raise ArgumentError, 'shared locks are not supported on MySQL' if shared

@@ -26,22 +26,19 @@ jobs:
       fail-fast: false
       matrix:
         ruby:
-#          - '3.2'
-#          - '3.1'
-#          - '3.0'
-#          - '2.7'
           - '3.3'
+          - '3.4'
           - 'truffleruby'
         rails:
           - 7.1
-          - "7.0"
-          - 6.1
+          - 7.2
+          - "8.0"
         adapter:
           - mysql2
 #          - trilogy://with_advisory:with_advisory_pass@0/with_advisory_lock_test  Trilogy is not supported by mysql 8 with new encryption
         include:
           - ruby: jruby
-            rails: 6.1
+            rails: 7.1
             adapter: jdbcmysql
     steps:
       - name: Checkout
