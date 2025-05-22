@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
 class MysqlLabel < MysqlRecord
-  self.table_name = 'labels'
+  class << self
+    def model_name
+      ActiveModel::Name.new(self, nil, "Label")
+    end
+  end
 end

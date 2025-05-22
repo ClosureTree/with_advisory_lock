@@ -12,7 +12,7 @@ concurrency:
 jobs:
   minitest:
     runs-on: ubuntu-latest
-    name: CI Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }} / Adapter ${{ matrix.adapter }}
+    name: CI Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
     services:
       postgres:
         image: 'postgres:17-alpine'
@@ -47,23 +47,22 @@ jobs:
           - 7.1
           - 7.2
           - "8.0"
-        adapter:
-          - postgres
         include:
           - ruby: jruby
             rails: 7.1
-            adapter: jdbcpostgresql
     env:
       ACTIVERECORD_VERSION: ${{ matrix.rails }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           rubygems: latest
+
       - name: Test
         env:
           DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
