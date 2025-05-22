@@ -2,7 +2,7 @@
 
 require 'securerandom'
 
-ENV['RAILS_ENV'] ||= 'test'
+ENV['RAILS_ENV'] = 'test'
 ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 
 require_relative 'dummy/config/environment'
@@ -24,6 +24,8 @@ class GemTestCase < ActiveSupport::TestCase
       end
     end
   end
+  # Automatically run migrations if needed
+  ActiveRecord::Tasks::DatabaseTasks.maintain_test_schema!
 
   def adapter_support
     @adapter_support ||= WithAdvisoryLock::DatabaseAdapterSupport.new(ActiveRecord::Base.connection)
