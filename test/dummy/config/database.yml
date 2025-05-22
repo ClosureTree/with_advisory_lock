@@ -1,5 +1,8 @@
 default: &default
   url: <%= ENV['DATABASE_URL'] %>
+  pool: 20
+  properties:
+    allowPublicKeyRetrieval: true
 
 development:
   <<: *default

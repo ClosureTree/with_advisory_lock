@@ -2,23 +2,23 @@
 
 require 'erb'
 require 'active_record'
+require 'active_record/database_configurations'
+require 'yaml'
 require 'with_advisory_lock'
 require 'tmpdir'
 require 'securerandom'
 
 ENV['DATABASE_URL'] ||= ENV['DATABASE_URL_PG'] || ENV['DATABASE_URL_MYSQL']
 
-ActiveRecord::Base.configurations = {
-  default_env: {
-    url: ENV.fetch('DATABASE_URL'),
-    pool: 20,
-    properties: { allowPublicKeyRetrieval: true } # for JRuby madness
-  }
-}
+db_config_path = File.expand_path('dummy/config/database.yml', __dir__)
+db_config      = YAML.load(ERB.new(File.read(db_config_path)).result, aliases: true)
+ActiveRecord::Base.configurations = ActiveRecord::DatabaseConfigurations.new(db_config)
+
+ENV['RAILS_ENV'] ||= 'test'
 
 ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 
-ActiveRecord::Base.establish_connection
+ActiveRecord::Base.establish_connection(:test)
 
 load File.expand_path('dummy/db/schema.rb', __dir__)
 
