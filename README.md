@@ -1,10 +1,13 @@
 # with_advisory_lock
 
-Adds advisory locking (mutexes) to ActiveRecord  6.0+, with ruby 2.7+, jruby or truffleruby, when used with
+Adds advisory locking (mutexes) to ActiveRecord 7.1+, with ruby 3.3+, jruby or truffleruby, when used with
 [MySQL](https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_get-lock)
 or
 [PostgreSQL](https://www.postgresql.org/docs/current/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
-SQLite resorts to file locking.
+
+**Note:** SQLite support has been removed. For single-node SQLite deployments,
+consider using a Ruby mutex instead. Support for MySQL 5.7 has also been
+dropped; please use MySQL 8 or PostgreSQL.
 
 [![Gem Version](https://badge.fury.io/rb/with_advisory_lock.svg)](https://badge.fury.io/rb/with_advisory_lock)
 [![CI](https://github.com/ClosureTree/with_advisory_lock/actions/workflows/ci.yml/badge.svg)](https://github.com/ClosureTree/with_advisory_lock/actions/workflows/ci.yml)
@@ -13,7 +16,7 @@ SQLite resorts to file locking.
 
 An advisory lock is a [mutex](https://en.wikipedia.org/wiki/Mutual_exclusion)
 used to ensure no two processes run some process at the same time. When the
-advisory lock is powered by your database server, as long as it isn't SQLite,
+advisory lock is powered by your database server,
 your mutex spans hosts.
 
 ## Usage
@@ -134,7 +137,7 @@ row-level locks prevent concurrent modification to a given model.
 
 **If you're building a
 [CRUD](http://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-application, this will be 2.4, 2.5 and  your most commonly used lock.**
+application, this will be 2.4, 2.5 and your most commonly used lock.**
 
 ### Table-level locks
 
@@ -152,38 +155,7 @@ Advisory locks with MySQL and PostgreSQL ignore database transaction boundaries.
 
 You will want to wrap your block within a transaction to ensure consistency.
 
-### MySQL < 5.7.5 doesn't support nesting
-
-With MySQL < 5.7.5, if you ask for a _different_ advisory lock within
-a `with_advisory_lock` block, you will be releasing the parent lock (!!!). A
-`NestedAdvisoryLockError`will be raised in this case. If you ask for the same
-lock name, `with_advisory_lock` won't ask for the lock again, and the block
-given will be yielded to.
-
-This is not an issue in MySQL >= 5.7.5, and no error will be raised for nested
-lock usage. You can override this by passing `force_nested_lock_support: true`
-or `force_nested_lock_support: false` to the `with_advisory_lock` options.
-
 ### Is clustered MySQL supported?
 
 [No.](https://github.com/ClosureTree/with_advisory_lock/issues/16)
 
-### There are many `lock-*` files in my project directory after test runs
-
-This is expected if you aren't using MySQL or Postgresql for your tests.
-See [issue 3](https://github.com/ClosureTree/with_advisory_lock/issues/3).
-
-SQLite doesn't have advisory locks, so we resort to file locking, which will
-only work if the `FLOCK_DIR` is set consistently for all ruby processes.
-
-In your `spec_helper.rb` or `minitest_helper.rb`, add a `before` and `after` block:
-
-```ruby
-before do
-  ENV['FLOCK_DIR'] = Dir.mktmpdir
-end
-
-after do
-  FileUtils.remove_entry_secure ENV['FLOCK_DIR']
-end
-```

@@ -46,7 +46,7 @@ class ParallelismTest < GemTestCase
       workers.each(&:join)
     end
     # Ensure we're still connected:
-    ApplicationRecord.connection_pool.connection
+    ApplicationRecord.connection
   end
 
   setup do
@@ -55,7 +55,6 @@ class ParallelismTest < GemTestCase
   end
 
   test 'creates multiple duplicate rows without advisory locks' do
-    skip if %i[sqlite3 jdbcsqlite3].include?(env_db)
     @use_advisory_lock = false
     @iterations = 1
     run_workers

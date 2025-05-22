@@ -15,9 +15,5 @@ module WithAdvisoryLock
     def postgresql?
       %i[postgresql empostgresql postgis].include? adapter_name
     end
-
-    def sqlite?
-      [:sqlite3, :sqlite].include? adapter_name
-    end
   end
 end

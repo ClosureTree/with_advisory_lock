@@ -46,7 +46,7 @@ module WithAdvisoryLock
         elsif adapter.mysql?
           WithAdvisoryLock::MySQL
         else
-          WithAdvisoryLock::Flock
+          raise ArgumentError, "Unsupported adapter: #{adapter.adapter_name}"
         end
       end
     end
