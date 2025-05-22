@@ -1,18 +1,32 @@
-name: CI Mysql 8.0
+name: CI
+
 on:
   pull_request:
     branches:
       - master
 
 concurrency:
-  group: ci-mysql8-${{ github.head_ref }}
+  group: ci-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
   minitest:
     runs-on: ubuntu-latest
-    name: CI Mysql 8.0 Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }} / Adapter ${{ matrix.adapter }}
+    name: CI Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }} / Adapter ${{ matrix.adapter }}
     services:
+      postgres:
+        image: 'postgres:17-alpine'
+        ports:
+         - '5432'
+        env:
+          POSTGRES_USER: with_advisory
+          POSTGRES_PASSWORD: with_advisory_pass
+          POSTGRES_DB: with_advisory_lock_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       mysql:
         image: mysql/mysql-server
         ports:
@@ -34,12 +48,11 @@ jobs:
           - 7.2
           - "8.0"
         adapter:
-          - mysql2
-#          - trilogy://with_advisory:with_advisory_pass@0/with_advisory_lock_test  Trilogy is not supported by mysql 8 with new encryption
+          - postgres
         include:
           - ruby: jruby
             rails: 7.1
-            adapter: jdbcmysql
+            adapter: jdbcpostgresql
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,7 +66,8 @@ jobs:
           BUNDLE_GEMFILE:  gemfiles/activerecord_${{ matrix.rails }}.gemfile
       - name: Test
         env:
-          BUNDLE_GEMFILE: gemfiles/activerecord_${{ matrix.rails }}.gemfile
-          DATABASE_URL: ${{ matrix.adapter }}://with_advisory:with_advisory_pass@0:${{ job.services.mysql.ports[3306] }}/with_advisory_lock_test
+          BUNDLE_GEMFILE:  gemfiles/activerecord_${{ matrix.rails }}.gemfile
+          DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
+          DATABASE_URL: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
         run: bundle exec rake
