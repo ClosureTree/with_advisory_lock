@@ -53,6 +53,8 @@ jobs:
           - ruby: jruby
             rails: 7.1
             adapter: jdbcpostgresql
+    env:
+      ACTIVERECORD_VERSION: ${{ matrix.rails }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,11 +64,8 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           rubygems: latest
-        env:
-          BUNDLE_GEMFILE:  gemfiles/activerecord_${{ matrix.rails }}.gemfile
       - name: Test
         env:
-          BUNDLE_GEMFILE:  gemfiles/activerecord_${{ matrix.rails }}.gemfile
           DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
           DATABASE_URL: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}

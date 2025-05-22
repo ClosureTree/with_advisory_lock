@@ -33,7 +33,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'activerecord', '>= 7.1'
   spec.add_runtime_dependency 'zeitwerk', '>= 2.7'
 
-  spec.add_development_dependency 'appraisal'
   spec.add_development_dependency 'maxitest'
   spec.add_development_dependency 'minitest-reporters'
   spec.add_development_dependency 'mocha'
