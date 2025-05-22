@@ -1,5 +1,12 @@
 ## Changelog
 
+## [5.3.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.2.0...with_advisory_lock/v5.3.0) (2025-04-25)
+
+
+### Features
+
+* add #current_advisory_locks method ([#111](https://github.com/ClosureTree/with_advisory_lock/issues/111)) ([ccbd3b2](https://github.com/ClosureTree/with_advisory_lock/commit/ccbd3b23465f7fa1fc3800334159986c31d5c351))
+
 ## [5.2.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.1.0...with_advisory_lock/v5.2.0) (2025-04-24)
 
 
