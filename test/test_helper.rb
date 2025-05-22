@@ -6,6 +6,8 @@ require 'with_advisory_lock'
 require 'tmpdir'
 require 'securerandom'
 
+ENV['DATABASE_URL'] ||= ENV['DATABASE_URL_PG'] || ENV['DATABASE_URL_MYSQL']
+
 ActiveRecord::Base.configurations = {
   default_env: {
     url: ENV.fetch('DATABASE_URL'),

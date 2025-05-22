@@ -12,19 +12,7 @@ ActiveRecord::Schema.define(version: 1) do
   end
 end
 
-class ApplicationRecord < ActiveRecord::Base
-  self.abstract_class = true
-end
-
-class Tag < ApplicationRecord
-  after_save do
-    TagAudit.create(tag_name: name)
-    Label.create(name: name)
-  end
-end
-
-class TagAudit < ApplicationRecord
-end
-
-class Label < ApplicationRecord
-end
+require_relative 'dummy/app/models/application_record'
+require_relative 'dummy/app/models/tag'
+require_relative 'dummy/app/models/tag_audit'
+require_relative 'dummy/app/models/label'
