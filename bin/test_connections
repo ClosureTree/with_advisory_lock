@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV['RAILS_ENV'] = 'test'
+ENV['DATABASE_URL_PG'] ||= 'postgres://with_advisory:with_advisory_pass@localhost:5433/with_advisory_lock_test'
+ENV['DATABASE_URL_MYSQL'] ||= 'mysql2://with_advisory:with_advisory_pass@0.0.0.0:3366/with_advisory_lock_test'
+
+require_relative '../test/dummy/config/environment'
+
+puts 'Testing database connections...'
+
+puts "\nPostgreSQL (ApplicationRecord):"
+puts "  Connected: #{ApplicationRecord.connected?}"
+puts "  Tables: #{ApplicationRecord.connection.tables.sort.join(', ')}"
+
+puts "\nMySQL (MysqlRecord):"
+puts "  Connected: #{MysqlRecord.connected?}"
+puts "  Tables: #{MysqlRecord.connection.tables.sort.join(', ')}"
+
+puts "\nModel connections:"
+puts "  Tag uses: #{Tag.connection.adapter_name}"
+puts "  MysqlTag uses: #{MysqlTag.connection.adapter_name}"

@@ -1,13 +1,12 @@
-version: "3.9"
 services:
   pg:
-    image: postgres:16
+    image: postgres:17-alpine
     environment:
       POSTGRES_USER: with_advisory
       POSTGRES_PASSWORD: with_advisory_pass
       POSTGRES_DB: with_advisory_lock_test
     ports:
-      - "5432:5432"
+      - "5433:5432"
   mysql:
     image: mysql:8
     environment:
@@ -17,4 +16,4 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_ROOT_HOST: '%'
     ports:
-      - "3306:3306"
+      - "3366:3306"

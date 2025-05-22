@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'bundler/setup'
+require 'active_record'
+
+# Setup PostgreSQL database
+puts 'Setting up PostgreSQL test database...'
+ActiveRecord::Base.establish_connection(
+  adapter: 'postgresql',
+  host: 'localhost',
+  port: 5433,
+  database: 'with_advisory_lock_test',
+  username: 'with_advisory',
+  password: 'with_advisory_pass'
+)
+
+ActiveRecord::Schema.define(version: 1) do
+  create_table 'tags', force: true do |t|
+    t.string 'name'
+  end
+
+  create_table 'tag_audits', id: false, force: true do |t|
+    t.string 'tag_name'
+  end
+
+  create_table 'labels', id: false, force: true do |t|
+    t.string 'name'
+  end
+end
+puts 'PostgreSQL tables created!'
+
+# Setup MySQL database
+puts "\nSetting up MySQL test database..."
+ActiveRecord::Base.establish_connection(
+  adapter: 'mysql2',
+  host: '127.0.0.1',
+  port: 3366,
+  database: 'with_advisory_lock_test',
+  username: 'with_advisory',
+  password: 'with_advisory_pass'
+)
+
+ActiveRecord::Schema.define(version: 1) do
+  create_table 'mysql_tags', force: true do |t|
+    t.string 'name'
+  end
+
+  create_table 'mysql_tag_audits', id: false, force: true do |t|
+    t.string 'tag_name'
+  end
+
+  create_table 'mysql_labels', id: false, force: true do |t|
+    t.string 'name'
+  end
+end
+puts 'MySQL tables created!'
+
+puts "\nTest databases setup complete!"

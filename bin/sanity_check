@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV['RAILS_ENV'] = 'test'
+ENV['DATABASE_URL_PG'] ||= 'postgres://with_advisory:with_advisory_pass@localhost:5433/with_advisory_lock_test'
+ENV['DATABASE_URL_MYSQL'] ||= 'mysql2://with_advisory:with_advisory_pass@0.0.0.0:3366/with_advisory_lock_test'
+
+require_relative '../test/dummy/config/environment'
+
+puts '=' * 80
+puts 'WITH_ADVISORY_LOCK SANITY CHECK'
+puts '=' * 80
+puts
+
+# Check Rails environment
+puts "Rails Environment: #{Rails.env}"
+puts "Rails Root: #{Rails.root}"
+puts
+
+# Check PostgreSQL connection
+puts 'PostgreSQL Connection (ApplicationRecord):'
+begin
+  ApplicationRecord.connection.execute('SELECT 1')
+  puts '  ✓ Connected to PostgreSQL'
+  puts "  Database: #{ApplicationRecord.connection.current_database}"
+  puts "  Adapter: #{ApplicationRecord.connection.adapter_name}"
+  puts "  Tables: #{ApplicationRecord.connection.tables.sort.join(', ')}"
+
+  # Test creating a record
+  tag = Tag.create!(name: "test-pg-#{Time.now.to_i}")
+  puts "  ✓ Created Tag record with id: #{tag.id}"
+  tag.destroy
+  puts '  ✓ Deleted Tag record'
+rescue StandardError => e
+  puts "  ✗ ERROR: #{e.message}"
+  puts "  #{e.backtrace.first}"
+end
+puts
+
+# Check MySQL connection
+puts 'MySQL Connection (MysqlRecord):'
+begin
+  MysqlRecord.connection.execute('SELECT 1')
+  puts '  ✓ Connected to MySQL'
+  puts "  Database: #{MysqlRecord.connection.current_database}"
+  puts "  Adapter: #{MysqlRecord.connection.adapter_name}"
+  puts "  Tables: #{MysqlRecord.connection.tables.sort.join(', ')}"
+
+  # Test creating a record
+  mysql_tag = MysqlTag.create!(name: "test-mysql-#{Time.now.to_i}")
+  puts "  ✓ Created MysqlTag record with id: #{mysql_tag.id}"
+  mysql_tag.destroy
+  puts '  ✓ Deleted MysqlTag record'
+rescue StandardError => e
+  puts "  ✗ ERROR: #{e.message}"
+  puts "  #{e.backtrace.first}"
+end
+puts
+
+# Check model associations
+puts 'Model Configuration:'
+puts '  PostgreSQL Models:'
+puts "    - Tag -> #{Tag.connection.adapter_name}"
+puts "    - TagAudit -> #{TagAudit.connection.adapter_name}"
+puts "    - Label -> #{Label.connection.adapter_name}"
+puts '  MySQL Models:'
+puts "    - MysqlTag -> #{MysqlTag.connection.adapter_name}"
+puts "    - MysqlTagAudit -> #{MysqlTagAudit.connection.adapter_name}"
+puts "    - MysqlLabel -> #{MysqlLabel.connection.adapter_name}"
+puts
+
+# Check if WithAdvisoryLock is loaded
+puts 'WithAdvisoryLock Status:'
+puts "  Module loaded: #{defined?(WithAdvisoryLock) ? 'Yes' : 'No'}"
+puts "  Concern loaded: #{defined?(WithAdvisoryLock::Concern) ? 'Yes' : 'No'}"
+puts "  PostgreSQL adapter loaded: #{defined?(WithAdvisoryLock::PostgreSQL) ? 'Yes' : 'No'}"
+puts "  MySQL adapter loaded: #{defined?(WithAdvisoryLock::MySQL) ? 'Yes' : 'No'}"
+
+# Check if models have advisory lock methods
+puts "\nModel Methods:"
+puts "  Tag.with_advisory_lock available: #{Tag.respond_to?(:with_advisory_lock)}"
+puts "  MysqlTag.with_advisory_lock available: #{MysqlTag.respond_to?(:with_advisory_lock)}"
+
+puts "\n#{'=' * 80}"
+puts 'SANITY CHECK COMPLETE'
+puts '=' * 80

@@ -19,35 +19,28 @@ module WithAdvisoryLock
       end
 
       def with_advisory_lock_result(lock_name, options = {}, &block)
-        impl = impl_class.new(connection, lock_name, options)
-        impl.with_advisory_lock_if_needed(&block)
+        connection.with_advisory_lock_if_needed(lock_name, options, &block)
       end
 
       def advisory_lock_exists?(lock_name)
-        impl = impl_class.new(connection, lock_name, 0)
-        impl.already_locked? || !impl.yield_with_lock.lock_was_acquired?
+        lock_str = "#{ENV.fetch(CoreAdvisory::LOCK_PREFIX_ENV, nil)}#{lock_name}"
+        lock_stack_item = LockStackItem.new(lock_str, false)
+
+        if connection.advisory_lock_stack.include?(lock_stack_item)
+          true
+        else
+          # Try to acquire lock with zero timeout to test if it's held
+          result = connection.with_advisory_lock_if_needed(lock_name, { timeout_seconds: 0 })
+          !result.lock_was_acquired?
+        end
       end
 
       def current_advisory_lock
-        lock_stack_key = WithAdvisoryLock::Base.lock_stack.first
-        lock_stack_key && lock_stack_key[0]
+        connection.advisory_lock_stack.first&.name
       end
 
       def current_advisory_locks
-        WithAdvisoryLock::Base.lock_stack.map(&:name)
-      end
-
-      private
-
-      def impl_class
-        adapter = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
-        if adapter.postgresql?
-          WithAdvisoryLock::PostgreSQL
-        elsif adapter.mysql?
-          WithAdvisoryLock::MySQL
-        else
-          raise ArgumentError, "Unsupported adapter: #{adapter.adapter_name}"
-        end
+        connection.advisory_lock_stack.map(&:name)
       end
     end
   end
