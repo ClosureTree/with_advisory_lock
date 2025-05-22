@@ -2,6 +2,8 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem 'rake'
+
 activerecord_version = ENV.fetch('ACTIVERECORD_VERSION', '7.1')
 
 gem 'activerecord', "~> #{activerecord_version}.0"
