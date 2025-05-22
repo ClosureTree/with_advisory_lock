@@ -2,21 +2,25 @@
 
 require 'erb'
 require 'active_record'
+require 'active_record/database_configurations'
+require 'yaml'
 require 'with_advisory_lock'
 require 'tmpdir'
 require 'securerandom'
 
-ActiveRecord::Base.configurations = {
-  default_env: {
-    url: ENV.fetch('DATABASE_URL'),
-    pool: 20,
-    properties: { allowPublicKeyRetrieval: true } # for JRuby madness
-  }
-}
+ENV['DATABASE_URL'] ||= ENV['DATABASE_URL_PG'] || ENV['DATABASE_URL_MYSQL']
+
+db_config_path = File.expand_path('dummy/config/database.yml', __dir__)
+db_config      = YAML.load(ERB.new(File.read(db_config_path)).result, aliases: true)
+ActiveRecord::Base.configurations = ActiveRecord::DatabaseConfigurations.new(db_config)
+
+ENV['RAILS_ENV'] ||= 'test'
 
 ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 
-ActiveRecord::Base.establish_connection
+ActiveRecord::Base.establish_connection(:test)
+
+load File.expand_path('dummy/db/schema.rb', __dir__)
 
 def env_db
   @env_db ||= ActiveRecord::Base.connection_db_config.adapter.to_sym
@@ -24,7 +28,10 @@ end
 
 ActiveRecord::Migration.verbose = false
 
-require 'test_models'
+require_relative 'dummy/app/models/application_record'
+require_relative 'dummy/app/models/tag'
+require_relative 'dummy/app/models/tag_audit'
+require_relative 'dummy/app/models/label'
 require 'minitest'
 require 'maxitest/autorun'
 require 'mocha/minitest'
