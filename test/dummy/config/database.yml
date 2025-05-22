@@ -1,11 +1,12 @@
 default: &default
-  url: <%= ENV['DATABASE_URL'] %>
   pool: 20
   properties:
     allowPublicKeyRetrieval: true
 
-development:
-  <<: *default
-
 test:
-  <<: *default
+  primary:
+    <<: *default
+    url: <%= ENV['DATABASE_URL_PG'] %>
+  secondary:
+    <<: *default
+    url: <%= ENV['DATABASE_URL_MYSQL'] %>
