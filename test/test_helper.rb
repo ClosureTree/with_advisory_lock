@@ -26,6 +26,13 @@ class GemTestCase < ActiveSupport::TestCase
   end
   # Automatically run migrations if needed
   ActiveRecord::Tasks::DatabaseTasks.maintain_test_schema!
+  if MysqlRecord.connected?
+    # Switch to MySQL connection temporarily
+    old_connection = ActiveRecord::Base.connection
+    ActiveRecord::Base.establish_connection(MysqlRecord.connection_config)
+    ActiveRecord::Tasks::DatabaseTasks.maintain_test_schema!
+    ActiveRecord::Base.establish_connection(old_connection.instance_variable_get(:@config))
+  end
 
   def adapter_support
     @adapter_support ||= WithAdvisoryLock::DatabaseAdapterSupport.new(ActiveRecord::Base.connection)
