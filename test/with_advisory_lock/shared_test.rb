@@ -37,7 +37,7 @@ end
 
 class SharedLocksTest < GemTestCase
   def supported?
-    %i[trilogy mysql2 jdbcmysql].exclude?(env_db)
+    !is_mysql_adapter?
   end
 
   test 'does not allow two exclusive locks' do
@@ -112,10 +112,6 @@ class SupportedEnvironmentTest < SharedLocksTest
   end
 
   class PostgreSQLTest < SupportedEnvironmentTest
-    setup do
-      skip unless is_postgresql_adapter?
-    end
-
     def pg_lock_modes
       Tag.connection.select_values("SELECT mode FROM pg_locks WHERE locktype = 'advisory';")
     end

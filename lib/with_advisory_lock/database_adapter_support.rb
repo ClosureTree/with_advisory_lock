@@ -9,11 +9,11 @@ module WithAdvisoryLock
     end
 
     def mysql?
-      %i[mysql2 trilogy].include? adapter_name
+      %i[mysql2 trilogy jdbcmysql].include? adapter_name
     end
 
     def postgresql?
-      %i[postgresql empostgresql postgis].include? adapter_name
+      %i[postgresql empostgresql postgis jdbcpostgresql].include? adapter_name
     end
   end
 end
