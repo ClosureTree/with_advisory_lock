@@ -113,7 +113,7 @@ class SupportedEnvironmentTest < SharedLocksTest
 
   class PostgreSQLTest < SupportedEnvironmentTest
     setup do
-      skip unless env_db == :postgresql
+      skip unless is_postgresql_adapter?
     end
 
     def pg_lock_modes
