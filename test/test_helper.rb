@@ -8,6 +8,8 @@ ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 require_relative 'dummy/config/environment'
 require 'rails/test_help'
 
+ActiveRecord::Migration.maintain_test_schema!
+
 require 'with_advisory_lock'
 require 'maxitest/autorun'
 require 'mocha/minitest'
@@ -23,15 +25,6 @@ class GemTestCase < ActiveSupport::TestCase
         abort "Missing required environment variable: #{var}"
       end
     end
-  end
-  # Automatically run migrations if needed
-  ActiveRecord::Tasks::DatabaseTasks.maintain_test_schema!
-  if MysqlRecord.connected?
-    # Switch to MySQL connection temporarily
-    old_connection = ActiveRecord::Base.connection
-    ActiveRecord::Base.establish_connection(MysqlRecord.connection_config)
-    ActiveRecord::Tasks::DatabaseTasks.maintain_test_schema!
-    ActiveRecord::Base.establish_connection(old_connection.instance_variable_get(:@config))
   end
 
   def adapter_support
