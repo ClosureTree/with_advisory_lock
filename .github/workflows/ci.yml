@@ -68,4 +68,4 @@ jobs:
           DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
           DATABASE_URL_MYSQL: mysql2://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mysql.ports[3306] }}/with_advisory_lock_test
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
-        run: bundle exec rake
+        run: bin/rails test
