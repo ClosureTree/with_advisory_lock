@@ -1,14 +1,8 @@
-development:
-  primary:
-    url: <%= ENV['DATABASE_URL_PG']%>
+default: &default
+  url: <%= ENV['DATABASE_URL'] %>
 
-  secondary:
-    url: <%= ENV['DATABASE_URL_MYSQL']%>
+development:
+  <<: *default
 
 test:
-  development:
-    primary:
-      url: <%= ENV['DATABASE_URL_PG']%>
-
-    secondary:
-      url: <%= ENV['DATABASE_URL_MYSQL']%>
+  <<: *default

@@ -20,13 +20,18 @@ ENV['WITH_ADVISORY_LOCK_PREFIX'] ||= SecureRandom.hex
 
 ActiveRecord::Base.establish_connection
 
+load File.expand_path('dummy/db/schema.rb', __dir__)
+
 def env_db
   @env_db ||= ActiveRecord::Base.connection_db_config.adapter.to_sym
 end
 
 ActiveRecord::Migration.verbose = false
 
-require 'test_models'
+require_relative 'dummy/app/models/application_record'
+require_relative 'dummy/app/models/tag'
+require_relative 'dummy/app/models/tag_audit'
+require_relative 'dummy/app/models/label'
 require 'minitest'
 require 'maxitest/autorun'
 require 'mocha/minitest'
