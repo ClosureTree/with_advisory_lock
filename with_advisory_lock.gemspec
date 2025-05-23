@@ -14,7 +14,6 @@ Gem::Specification.new do |spec|
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
-  spec.test_files    = spec.files.grep(%r{^test/})
   spec.require_paths = %w[lib]
   spec.metadata      = { 'rubygems_mfa_required' => 'true' }
   spec.required_ruby_version = '>= 3.3.0'
@@ -30,10 +29,9 @@ Gem::Specification.new do |spec|
     MySQL 8 or PostgreSQL.
   MESSAGE
 
-  spec.add_runtime_dependency 'activerecord', '>= 7.1'
-  spec.add_runtime_dependency 'zeitwerk', '>= 2.7'
+  spec.add_dependency 'activerecord', '>= 7.1'
+  spec.add_dependency 'zeitwerk', '>= 2.7'
 
-  spec.add_development_dependency 'appraisal'
   spec.add_development_dependency 'maxitest'
   spec.add_development_dependency 'minitest-reporters'
   spec.add_development_dependency 'mocha'

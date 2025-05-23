@@ -4,7 +4,7 @@ require 'test_helper'
 
 class LockNestingTest < GemTestCase
   setup do
-    @prior_prefix = ENV['WITH_ADVISORY_LOCK_PREFIX']
+    @prior_prefix = ENV.fetch('WITH_ADVISORY_LOCK_PREFIX', nil)
     ENV['WITH_ADVISORY_LOCK_PREFIX'] = nil
   end
 
