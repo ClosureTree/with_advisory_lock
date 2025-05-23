@@ -36,7 +36,7 @@ module WithAdvisoryLock
     end
 
     def lock_str
-      @lock_str ||= "#{ENV[LOCK_PREFIX_ENV]}#{lock_name}"
+      @lock_str ||= "#{ENV.fetch(LOCK_PREFIX_ENV, nil)}#{lock_name}"
     end
 
     def lock_stack_item
@@ -63,13 +63,13 @@ module WithAdvisoryLock
       lock_and_yield(&block)
     end
 
-    def lock_and_yield(&block)
+    def lock_and_yield(&)
       if already_locked?
         Result.new(true, yield)
-      elsif timeout_seconds == 0
-        yield_with_lock(&block)
+      elsif timeout_seconds.zero?
+        yield_with_lock(&)
       else
-        yield_with_lock_and_timeout(&block)
+        yield_with_lock_and_timeout(&)
       end
     end
 
@@ -83,10 +83,10 @@ module WithAdvisoryLock
       end
     end
 
-    def yield_with_lock_and_timeout(&block)
+    def yield_with_lock_and_timeout(&)
       give_up_at = Time.now + @timeout_seconds if @timeout_seconds
       while @timeout_seconds.nil? || Time.now < give_up_at
-        r = yield_with_lock(&block)
+        r = yield_with_lock(&)
         return r if r.lock_was_acquired?
 
         # Randomizing sleep time may help reduce contention.
@@ -110,9 +110,26 @@ module WithAdvisoryLock
       end
     end
 
-    # Prevent AR from caching results improperly
-    def unique_column_name
-      "t#{SecureRandom.hex}"
+    def try_lock
+      connection.try_advisory_lock(lock_keys, lock_name: lock_name, shared: shared, transaction: transaction)
+    end
+
+    def release_lock
+      connection.release_advisory_lock(lock_keys, lock_name: lock_name, shared: shared, transaction: transaction)
+    end
+
+    def lock_keys
+      @lock_keys ||= begin
+        adapter = WithAdvisoryLock::DatabaseAdapterSupport.new(connection)
+        if adapter.postgresql?
+          [
+            stable_hashcode(lock_name),
+            ENV.fetch(LOCK_PREFIX_ENV, nil)
+          ].map { |ea| ea.to_i & 0x7fffffff }
+        else
+          [lock_str]
+        end
+      end
     end
   end
 end

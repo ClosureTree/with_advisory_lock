@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
 gemspec
 
 gem 'rake'
-
 
 activerecord_version = ENV.fetch('ACTIVERECORD_VERSION', '7.1')
 
@@ -13,8 +14,8 @@ gem 'railties'
 
 platforms :ruby do
   gem 'mysql2'
-  gem 'trilogy'
   gem 'pg'
+  gem 'trilogy'
 end
 
 platforms :jruby do

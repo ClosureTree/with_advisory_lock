@@ -3,9 +3,10 @@
 module WithAdvisoryLock
   class DatabaseAdapterSupport
     attr_reader :adapter_name
+
     def initialize(connection)
       @connection = connection
-      @adapter_name   = connection.adapter_name.downcase.to_sym
+      @adapter_name = connection.adapter_name.downcase.to_sym
     end
 
     def mysql?

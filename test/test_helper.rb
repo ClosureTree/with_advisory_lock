@@ -15,23 +15,21 @@ require 'maxitest/autorun'
 require 'mocha/minitest'
 
 class GemTestCase < ActiveSupport::TestCase
-
   parallelize(workers: 1)
 
   def self.startup
     # Validate environment variables when tests actually start running
     %w[DATABASE_URL_PG DATABASE_URL_MYSQL].each do |var|
-      if ENV[var].nil? || ENV[var].empty?
-        abort "Missing required environment variable: #{var}"
-      end
+      abort "Missing required environment variable: #{var}" if ENV[var].nil? || ENV[var].empty?
     end
   end
 
   def adapter_support
     @adapter_support ||= WithAdvisoryLock::DatabaseAdapterSupport.new(ActiveRecord::Base.connection)
   end
-  def is_mysql_adapter?; adapter_support.mysql?; end
-  def is_postgresql_adapter?; adapter_support.postgresql?; end
+
+  def is_mysql_adapter? = adapter_support.mysql?
+  def is_postgresql_adapter? = adapter_support.postgresql?
 
   setup do
     ApplicationRecord.connection.truncate_tables(
@@ -47,7 +45,6 @@ class GemTestCase < ActiveSupport::TestCase
       )
     end
   end
-
 end
 
 puts "Testing ActiveRecord #{ActiveRecord.gem_version} and #{RUBY_ENGINE} #{RUBY_ENGINE_VERSION} as #{RUBY_VERSION}"

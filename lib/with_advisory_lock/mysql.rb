@@ -1,31 +1,32 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module WithAdvisoryLock
-  class MySQL < Base
-    # See https://dev.mysql.com/doc/refman/8.0/en/locking-functions.html
-    def try_lock
+  # Methods mixed into the MySQL connection adapter to provide advisory locking
+  # support compatible with +WithAdvisoryLock::Base+.
+  module MySQL
+    extend ActiveSupport::Concern
+
+    def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:)
       raise ArgumentError, 'shared locks are not supported on MySQL' if shared
       raise ArgumentError, 'transaction level locks are not supported on MySQL' if transaction
 
-      execute_successful?("GET_LOCK(#{quoted_lock_str}, 0)")
+      execute_successful?("GET_LOCK(#{quote(lock_keys.first)}, 0)")
     end
 
-    def release_lock
-      execute_successful?("RELEASE_LOCK(#{quoted_lock_str})")
+    def release_advisory_lock(lock_keys, lock_name:, **)
+      execute_successful?("RELEASE_LOCK(#{quote(lock_keys.first)})")
     end
+
+    private
 
     def execute_successful?(mysql_function)
-      execute_query(mysql_function) == 1
+      select_value("SELECT #{mysql_function}") == 1
     end
 
-    def execute_query(mysql_function)
-      sql = "SELECT #{mysql_function}"
-      connection.query_value(sql)
-    end
-
-    # MySQL wants a string as the lock key.
-    def quoted_lock_str
-      connection.quote(lock_str)
+    def unique_column_name
+      "t#{SecureRandom.hex}"
     end
   end
 end

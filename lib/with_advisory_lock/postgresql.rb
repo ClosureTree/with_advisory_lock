@@ -1,35 +1,41 @@
 # frozen_string_literal: true
 
-module WithAdvisoryLock
-  class PostgreSQL < Base
-    # See https://www.postgresql.org/docs/16/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
+require 'securerandom'
 
-    # MRI returns 't', jruby returns true. YAY!
+module WithAdvisoryLock
+  # Methods mixed into the PostgreSQL connection adapter to provide advisory
+  # locking support. The public API mirrors the methods expected by
+  # +WithAdvisoryLock::Base+.
+  module PostgreSQL
+    extend ActiveSupport::Concern
+
     LOCK_RESULT_VALUES = ['t', true].freeze
-    PG_ADVISORY_UNLOCK = 'pg_advisory_unlock'
-    PG_TRY_ADVISORY = 'pg_try_advisory'
     ERROR_MESSAGE_REGEX = / ERROR: +current transaction is aborted,/
 
-    def try_lock
-      execute_successful?(advisory_try_lock_function(transaction))
+    def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:)
+      function = advisory_try_lock_function(transaction, shared)
+      execute_advisory(function, lock_keys, lock_name)
     end
 
-    def release_lock
+    def release_advisory_lock(lock_keys, lock_name:, shared:, transaction:)
       return if transaction
 
-      execute_successful?(advisory_unlock_function)
+      function = advisory_unlock_function(shared)
+      execute_advisory(function, lock_keys, lock_name)
     rescue ActiveRecord::StatementInvalid => e
       raise unless e.message =~ ERROR_MESSAGE_REGEX
 
       begin
-        connection.rollback_db_transaction
-        execute_successful?(advisory_unlock_function)
+        rollback_db_transaction
+        execute_advisory(function, lock_keys, lock_name)
       ensure
-        connection.begin_db_transaction
+        begin_db_transaction
       end
     end
 
-    def advisory_try_lock_function(transaction_scope)
+    private
+
+    def advisory_try_lock_function(transaction_scope, shared)
       [
         'pg_try_advisory',
         transaction_scope ? '_xact' : nil,
@@ -38,29 +44,25 @@ module WithAdvisoryLock
       ].compact.join
     end
 
-    def advisory_unlock_function
+    def advisory_unlock_function(shared)
       [
         'pg_advisory_unlock',
         shared ? '_shared' : nil
       ].compact.join
     end
 
-    def execute_successful?(pg_function)
-      result = connection.select_value(prepare_sql(pg_function))
+    def execute_advisory(function, lock_keys, lock_name)
+      result = select_value(prepare_sql(function, lock_keys, lock_name))
       LOCK_RESULT_VALUES.include?(result)
     end
 
-    def prepare_sql(pg_function)
+    def prepare_sql(function, lock_keys, lock_name)
       comment = lock_name.to_s.gsub(%r{(/\*)|(\*/)}, '--')
-      "SELECT #{pg_function}(#{lock_keys.join(',')}) AS #{unique_column_name} /* #{comment} */"
+      "SELECT #{function}(#{lock_keys.join(',')}) AS #{unique_column_name} /* #{comment} */"
     end
 
-    # PostgreSQL wants 2 32bit integers as the lock key.
-    def lock_keys
-      @lock_keys ||= [
-        stable_hashcode(lock_name),
-        ENV[LOCK_PREFIX_ENV]
-      ].map { |ea| ea.to_i & 0x7fffffff }
+    def unique_column_name
+      "t#{SecureRandom.hex}"
     end
   end
 end

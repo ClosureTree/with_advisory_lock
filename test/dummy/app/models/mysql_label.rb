@@ -3,7 +3,7 @@
 class MysqlLabel < MysqlRecord
   class << self
     def model_name
-      ActiveModel::Name.new(self, nil, "Label")
+      ActiveModel::Name.new(self, nil, 'Label')
     end
   end
 end

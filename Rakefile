@@ -1,4 +1,6 @@
-require "bundler/gem_tasks"
+# frozen_string_literal: true
+
+require 'bundler/gem_tasks'
 
 require 'yard'
 YARD::Rake::YardocTask.new do |t|
@@ -14,4 +16,4 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
-task :default => :test
+task default: :test
