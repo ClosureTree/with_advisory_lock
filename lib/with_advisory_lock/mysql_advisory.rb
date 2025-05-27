@@ -30,8 +30,6 @@ module WithAdvisoryLock
       select_value("SELECT #{mysql_function}") == 1
     end
 
-    def unique_column_name
-      "t#{SecureRandom.hex}"
-    end
+# (Removed the `unique_column_name` method as it is unused.)
   end
 end
