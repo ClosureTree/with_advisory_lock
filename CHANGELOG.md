@@ -1,5 +1,21 @@
 ## Changelog
 
+## [6.0.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.3.0...with_advisory_lock/v6.0.0) (2025-05-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* Remove private APIs (Base, DatabaseAdapterSupport). Add full mixed adapter support for PostgreSQL/MySQL in same app. Add JRuby compatibility.
+* drop support for sqlite3
+* drop legacy version of ruby/rails ([#113](https://github.com/ClosureTree/with_advisory_lock/issues/113))
+
+### Features
+
+* drop legacy version of ruby/rails ([#113](https://github.com/ClosureTree/with_advisory_lock/issues/113)) ([26fd427](https://github.com/ClosureTree/with_advisory_lock/commit/26fd4278f9fa155974e6f86df7cd92dd2b7d9154))
+* drop support for sqlite3 ([26fd427](https://github.com/ClosureTree/with_advisory_lock/commit/26fd4278f9fa155974e6f86df7cd92dd2b7d9154))
+* move to rails dummy app to test multidb setup ([#115](https://github.com/ClosureTree/with_advisory_lock/issues/115)) ([71a3431](https://github.com/ClosureTree/with_advisory_lock/commit/71a34316b365a0f3be0e8a046db14289e69efc9c))
+* support of multidb  ([#116](https://github.com/ClosureTree/with_advisory_lock/issues/116)) ([935e7e5](https://github.com/ClosureTree/with_advisory_lock/commit/935e7e5fb05dad2eba034745d2ef49e11c163f7d))
+
 ## [5.3.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.2.0...with_advisory_lock/v5.3.0) (2025-04-25)
 
 
