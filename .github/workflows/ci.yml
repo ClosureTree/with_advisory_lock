@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  minitest:
+    runs-on: ubuntu-latest
+    name: CI Ruby ${{ matrix.ruby }} / Rails ${{ matrix.rails }}
+    services:
+      postgres:
+        image: 'postgres:17-alpine'
+        ports:
+         - '5432'
+        env:
+          POSTGRES_USER: with_advisory
+          POSTGRES_PASSWORD: with_advisory_pass
+          POSTGRES_DB: with_advisory_lock_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: mysql/mysql-server
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: with_advisory
+          MYSQL_PASSWORD: with_advisory_pass
+          MYSQL_DATABASE: with_advisory_lock_test
+          MYSQL_ROOT_HOST: '%'
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby:
+          - '3.3'
+          - '3.4'
+          - 'truffleruby'
+        rails:
+          - 7.1
+          - 7.2
+          - "8.0"
+        include:
+          - ruby: jruby
+            rails: 7.1
+    env:
+      ACTIVERECORD_VERSION: ${{ matrix.rails }}
+      RAILS_ENV: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          rubygems: latest
+
+      - name: Setup test databases
+        env:
+          DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
+          DATABASE_URL_MYSQL: mysql2://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mysql.ports[3306] }}/with_advisory_lock_test
+        run: |
+          cd test/dummy
+          bundle exec rake db:test:prepare
+
+      - name: Test
+        env:
+          DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
+          DATABASE_URL_MYSQL: mysql2://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mysql.ports[3306] }}/with_advisory_lock_test
+          WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
+        run: bin/rails test

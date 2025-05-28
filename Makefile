@@ -1,14 +1,10 @@
-.PHONY: test-pg test-mysql
+.PHONY: test
 
-test-pg:
-        docker compose up -d pg
-        sleep 10 # give some time for the service to start
-        DATABASE_URL_PG=postgres://with_advisory:with_advisory_pass@localhost/with_advisory_lock_test appraisal rake test
+test: setup-db
+	bin/rails test
 
-test-mysql:
-        docker compose up -d mysql
-        sleep 10 # give some time for the service to start
-        DATABASE_URL_MYSQL=mysql2://with_advisory:with_advisory_pass@0.0.0.0:3306/with_advisory_lock_test appraisal rake test
-
-
-test: test-pg test-mysql
+setup-db:
+	docker compose up -d
+	sleep 2
+	bundle
+	bin/setup_test_db

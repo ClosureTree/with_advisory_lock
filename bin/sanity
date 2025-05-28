@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+check_port() {
+  local port="$1"
+  local name="$2"
+  if nc -z localhost "$port" >/dev/null 2>&1; then
+    echo "$name running on port $port"
+  else
+    echo "ERROR: $name is not running on port $port" >&2
+    return 1
+  fi
+}
+
+main() {
+  check_port 5433 "Postgresql"
+  check_port 3366 "Mysql"
+}
+
+main "$@"

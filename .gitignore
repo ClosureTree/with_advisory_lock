@@ -19,3 +19,4 @@ test/version_tmp
 tmp
 *.iml
 .env
+test/dummy/log/
