@@ -29,6 +29,12 @@ module WithAdvisoryLock
         execute_advisory(function, lock_keys, options[:lock_name])
       end
     rescue ActiveRecord::StatementInvalid => e
+      # If the connection is broken, the lock is automatically released by PostgreSQL
+      # No need to fail the release operation
+      if e.cause.is_a?(PG::ConnectionBad) || e.message =~ /PG::ConnectionBad/
+        return
+      end
+      
       raise unless e.message =~ ERROR_MESSAGE_REGEX
 
       begin
