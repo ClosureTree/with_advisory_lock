@@ -10,7 +10,7 @@ module WithAdvisoryLock
     LOCK_RESULT_VALUES = ['t', true].freeze
     ERROR_MESSAGE_REGEX = / ERROR: +current transaction is aborted,/
 
-    def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:)
+    def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:, timeout_seconds: nil)
       function = advisory_try_lock_function(transaction, shared)
       execute_advisory(function, lock_keys, lock_name)
     end
@@ -50,6 +50,10 @@ module WithAdvisoryLock
         stable_hashcode(lock_name),
         ENV.fetch(LOCK_PREFIX_ENV, nil)
       ].map { |ea| ea.to_i & 0x7fffffff }
+    end
+
+    def supports_database_timeout?
+      false
     end
 
     private

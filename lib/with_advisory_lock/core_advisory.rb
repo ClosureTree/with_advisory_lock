@@ -54,8 +54,11 @@ module WithAdvisoryLock
 
       lock_keys = lock_keys_for(lock_name)
 
-      if timeout_seconds&.zero?
-        yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, &block)
+      # MySQL supports database-level timeout in GET_LOCK, skip Ruby-level polling
+      if supports_database_timeout?
+        yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, timeout_seconds, &block)
+      elsif timeout_seconds&.zero?
+        yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, timeout_seconds, &block)
       else
         yield_with_lock_and_timeout(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction,
                                     timeout_seconds, &block)
@@ -66,7 +69,7 @@ module WithAdvisoryLock
                                     timeout_seconds, &block)
       give_up_at = timeout_seconds ? Time.now + timeout_seconds : nil
       while give_up_at.nil? || Time.now < give_up_at
-        r = yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, &block)
+        r = yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, 0, &block)
         return r if r.lock_was_acquired?
 
         # Randomizing sleep time may help reduce contention.
@@ -75,8 +78,8 @@ module WithAdvisoryLock
       Result.new(lock_was_acquired: false)
     end
 
-    def yield_with_lock(lock_keys, lock_name, _lock_str, lock_stack_item, shared, transaction)
-      if try_advisory_lock(lock_keys, lock_name: lock_name, shared: shared, transaction: transaction)
+    def yield_with_lock(lock_keys, lock_name, _lock_str, lock_stack_item, shared, transaction, timeout_seconds = nil)
+      if try_advisory_lock(lock_keys, lock_name: lock_name, shared: shared, transaction: transaction, timeout_seconds: timeout_seconds)
         begin
           advisory_lock_stack.push(lock_stack_item)
           result = block_given? ? yield : nil
