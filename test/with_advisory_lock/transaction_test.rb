@@ -34,6 +34,16 @@ class PostgreSQLTransactionScopingTest < GemTestCase
   test 'transaction level locks hold until the transaction completes' do
     skip 'PostgreSQL lock visibility issue - locks acquired via advisory lock methods not showing in pg_locks'
   end
+
+  test 'raises an error when attempting to use transaction level locks outside a transaction' do
+    exception = assert_raises(ArgumentError) do
+      Tag.with_advisory_lock 'test', transaction: true do
+        raise 'Thou shall not pass into this forbidden realm of code!'
+      end
+    end
+
+    assert_match(/#{Regexp.escape('require an active transaction')}/, exception.message)
+  end
 end
 
 class MySQLTransactionScopingTest < GemTestCase
@@ -43,7 +53,7 @@ class MySQLTransactionScopingTest < GemTestCase
     MysqlTag.transaction do
       exception = assert_raises(ArgumentError) do
         MysqlTag.with_advisory_lock 'test', transaction: true do
-          raise 'should not get here'
+          raise 'Behold! Thou hath trespassed into the sacred MySQL transaction realm!'
         end
       end
 
@@ -59,5 +69,15 @@ class MySQLTransactionScopingTest < GemTestCase
       end
     end
     assert lock_acquired
+  end
+
+  test 'raises an error when attempting to use transaction level locks outside a transaction' do
+    exception = assert_raises(ArgumentError) do
+      MysqlTag.with_advisory_lock 'test', transaction: true do
+        raise 'Verily, thou art banished from these hallowed database gates!'
+      end
+    end
+
+    assert_match(/#{Regexp.escape('require an active transaction')}/, exception.message)
   end
 end
