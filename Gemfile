@@ -11,7 +11,7 @@ gem 'benchmark'
 gem 'logger'
 gem 'ostruct'
 
-activerecord_version = ENV.fetch('ACTIVERECORD_VERSION', '7.1')
+activerecord_version = ENV.fetch('ACTIVERECORD_VERSION', '7.2')
 
 gem 'activerecord', "~> #{activerecord_version}.0"
 
@@ -21,13 +21,14 @@ gem 'railties'
 platforms :ruby do
   gem 'mysql2'
   gem 'pg'
+  gem 'sqlite3'
   gem 'trilogy'
 end
 
 platforms :jruby do
-  # JRuby JDBC adapters only support Rails 7.1 currently
-  if activerecord_version == '7.1'
-    gem 'activerecord-jdbcmysql-adapter', '~> 71.0'
-    gem 'activerecord-jdbcpostgresql-adapter', '~> 71.0'
+  # JRuby JDBC adapters support Rails 7.2+
+  if activerecord_version >= '7.2'
+    gem 'activerecord-jdbcmysql-adapter', '~> 72.0'
+    gem 'activerecord-jdbcpostgresql-adapter', '~> 72.0'
   end
 end
