@@ -17,6 +17,11 @@ module WithAdvisoryLock
       options = { timeout_seconds: options } unless options.respond_to?(:fetch)
       options.assert_valid_keys :timeout_seconds, :shared, :transaction, :disable_query_cache
 
+      # Validate transaction-level locks are used within a transaction
+      if options.fetch(:transaction, false) && !transaction_open?
+        raise ArgumentError, 'transaction-level advisory locks require an active transaction'
+      end
+
       lock_str = "#{ENV.fetch(LOCK_PREFIX_ENV, nil)}#{lock_name}"
       lock_stack_item = LockStackItem.new(lock_str, options.fetch(:shared, false))
 
