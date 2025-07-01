@@ -17,6 +17,21 @@ module WithAdvisoryLock
 
     def release_advisory_lock(lock_keys, lock_name:, **)
       execute_successful?("RELEASE_LOCK(#{quote(lock_keys.first)})")
+    rescue ActiveRecord::StatementInvalid => e
+      # If the connection is broken, the lock is automatically released by MySQL
+      # No need to fail the release operation
+      connection_lost = case e.cause
+                       when defined?(Mysql2::Error::ConnectionError) && Mysql2::Error::ConnectionError
+                         true
+                       when defined?(Trilogy::ConnectionError) && Trilogy::ConnectionError
+                         true
+                       else
+                         e.message =~ /Lost connection|MySQL server has gone away|Connection refused/i
+                       end
+      
+      return if connection_lost
+      
+      raise
     end
 
     def lock_keys_for(lock_name)
