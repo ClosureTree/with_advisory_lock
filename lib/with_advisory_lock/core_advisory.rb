@@ -55,9 +55,7 @@ module WithAdvisoryLock
       lock_keys = lock_keys_for(lock_name)
 
       # MySQL supports database-level timeout in GET_LOCK, skip Ruby-level polling
-      if supports_database_timeout?
-        yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, timeout_seconds, &block)
-      elsif timeout_seconds&.zero?
+      if supports_database_timeout? || timeout_seconds&.zero?
         yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, timeout_seconds, &block)
       else
         yield_with_lock_and_timeout(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction,

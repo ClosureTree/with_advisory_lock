@@ -11,6 +11,8 @@ module WithAdvisoryLock
     ERROR_MESSAGE_REGEX = / ERROR: +current transaction is aborted,/
 
     def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:, timeout_seconds: nil)
+      # timeout_seconds is accepted for compatibility but ignored - PostgreSQL doesn't support
+      # native timeouts with pg_try_advisory_lock, requiring Ruby-level polling instead
       function = advisory_try_lock_function(transaction, shared)
       execute_advisory(function, lock_keys, lock_name)
     end

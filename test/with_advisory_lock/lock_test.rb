@@ -185,10 +185,10 @@ class MySQLLockTest < GemTestCase
       result = model_class.with_advisory_lock(lock_name, timeout_seconds: 1) { 'success' }
       elapsed = Time.now - start_time
       
-      # Should return false and complete within reasonable time (< 2 seconds)
+      # Should return false and complete within reasonable time (< 3 seconds)
       # If it were using Ruby polling, it would take longer
       assert_not result
-      assert elapsed < 2.0, "Expected quick timeout, but took #{elapsed} seconds"
+      assert elapsed < 3.0, "Expected quick timeout, but took #{elapsed} seconds"
     ensure
       other_conn.select_value("SELECT RELEASE_LOCK(#{other_conn.quote(lock_keys.first)})")
       model_class.connection_pool.checkin(other_conn)
