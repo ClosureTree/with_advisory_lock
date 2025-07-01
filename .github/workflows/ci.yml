@@ -44,12 +44,8 @@ jobs:
           - '3.4'
           - 'truffleruby'
         rails:
-          - 7.1
           - 7.2
           - "8.0"
-        include:
-          - ruby: jruby
-            rails: 7.1
     env:
       ACTIVERECORD_VERSION: ${{ matrix.rails }}
       RAILS_ENV: test

@@ -5,9 +5,9 @@ default: &default
 test:
   primary:
     <<: *default
-    url: <%= ENV['DATABASE_URL_PG'] %>
+    url: "<%= ENV['DATABASE_URL_PG'] %>"
   secondary:
     <<: *default
-    url: <%= ENV['DATABASE_URL_MYSQL'] %>
+    url: "<%= ENV['DATABASE_URL_MYSQL'] %>"
     properties:
       allowPublicKeyRetrieval: true

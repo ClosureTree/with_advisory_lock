@@ -1,6 +1,6 @@
 # with_advisory_lock
 
-Adds advisory locking (mutexes) to ActiveRecord 7.1+, with ruby 3.3+, jruby or truffleruby, when used with
+Adds advisory locking (mutexes) to ActiveRecord 7.2+, with ruby 3.3+, jruby or truffleruby, when used with
 [MySQL](https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_get-lock)
 or
 [PostgreSQL](https://www.postgresql.org/docs/current/static/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
