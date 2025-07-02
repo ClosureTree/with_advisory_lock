@@ -147,6 +147,10 @@ class PostgreSQLLockTest < GemTestCase
     super
     Tag.delete_all
   end
+
+  test 'does not support database timeout for PostgreSQL' do
+    assert_not model_class.connection.supports_database_timeout?
+  end
 end
 
 class MySQLLockTest < GemTestCase
@@ -159,5 +163,35 @@ class MySQLLockTest < GemTestCase
   def setup
     super
     MysqlTag.delete_all
+  end
+
+  test 'uses database timeout for MySQL' do
+    assert model_class.connection.supports_database_timeout?
+  end
+
+  test 'mysql uses native timeout instead of polling' do
+    # This test verifies that MySQL bypasses Ruby-level polling
+    # when timeout is specified, relying on GET_LOCK's native timeout
+    lock_name = 'mysql_timeout_test'
+    
+    # Hold a lock in another connection - need to use the same prefixed name as the gem
+    other_conn = model_class.connection_pool.checkout
+    lock_keys = other_conn.lock_keys_for(lock_name)
+    other_conn.select_value("SELECT GET_LOCK(#{other_conn.quote(lock_keys.first)}, 0)")
+    
+    begin
+      # Attempt to acquire with a short timeout - should fail quickly
+      start_time = Time.now
+      result = model_class.with_advisory_lock(lock_name, timeout_seconds: 1) { 'success' }
+      elapsed = Time.now - start_time
+      
+      # Should return false and complete within reasonable time (< 3 seconds)
+      # If it were using Ruby polling, it would take longer
+      assert_not result
+      assert elapsed < 3.0, "Expected quick timeout, but took #{elapsed} seconds"
+    ensure
+      other_conn.select_value("SELECT RELEASE_LOCK(#{other_conn.quote(lock_keys.first)})")
+      model_class.connection_pool.checkin(other_conn)
+    end
   end
 end
