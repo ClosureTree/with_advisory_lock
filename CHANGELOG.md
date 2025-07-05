@@ -1,5 +1,21 @@
 ## Changelog
 
+## [7.0.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v6.0.0...with_advisory_lock/v7.0.0) (2025-07-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* require Rails 7.2+ as minimum version
+
+### Features
+
+* fire Ruby from its second job checking locks and let PostgreSQL do what it's paid for ([#124](https://github.com/ClosureTree/with_advisory_lock/issues/124)) ([f7f8dbc](https://github.com/ClosureTree/with_advisory_lock/commit/f7f8dbcd69842a358d0d70227bcc52ba3183c098))
+* handle connection disconnection gracefully ([1944e98](https://github.com/ClosureTree/with_advisory_lock/commit/1944e98877917e234bfe597f9358c0b74643a045))
+* handle connection disconnection gracefully ([77046a9](https://github.com/ClosureTree/with_advisory_lock/commit/77046a94c7504f77a59fae6fbcd75e73ed41bf23))
+* implement MySQL native timeout support ([#123](https://github.com/ClosureTree/with_advisory_lock/issues/123)) ([387dedd](https://github.com/ClosureTree/with_advisory_lock/commit/387dedd133c897f7a3da13ed2ebbd9223b81317d))
+* require Rails 7.2+ as minimum version ([d4e7826](https://github.com/ClosureTree/with_advisory_lock/commit/d4e7826ddc216c103cd666674068cb7f512fc32d))
+* validate transaction-level locks require active transaction ([#122](https://github.com/ClosureTree/with_advisory_lock/issues/122)) ([e4bc6c1](https://github.com/ClosureTree/with_advisory_lock/commit/e4bc6c10666e02c560f18629df0106c39bb85e19))
+
 ## [6.0.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v5.3.0...with_advisory_lock/v6.0.0) (2025-05-28)
 
 
