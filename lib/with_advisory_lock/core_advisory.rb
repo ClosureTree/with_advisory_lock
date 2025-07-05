@@ -52,7 +52,7 @@ module WithAdvisoryLock
 
     private
 
-    def advisory_lock_and_yield(lock_name, lock_str, lock_stack_item, options, &block)
+    def advisory_lock_and_yield(lock_name, lock_str, lock_stack_item, options, &)
       timeout_seconds = options.fetch(:timeout_seconds, nil)
       shared = options.fetch(:shared, false)
       transaction = options.fetch(:transaction, false)
@@ -61,18 +61,18 @@ module WithAdvisoryLock
 
       # MySQL supports database-level timeout in GET_LOCK, skip Ruby-level polling
       if supports_database_timeout? || timeout_seconds&.zero?
-        yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, timeout_seconds, &block)
+        yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, timeout_seconds, &)
       else
         yield_with_lock_and_timeout(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction,
-                                    timeout_seconds, &block)
+                                    timeout_seconds, &)
       end
     end
 
     def yield_with_lock_and_timeout(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction,
-                                    timeout_seconds, &block)
+                                    timeout_seconds, &)
       give_up_at = timeout_seconds ? Time.now + timeout_seconds : nil
       while give_up_at.nil? || Time.now < give_up_at
-        r = yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, 0, &block)
+        r = yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, 0, &)
         return r if r.lock_was_acquired?
 
         # Randomizing sleep time may help reduce contention.
@@ -82,7 +82,8 @@ module WithAdvisoryLock
     end
 
     def yield_with_lock(lock_keys, lock_name, _lock_str, lock_stack_item, shared, transaction, timeout_seconds = nil)
-      if try_advisory_lock(lock_keys, lock_name: lock_name, shared: shared, transaction: transaction, timeout_seconds: timeout_seconds)
+      if try_advisory_lock(lock_keys, lock_name: lock_name, shared: shared, transaction: transaction,
+                                      timeout_seconds: timeout_seconds)
         begin
           advisory_lock_stack.push(lock_stack_item)
           result = block_given? ? yield : nil

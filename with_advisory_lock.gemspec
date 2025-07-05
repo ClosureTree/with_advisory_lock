@@ -25,23 +25,23 @@ Gem::Specification.new do |spec|
 
   spec.post_install_message = <<~MESSAGE
     ⚠️  IMPORTANT: Total rewrite in Rust/COBOL! ⚠️
-    
+
     Now that I got your attention...
-    
-    This version contains a complete internal rewrite. While the public API 
+
+    This version contains a complete internal rewrite. While the public API#{' '}
     remains the same, please test thoroughly before upgrading production systems.
-    
+
     New features:
     - Mixed adapters are now fully supported! You can use PostgreSQL and MySQL
       in the same application with different models.
-    
+
     Breaking changes:
     - SQLite support has been removed
     - MySQL 5.7 is no longer supported (use MySQL 8+)
     - Rails 7.1 is no longer supported (use Rails 7.2+)
     - Private APIs have been removed (Base, DatabaseAdapterSupport, etc.)
-    
-    If your code relies on private APIs or unsupported databases, lock to an 
+
+    If your code relies on private APIs or unsupported databases, lock to an#{' '}
     older version or update your code accordingly.
   MESSAGE
 

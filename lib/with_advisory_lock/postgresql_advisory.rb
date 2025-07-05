@@ -33,10 +33,8 @@ module WithAdvisoryLock
     rescue ActiveRecord::StatementInvalid => e
       # If the connection is broken, the lock is automatically released by PostgreSQL
       # No need to fail the release operation
-      if e.cause.is_a?(PG::ConnectionBad) || e.message =~ /PG::ConnectionBad/
-        return
-      end
-      
+      return if e.cause.is_a?(PG::ConnectionBad) || e.message =~ /PG::ConnectionBad/
+
       raise unless e.message =~ ERROR_MESSAGE_REGEX
 
       begin
@@ -56,6 +54,27 @@ module WithAdvisoryLock
 
     def supports_database_timeout?
       false
+    end
+
+    # Non-blocking check for advisory lock existence to avoid race conditions
+    # This queries pg_locks directly instead of trying to acquire the lock
+    def advisory_lock_exists_for?(lock_name, shared: false)
+      lock_keys = lock_keys_for(lock_name)
+
+      query = <<~SQL.squish
+        SELECT 1 FROM pg_locks
+        WHERE locktype = 'advisory'
+          AND database = (SELECT oid FROM pg_database WHERE datname = CURRENT_DATABASE())
+          AND classid = #{lock_keys.first}
+          AND objid = #{lock_keys.last}
+          AND mode = '#{shared ? 'ShareLock' : 'ExclusiveLock'}'
+        LIMIT 1
+      SQL
+
+      select_value(query).present?
+    rescue ActiveRecord::StatementInvalid
+      # If pg_locks is not accessible, fall back to nil to indicate we should use the default method
+      nil
     end
 
     private
