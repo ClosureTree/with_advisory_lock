@@ -129,7 +129,7 @@ module LockTestCases
         # but we can test the error handling logic by testing with invalid connection state
         assert_not_nil model_class.current_advisory_lock
       end
-      
+
       # After the block, current_advisory_lock should be nil regardless
       assert_nil model_class.current_advisory_lock
     end
@@ -173,18 +173,18 @@ class MySQLLockTest < GemTestCase
     # This test verifies that MySQL bypasses Ruby-level polling
     # when timeout is specified, relying on GET_LOCK's native timeout
     lock_name = 'mysql_timeout_test'
-    
+
     # Hold a lock in another connection - need to use the same prefixed name as the gem
     other_conn = model_class.connection_pool.checkout
     lock_keys = other_conn.lock_keys_for(lock_name)
     other_conn.select_value("SELECT GET_LOCK(#{other_conn.quote(lock_keys.first)}, 0)")
-    
+
     begin
       # Attempt to acquire with a short timeout - should fail quickly
       start_time = Time.now
       result = model_class.with_advisory_lock(lock_name, timeout_seconds: 1) { 'success' }
       elapsed = Time.now - start_time
-      
+
       # Should return false and complete within reasonable time (< 3 seconds)
       # If it were using Ruby polling, it would take longer
       assert_not result

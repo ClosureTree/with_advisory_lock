@@ -32,7 +32,13 @@ module WithAdvisoryLock
           if conn.advisory_lock_stack.include?(lock_stack_item)
             true
           else
-            # Try to acquire lock with zero timeout to test if it's held
+            # For PostgreSQL, try non-blocking query first to avoid race conditions
+            if conn.respond_to?(:advisory_lock_exists_for?)
+              query_result = conn.advisory_lock_exists_for?(lock_name)
+              return query_result unless query_result.nil?
+            end
+
+            # Fall back to the original implementation
             result = conn.with_advisory_lock_if_needed(lock_name, { timeout_seconds: 0 })
             !result.lock_was_acquired?
           end
