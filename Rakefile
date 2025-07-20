@@ -16,8 +16,5 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
-# Load Rails tasks from dummy app to get db:test:prepare
-APP_RAKEFILE = File.expand_path('test/dummy/Rakefile', __dir__)
-load 'rails/tasks/engine.rake' if File.exist?(APP_RAKEFILE)
 
 task default: :test
