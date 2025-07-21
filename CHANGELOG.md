@@ -1,5 +1,12 @@
 ## Changelog
 
+## [7.0.1](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v7.0.0...with_advisory_lock/v7.0.1) (2025-07-21)
+
+
+### Bug Fixes
+
+* handle ActiveRecord's release_advisory_lock signature for Rails 7.2+ ([#127](https://github.com/ClosureTree/with_advisory_lock/issues/127)) ([94253ca](https://github.com/ClosureTree/with_advisory_lock/commit/94253ca2af7f684a3c99645765853546c3da8e02)), closes [#126](https://github.com/ClosureTree/with_advisory_lock/issues/126)
+
 ## [7.0.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v6.0.0...with_advisory_lock/v7.0.0) (2025-07-05)
 
 
