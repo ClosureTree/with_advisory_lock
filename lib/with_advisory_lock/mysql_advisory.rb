@@ -25,8 +25,17 @@ module WithAdvisoryLock
       execute_successful?("GET_LOCK(#{quote(lock_keys.first)}, #{mysql_timeout})")
     end
 
-    def release_advisory_lock(lock_keys, lock_name:, **)
-      execute_successful?("RELEASE_LOCK(#{quote(lock_keys.first)})")
+    def release_advisory_lock(*args, **kwargs)
+      # Handle both signatures - ActiveRecord's built-in and ours
+      if args.length == 1 && kwargs.empty?
+        # ActiveRecord's signature: release_advisory_lock(lock_id)
+        # Called by Rails migrations with a single positional argument
+        super
+      else
+        # Our signature: release_advisory_lock(lock_keys, lock_name:, **)
+        lock_keys = args.first
+        execute_successful?("RELEASE_LOCK(#{quote(lock_keys.first)})")
+      end
     rescue ActiveRecord::StatementInvalid => e
       # If the connection is broken, the lock is automatically released by MySQL
       # No need to fail the release operation
