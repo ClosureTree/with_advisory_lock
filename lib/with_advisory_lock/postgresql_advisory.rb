@@ -71,7 +71,7 @@ module WithAdvisoryLock
         LIMIT 1
       SQL
 
-      select_value(query).present?
+      query_value(query).present?
     rescue ActiveRecord::StatementInvalid
       # If pg_locks is not accessible, fall back to nil to indicate we should use the default method
       nil
@@ -96,7 +96,7 @@ module WithAdvisoryLock
     end
 
     def execute_advisory(function, lock_keys, lock_name)
-      result = select_value(prepare_sql(function, lock_keys, lock_name))
+      result = query_value(prepare_sql(function, lock_keys, lock_name))
       LOCK_RESULT_VALUES.include?(result)
     end
 
