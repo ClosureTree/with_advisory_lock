@@ -7,8 +7,8 @@ class PostgreSQLTransactionScopingTest < GemTestCase
 
   setup do
     @pg_lock_count = lambda do
-      backend_pid = Tag.connection.select_value('SELECT pg_backend_pid()')
-      Tag.connection.select_value("SELECT COUNT(*) FROM pg_locks WHERE locktype = 'advisory' AND pid = #{backend_pid};").to_i
+      backend_pid = Tag.connection.query_value('SELECT pg_backend_pid()')
+      Tag.connection.query_value("SELECT COUNT(*) FROM pg_locks WHERE locktype = 'advisory' AND pid = #{backend_pid};").to_i
     end
   end
 

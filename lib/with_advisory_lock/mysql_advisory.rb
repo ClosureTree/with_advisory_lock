@@ -65,7 +65,7 @@ module WithAdvisoryLock
     private
 
     def execute_successful?(mysql_function)
-      select_value("SELECT #{mysql_function}") == 1
+      query_value("SELECT #{mysql_function}") == 1
     end
   end
 end

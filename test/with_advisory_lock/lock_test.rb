@@ -133,6 +133,25 @@ module LockTestCases
       # After the block, current_advisory_lock should be nil regardless
       assert_nil model_class.current_advisory_lock
     end
+
+    test 'does not write and read lock queries from the query cache' do
+      model_class.connection.cache do
+        model_class.with_advisory_lock!("lock", timeout_seconds: 0) {}
+        assert_nil model_class.connection.query_cache["SELECT GET_LOCK('lock', 0)"]
+
+        # Blocker thread uses a different connection
+        blocker = Thread.new do
+          model_class.with_advisory_lock("lock", timeout_seconds: 0) { sleep 1 }
+        end
+        # blocker should get the lock and not release it in time
+        sleep 0.5
+        lock_result = model_class.with_advisory_lock_result("lock", timeout_seconds: 0) do
+          raise "Successfully entered critical region while lock was held by other thread"
+        end
+        blocker.join
+        assert_not(lock_result.lock_was_acquired?)
+      end
+    end
   end
 end
 
@@ -177,7 +196,7 @@ class MySQLLockTest < GemTestCase
     # Hold a lock in another connection - need to use the same prefixed name as the gem
     other_conn = model_class.connection_pool.checkout
     lock_keys = other_conn.lock_keys_for(lock_name)
-    other_conn.select_value("SELECT GET_LOCK(#{other_conn.quote(lock_keys.first)}, 0)")
+    other_conn.query_value("SELECT GET_LOCK(#{other_conn.quote(lock_keys.first)}, 0)")
 
     begin
       # Attempt to acquire with a short timeout - should fail quickly
@@ -190,7 +209,7 @@ class MySQLLockTest < GemTestCase
       assert_not result
       assert elapsed < 3.0, "Expected quick timeout, but took #{elapsed} seconds"
     ensure
-      other_conn.select_value("SELECT RELEASE_LOCK(#{other_conn.quote(lock_keys.first)})")
+      other_conn.query_value("SELECT RELEASE_LOCK(#{other_conn.quote(lock_keys.first)})")
       model_class.connection_pool.checkin(other_conn)
     end
   end
