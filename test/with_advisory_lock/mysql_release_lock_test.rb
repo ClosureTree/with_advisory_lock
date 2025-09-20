@@ -69,7 +69,7 @@ class MySQLReleaseLockTest < GemTestCase
 
     # Acquire lock using SQL (ActiveRecord doesn't provide get_advisory_lock method)
     lock_keys = model_class.connection.lock_keys_for(lock_name)
-    result = model_class.connection.select_value("SELECT GET_LOCK(#{model_class.connection.quote(lock_keys.first)}, 0)")
+    result = model_class.connection.query_value("SELECT GET_LOCK(#{model_class.connection.quote(lock_keys.first)}, 0)")
     assert_equal 1, result, 'Failed to acquire lock using SQL'
 
     # Release using ActiveRecord signature (positional argument, as Rails does)
@@ -78,11 +78,11 @@ class MySQLReleaseLockTest < GemTestCase
 
     # Verify lock is released
     lock_keys = model_class.connection.lock_keys_for(lock_name)
-    result = model_class.connection.select_value("SELECT GET_LOCK(#{model_class.connection.quote(lock_keys.first)}, 0)")
+    result = model_class.connection.query_value("SELECT GET_LOCK(#{model_class.connection.quote(lock_keys.first)}, 0)")
     assert_equal 1, result, 'Lock was not properly released'
 
     # Clean up
-    model_class.connection.select_value("SELECT RELEASE_LOCK(#{model_class.connection.quote(lock_keys.first)})")
+    model_class.connection.query_value("SELECT RELEASE_LOCK(#{model_class.connection.quote(lock_keys.first)})")
   end
 
   test 'release_advisory_lock handles connection errors gracefully' do
@@ -116,4 +116,3 @@ class MySQLReleaseLockTest < GemTestCase
     end
   end
 end
-
