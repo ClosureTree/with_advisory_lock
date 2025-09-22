@@ -1,5 +1,12 @@
 ## Changelog
 
+## [7.0.2](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v7.0.1...with_advisory_lock/v7.0.2) (2025-09-20)
+
+
+### Bug Fixes
+
+* Replace connection.select_value with connection.query_value ([#131](https://github.com/ClosureTree/with_advisory_lock/issues/131)) ([dc01977](https://github.com/ClosureTree/with_advisory_lock/commit/dc01977e5e3a120843b19a5e6befd538c6e36516))
+
 ## [7.0.1](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v7.0.0...with_advisory_lock/v7.0.1) (2025-07-21)
 
 
