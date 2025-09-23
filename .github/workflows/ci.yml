@@ -41,17 +41,10 @@ jobs:
         ports:
           - 3306
         env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: with_advisory_lock_trilogy_test
           MARIADB_USER: with_advisory
           MARIADB_PASSWORD: with_advisory_pass
-          MARIADB_DATABASE: with_advisory_lock_trilogy_test
-          MARIADB_ROOT_PASSWORD: root_pass
-          MARIADB_MYSQL_LOCALHOST_USER: 1
-          MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
-        options: >-
-          --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
     strategy:
       fail-fast: false
       matrix:
@@ -76,13 +69,6 @@ jobs:
           bundler-cache: true
           rubygems: latest
 
-      - name: Wait for MariaDB
-        run: |
-          until nc -z 127.0.0.1 ${{ job.services.mariadb.ports[3306] }}; do
-            echo "Waiting for MariaDB to be ready..."
-            sleep 1
-          done
-          echo "MariaDB is ready"
 
       - name: Setup test databases
         env:
