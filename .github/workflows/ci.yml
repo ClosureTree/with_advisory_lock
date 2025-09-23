@@ -37,14 +37,21 @@ jobs:
           MYSQL_DATABASE: with_advisory_lock_test
           MYSQL_ROOT_HOST: '%'
       mariadb:
-        image: mariadb:latest
+        image: mariadb:12
         ports:
-          - 3307
+          - 3306
         env:
           MARIADB_USER: with_advisory
           MARIADB_PASSWORD: with_advisory_pass
           MARIADB_DATABASE: with_advisory_lock_trilogy_test
           MARIADB_ROOT_PASSWORD: root_pass
+          MARIADB_MYSQL_LOCALHOST_USER: 1
+          MARIADB_MYSQL_LOCALHOST_GRANTS: USAGE
+        options: >-
+          --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     strategy:
       fail-fast: false
       matrix:
@@ -69,11 +76,19 @@ jobs:
           bundler-cache: true
           rubygems: latest
 
+      - name: Wait for MariaDB
+        run: |
+          until nc -z 127.0.0.1 ${{ job.services.mariadb.ports[3306] }}; do
+            echo "Waiting for MariaDB to be ready..."
+            sleep 1
+          done
+          echo "MariaDB is ready"
+
       - name: Setup test databases
         env:
           DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
           DATABASE_URL_MYSQL: mysql2://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mysql.ports[3306] }}/with_advisory_lock_test
-          DATABASE_URL_TRILOGY: trilogy://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mariadb.ports[3307] }}/with_advisory_lock_trilogy_test
+          DATABASE_URL_TRILOGY: trilogy://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mariadb.ports[3306] }}/with_advisory_lock_trilogy_test
         run: |
           cd test/dummy
           bundle exec rake db:test:prepare
@@ -82,6 +97,6 @@ jobs:
         env:
           DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
           DATABASE_URL_MYSQL: mysql2://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mysql.ports[3306] }}/with_advisory_lock_test
-          DATABASE_URL_TRILOGY: trilogy://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mariadb.ports[3307] }}/with_advisory_lock_trilogy_test
+          DATABASE_URL_TRILOGY: trilogy://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mariadb.ports[3306] }}/with_advisory_lock_trilogy_test
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
         run: bin/rails test
