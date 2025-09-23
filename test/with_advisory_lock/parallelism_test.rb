@@ -99,3 +99,11 @@ class MySQLParallelismTest < GemTestCase
     MysqlTag
   end
 end
+
+class TrilogyParallelismTest < GemTestCase
+  include ParallelismTestCases
+
+  def model_class
+    TrilogyTag
+  end
+end

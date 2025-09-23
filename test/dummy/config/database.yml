@@ -11,3 +11,9 @@ test:
     url: "<%= ENV['DATABASE_URL_MYSQL'] %>"
     properties:
       allowPublicKeyRetrieval: true
+  trilogy:
+    <<: *default
+    url: "<%= ENV['DATABASE_URL_TRILOGY'] %>"
+    adapter: trilogy
+    properties:
+      allowPublicKeyRetrieval: true
