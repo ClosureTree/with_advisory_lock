@@ -3,6 +3,8 @@
 
 require 'bundler/setup'
 require 'active_record'
+require 'dotenv'
+Dotenv.load
 
 # Setup PostgreSQL database
 puts 'Setting up PostgreSQL test database...'
@@ -10,9 +12,9 @@ ActiveRecord::Base.establish_connection(
   adapter: 'postgresql',
   host: 'localhost',
   port: 5433,
-  database: 'with_advisory_lock_test',
-  username: 'with_advisory',
-  password: 'with_advisory_pass'
+  database: ENV['DB_NAME'],
+  username: ENV['DB_USER'],
+  password: ENV['DB_PASSWORD']
 )
 
 ActiveRecord::Schema.define(version: 1) do
@@ -36,9 +38,9 @@ ActiveRecord::Base.establish_connection(
   adapter: 'mysql2',
   host: '127.0.0.1',
   port: 3366,
-  database: 'with_advisory_lock_test',
-  username: 'with_advisory',
-  password: 'with_advisory_pass'
+  database: ENV['DB_NAME'],
+  username: ENV['DB_USER'],
+  password: ENV['DB_PASSWORD']
 )
 
 ActiveRecord::Schema.define(version: 1) do
