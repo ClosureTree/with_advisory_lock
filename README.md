@@ -147,6 +147,16 @@ concurrent access to **any instance of a model**. Their coarseness means they
 aren't going to be commonly applicable, and they can be a source of
 [deadlocks](http://en.wikipedia.org/wiki/Deadlock).
 
+## Running Tests
+
+To setup the project and run the whole test suite:
+
+1. Have Docker running
+2. `echo -e "DB_USER=with_advisory\nDB_PASSWORD=with_advisory_pass\nDB_NAME=with_advisory_lock_test\nDATABASE_URL_PG=postgres://\$DB_USER:\$DB_PASSWORD@localhost:5433/\$DB_NAME\nDATABASE_URL_MYSQL=mysql2://\$DB_USER:\$DB_PASSWORD@127.0.0.1:3366/\$DB_NAME" > .env`
+3. `make`
+
+Alternatively to `make`, run `bin/rails test` to skip database and dependency setup.
+
 ## FAQ
 
 ### Transactions and Advisory Locks
