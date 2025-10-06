@@ -20,7 +20,7 @@ class GemTestCase < ActiveSupport::TestCase
 
   def self.startup
     # Validate environment variables when tests actually start running
-    %w[DATABASE_URL_PG DATABASE_URL_MYSQL].each do |var|
+    %w[DATABASE_URL_PG DATABASE_URL_MYSQL DATABASE_URL_TRILOGY].each do |var|
       abort "Missing required environment variable: #{var}" if ENV[var].nil? || ENV[var].empty?
     end
   end

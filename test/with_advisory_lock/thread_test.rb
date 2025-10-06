@@ -81,3 +81,11 @@ class MySQLThreadTest < GemTestCase
     MysqlTag
   end
 end
+
+class TrilogyThreadTest < GemTestCase
+  include ThreadTestCases
+
+  def model_class
+    TrilogyTag
+  end
+end
