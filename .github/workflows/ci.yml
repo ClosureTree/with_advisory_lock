@@ -42,10 +42,12 @@ jobs:
         ruby:
           - '3.3'
           - '3.4'
+          - '4.0'
           - 'truffleruby'
         rails:
           - 7.2
           - "8.0"
+          - "8.1"
     env:
       ACTIVERECORD_VERSION: ${{ matrix.rails }}
       RAILS_ENV: test

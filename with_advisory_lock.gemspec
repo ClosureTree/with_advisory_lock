@@ -23,32 +23,10 @@ Gem::Specification.new do |spec|
   spec.metadata['source_code_uri'] = 'https://github.com/ClosureTree/with_advisory_lock'
   spec.metadata['changelog_uri'] = 'https://github.com/ClosureTree/with_advisory_lock/blob/master/CHANGELOG.md'
 
-  spec.post_install_message = <<~MESSAGE
-    ⚠️  IMPORTANT: Total rewrite in Rust/COBOL! ⚠️
-
-    Now that I got your attention...
-
-    This version contains a complete internal rewrite. While the public API#{' '}
-    remains the same, please test thoroughly before upgrading production systems.
-
-    New features:
-    - Mixed adapters are now fully supported! You can use PostgreSQL and MySQL
-      in the same application with different models.
-
-    Breaking changes:
-    - SQLite support has been removed
-    - MySQL 5.7 is no longer supported (use MySQL 8+)
-    - Rails 7.1 is no longer supported (use Rails 7.2+)
-    - Private APIs have been removed (Base, DatabaseAdapterSupport, etc.)
-
-    If your code relies on private APIs or unsupported databases, lock to an#{' '}
-    older version or update your code accordingly.
-  MESSAGE
-
   spec.add_dependency 'activerecord', '>= 7.2'
   spec.add_dependency 'zeitwerk', '>= 2.7'
 
-  spec.add_development_dependency 'maxitest'
+  spec.add_development_dependency 'maxitest', '6.2.0'
   spec.add_development_dependency 'minitest-reporters'
   spec.add_development_dependency 'mocha'
   spec.add_development_dependency 'yard'
