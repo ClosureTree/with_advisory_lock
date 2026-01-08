@@ -200,13 +200,14 @@ class MySQLLockTest < GemTestCase
 
     begin
       # Attempt to acquire with a short timeout - should fail quickly
-      start_time = Time.now
-      result = model_class.with_advisory_lock(lock_name, timeout_seconds: 1) { 'success' }
-      elapsed = Time.now - start_time
+      elapsed = Benchmark.realtime do
+        result = model_class.with_advisory_lock(lock_name, timeout_seconds: 1) { 'success' }
 
-      # Should return false and complete within reasonable time (< 3 seconds)
-      # If it were using Ruby polling, it would take longer
-      assert_not result
+        # Should return false and complete within reasonable time (< 3 seconds)
+        # If it were using Ruby polling, it would take longer
+        assert_not result
+      end
+
       assert elapsed < 3.0, "Expected quick timeout, but took #{elapsed} seconds"
     ensure
       other_conn.query_value("SELECT RELEASE_LOCK(#{other_conn.quote(lock_keys.first)})")
