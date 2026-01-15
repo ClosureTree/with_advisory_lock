@@ -70,8 +70,8 @@ module WithAdvisoryLock
 
     def yield_with_lock_and_timeout(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction,
                                     timeout_seconds, &)
-      give_up_at = timeout_seconds ? Time.now + timeout_seconds : nil
-      while give_up_at.nil? || Time.now < give_up_at
+      give_up_at = timeout_seconds ? Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout_seconds : nil
+      while give_up_at.nil? || Process.clock_gettime(Process::CLOCK_MONOTONIC) < give_up_at
         r = yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, 0, &)
         return r if r.lock_was_acquired?
 
