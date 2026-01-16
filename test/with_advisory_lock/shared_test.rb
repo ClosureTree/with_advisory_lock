@@ -97,9 +97,6 @@ class PostgreSQLSharedLocksTest < GemTestCase
     two.cleanup!
   end
 
-  test 'allows shared lock to be upgraded to an exclusive lock' do
-    skip 'PostgreSQL lock visibility issue - locks acquired via advisory lock methods not showing in pg_locks'
-  end
 end
 
 class MySQLSharedLocksTest < GemTestCase

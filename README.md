@@ -48,7 +48,7 @@ will be yielded to. If the lock is currently being held, the block will not be
 called.
 
 > **Note**
-> 
+>
 > If a non-nil value is provided for `timeout_seconds`, the block will
 *not* be invoked if the lock cannot be acquired within that time-frame. In this case, `with_advisory_lock` will return `false`, while `with_advisory_lock!` will raise a `WithAdvisoryLock::FailedToAcquireLock` error.
 
@@ -72,6 +72,32 @@ to `true`.
 Note: transaction-level locks will not be reflected by `.current_advisory_lock`
 when the block has returned.
 
+### Blocking locks (PostgreSQL only)
+
+By default, PostgreSQL advisory locks use a polling strategy with Ruby-level
+retries and sleeps. Setting `blocking: true` switches to database-level blocking
+locks that enable PostgreSQL's deadlock detection:
+
+```ruby
+User.with_advisory_lock("lock_name", blocking: true, transaction: true) do
+  # PostgreSQL will detect circular lock waits and raise an error
+  # instead of sleeping forever
+end
+```
+
+**Benefits:**
+- **Deadlock detection**: PostgreSQL detects circular waits and raises `PG::TRDeadlockDetected` after ~1 second (configurable via `deadlock_timeout`)
+- **No polling overhead**: The database handles the wait queue instead of Ruby sleep/retry loops
+- **Clean failure**: Returns `false` on deadlock instead of infinite retries
+
+**When to use:**
+- When acquiring multiple locks in your application (risk of deadlock)
+- When you need PostgreSQL to detect and break circular lock dependencies
+- When you want to avoid Ruby-level polling overhead
+
+**Note:** MySQL ignores this option since `GET_LOCK` already provides native
+timeout and deadlock detection via the MDL subsystem.
+
 ### Return values
 
 The return value of `with_advisory_lock_result` is a `WithAdvisoryLock::Result`
@@ -84,7 +110,7 @@ block, if the lock was able to be acquired and the block yielded, or `false`, if
 you provided a timeout_seconds value and the lock was not able to be acquired in
 time.
 
-`with_advisory_lock!` is similar to `with_advisory_lock`, but raises a `WithAdvisoryLock::FailedToAcquireLock` error if the lock was not able to be acquired in time. 
+`with_advisory_lock!` is similar to `with_advisory_lock`, but raises a `WithAdvisoryLock::FailedToAcquireLock` error if the lock was not able to be acquired in time.
 
 ### Testing for the current lock status
 

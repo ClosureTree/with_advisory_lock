@@ -8,9 +8,13 @@ module WithAdvisoryLock
 
     LOCK_PREFIX_ENV = 'WITH_ADVISORY_LOCK_PREFIX'
 
-    def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:, timeout_seconds: nil)
+    def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:, timeout_seconds: nil, blocking: false)
       raise ArgumentError, 'shared locks are not supported on MySQL' if shared
       raise ArgumentError, 'transaction level locks are not supported on MySQL' if transaction
+
+      # Note: blocking parameter is accepted for API compatibility but ignored for MySQL
+      # MySQL's GET_LOCK already provides native timeout support, making the blocking
+      # parameter redundant. MySQL doesn't have separate try/blocking functions like PostgreSQL.
 
       # MySQL GET_LOCK supports native timeout:
       # - timeout_seconds = nil: wait indefinitely (-1)

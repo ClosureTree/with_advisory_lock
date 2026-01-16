@@ -15,7 +15,7 @@ module WithAdvisoryLock
 
     def with_advisory_lock_if_needed(lock_name, options = {}, &block)
       options = { timeout_seconds: options } unless options.respond_to?(:fetch)
-      options.assert_valid_keys :timeout_seconds, :shared, :transaction, :disable_query_cache
+      options.assert_valid_keys :timeout_seconds, :shared, :transaction, :disable_query_cache, :blocking
 
       # Validate transaction-level locks are used within a transaction
       if options.fetch(:transaction, false) && !transaction_open?
@@ -56,12 +56,14 @@ module WithAdvisoryLock
       timeout_seconds = options.fetch(:timeout_seconds, nil)
       shared = options.fetch(:shared, false)
       transaction = options.fetch(:transaction, false)
+      blocking = options.fetch(:blocking, false)
 
       lock_keys = lock_keys_for(lock_name)
 
       # MySQL supports database-level timeout in GET_LOCK, skip Ruby-level polling
-      if supports_database_timeout? || timeout_seconds&.zero?
-        yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, timeout_seconds, &)
+      # PostgreSQL blocking locks also skip polling and let the database handle waiting
+      if supports_database_timeout? || timeout_seconds&.zero? || blocking
+        yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, timeout_seconds, blocking, &)
       else
         yield_with_lock_and_timeout(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction,
                                     timeout_seconds, &)
@@ -72,7 +74,7 @@ module WithAdvisoryLock
                                     timeout_seconds, &)
       give_up_at = timeout_seconds ? Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout_seconds : nil
       while give_up_at.nil? || Process.clock_gettime(Process::CLOCK_MONOTONIC) < give_up_at
-        r = yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, 0, &)
+        r = yield_with_lock(lock_keys, lock_name, lock_str, lock_stack_item, shared, transaction, 0, false, &)
         return r if r.lock_was_acquired?
 
         # Randomizing sleep time may help reduce contention.
@@ -81,9 +83,9 @@ module WithAdvisoryLock
       Result.new(lock_was_acquired: false)
     end
 
-    def yield_with_lock(lock_keys, lock_name, _lock_str, lock_stack_item, shared, transaction, timeout_seconds = nil)
+    def yield_with_lock(lock_keys, lock_name, _lock_str, lock_stack_item, shared, transaction, timeout_seconds = nil, blocking = false)
       if try_advisory_lock(lock_keys, lock_name: lock_name, shared: shared, transaction: transaction,
-                                      timeout_seconds: timeout_seconds)
+                                      timeout_seconds: timeout_seconds, blocking: blocking)
         begin
           advisory_lock_stack.push(lock_stack_item)
           result = block_given? ? yield : nil
