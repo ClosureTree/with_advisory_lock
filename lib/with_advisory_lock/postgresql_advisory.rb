@@ -10,11 +10,23 @@ module WithAdvisoryLock
     LOCK_RESULT_VALUES = ['t', true].freeze
     ERROR_MESSAGE_REGEX = / ERROR: +current transaction is aborted,/
 
-    def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:, timeout_seconds: nil)
+    def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:, timeout_seconds: nil, blocking: false)
       # timeout_seconds is accepted for compatibility but ignored - PostgreSQL doesn't support
       # native timeouts with pg_try_advisory_lock, requiring Ruby-level polling instead
-      function = advisory_try_lock_function(transaction, shared)
-      execute_advisory(function, lock_keys, lock_name)
+      function = if blocking
+                   advisory_lock_function(transaction, shared)
+                 else
+                   advisory_try_lock_function(transaction, shared)
+                 end
+      execute_advisory(function, lock_keys, lock_name, blocking: blocking)
+    rescue ActiveRecord::StatementInvalid => e
+      # PostgreSQL deadlock detection raises PG::TRDeadlockDetected (SQLSTATE 40P01)
+      # When using blocking locks, treat deadlocks as lock acquisition failure
+      if blocking && (e.cause.is_a?(PG::TRDeadlockDetected) || e.message.include?('deadlock detected'))
+        false
+      else
+        raise
+      end
     end
 
     def release_advisory_lock(*args)
@@ -88,6 +100,15 @@ module WithAdvisoryLock
       ].compact.join
     end
 
+    def advisory_lock_function(transaction_scope, shared)
+      [
+        'pg_advisory',
+        transaction_scope ? '_xact' : nil,
+        '_lock',
+        shared ? '_shared' : nil
+      ].compact.join
+    end
+
     def advisory_unlock_function(shared)
       [
         'pg_advisory_unlock',
@@ -95,9 +116,16 @@ module WithAdvisoryLock
       ].compact.join
     end
 
-    def execute_advisory(function, lock_keys, lock_name)
-      result = query_value(prepare_sql(function, lock_keys, lock_name))
-      LOCK_RESULT_VALUES.include?(result)
+    def execute_advisory(function, lock_keys, lock_name, blocking: false)
+      if blocking
+        # Blocking locks return void - if the query executes successfully, the lock was acquired
+        query_value(prepare_sql(function, lock_keys, lock_name))
+        true
+      else
+        # Non-blocking try locks return boolean
+        result = query_value(prepare_sql(function, lock_keys, lock_name))
+        LOCK_RESULT_VALUES.include?(result)
+      end
     end
 
     def prepare_sql(function, lock_keys, lock_name)

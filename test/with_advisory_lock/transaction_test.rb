@@ -12,10 +12,6 @@ class PostgreSQLTransactionScopingTest < GemTestCase
     end
   end
 
-  test 'session locks release after the block executes' do
-    skip 'PostgreSQL lock visibility issue - locks acquired via advisory lock methods not showing in pg_locks'
-  end
-
   test 'session locks release when transaction fails inside block' do
     Tag.transaction do
       assert_equal(0, @pg_lock_count.call)
@@ -29,10 +25,6 @@ class PostgreSQLTransactionScopingTest < GemTestCase
       assert_match(/#{Regexp.escape('division by zero')}/, exception.message)
       assert_equal(0, @pg_lock_count.call)
     end
-  end
-
-  test 'transaction level locks hold until the transaction completes' do
-    skip 'PostgreSQL lock visibility issue - locks acquired via advisory lock methods not showing in pg_locks'
   end
 
   test 'raises an error when attempting to use transaction level locks outside a transaction' do
