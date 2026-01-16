@@ -36,6 +36,21 @@ jobs:
           MYSQL_PASSWORD: with_advisory_pass
           MYSQL_DATABASE: with_advisory_lock_test
           MYSQL_ROOT_HOST: '%'
+      mariadb:
+        image: mariadb:12
+        ports:
+          - 3306
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: with_advisory_lock_trilogy_test
+          MARIADB_USER: with_advisory
+          MARIADB_PASSWORD: with_advisory_pass
+          MARIADB_ROOT_HOST: '%'
+        options: >-
+          --health-cmd "healthcheck.sh --su-mysql --connect --innodb_initialized"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
@@ -48,6 +63,11 @@ jobs:
           - 7.2
           - "8.0"
           - "8.1"
+          - "edge"
+        exclude:
+          # TruffleRuby doesn't support Rails edge yet
+          - ruby: 'truffleruby'
+            rails: "edge"
     env:
       ACTIVERECORD_VERSION: ${{ matrix.rails }}
       RAILS_ENV: test
@@ -62,10 +82,14 @@ jobs:
           bundler-cache: true
           rubygems: latest
 
+
       - name: Setup test databases
+        timeout-minutes: 5
         env:
           DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
           DATABASE_URL_MYSQL: mysql2://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mysql.ports[3306] }}/with_advisory_lock_test
+          # Trilogy doesn't support TruffleRuby
+          DATABASE_URL_TRILOGY: ${{ matrix.ruby != 'truffleruby' && format('trilogy://with_advisory:with_advisory_pass@127.0.0.1:{0}/with_advisory_lock_trilogy_test', job.services.mariadb.ports[3306]) || '' }}
         run: |
           cd test/dummy
           bundle exec rake db:test:prepare
@@ -74,5 +98,7 @@ jobs:
         env:
           DATABASE_URL_PG: postgres://with_advisory:with_advisory_pass@localhost:${{ job.services.postgres.ports[5432] }}/with_advisory_lock_test
           DATABASE_URL_MYSQL: mysql2://with_advisory:with_advisory_pass@127.0.0.1:${{ job.services.mysql.ports[3306] }}/with_advisory_lock_test
+          # Trilogy doesn't support TruffleRuby
+          DATABASE_URL_TRILOGY: ${{ matrix.ruby != 'truffleruby' && format('trilogy://with_advisory:with_advisory_pass@127.0.0.1:{0}/with_advisory_lock_trilogy_test', job.services.mariadb.ports[3306]) || '' }}
           WITH_ADVISORY_LOCK_PREFIX: ${{ github.run_id }}
         run: bin/rails test

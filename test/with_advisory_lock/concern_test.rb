@@ -40,6 +40,16 @@ class MySQLConcernTest < GemTestCase
   end
 end
 
+if GemTestCase.trilogy_available?
+  class TrilogyConcernTest < GemTestCase
+    include ConcernTestCases
+
+    def model_class
+      TrilogyTag
+    end
+  end
+end
+
 # This test is adapter-agnostic, so we only need to test it once
 class ActiveRecordQueryCacheTest < GemTestCase
   self.use_transactional_tests = false

@@ -124,3 +124,31 @@ class MySQLSharedLocksTest < GemTestCase
     assert_match(/shared locks are not supported/, exception.message)
   end
 end
+
+if GemTestCase.trilogy_available?
+  class TrilogySharedLocksTest < GemTestCase
+    self.use_transactional_tests = false
+
+    test 'does not allow two exclusive locks' do
+      one = SharedTestWorker.new(TrilogyTag, false)
+      assert_predicate(one, :locked?)
+
+      two = SharedTestWorker.new(TrilogyTag, false)
+      refute(two.locked?)
+
+      one.cleanup!
+      two.cleanup!
+    end
+
+    test 'raises an error when attempting to use a shared lock' do
+      one = SharedTestWorker.new(TrilogyTag, true)
+      assert_equal(false, one.locked?)
+
+      exception = assert_raises(ArgumentError) do
+        one.cleanup!
+      end
+
+      assert_match(/shared locks are not supported/, exception.message)
+    end
+  end
+end
