@@ -99,3 +99,13 @@ class MySQLParallelismTest < GemTestCase
     MysqlTag
   end
 end
+
+if GemTestCase.trilogy_available?
+  class TrilogyParallelismTest < GemTestCase
+    include ParallelismTestCases
+
+    def model_class
+      TrilogyTag
+    end
+  end
+end

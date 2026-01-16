@@ -215,3 +215,49 @@ class MySQLLockTest < GemTestCase
     end
   end
 end
+
+if GemTestCase.trilogy_available?
+  class TrilogyLockTest < GemTestCase
+    include LockTestCases
+
+    def model_class
+      TrilogyTag
+    end
+
+    def setup
+      super
+      TrilogyTag.delete_all
+    end
+
+    test 'uses database timeout for Trilogy' do
+      assert model_class.connection.supports_database_timeout?
+    end
+
+    test 'trilogy uses native timeout instead of polling' do
+      # This test verifies that Trilogy bypasses Ruby-level polling
+      # when timeout is specified, relying on GET_LOCK's native timeout
+      lock_name = 'trilogy_timeout_test'
+
+      # Hold a lock in another connection - need to use the same prefixed name as the gem
+      other_conn = model_class.connection_pool.checkout
+      lock_keys = other_conn.lock_keys_for(lock_name)
+      other_conn.query_value("SELECT GET_LOCK(#{other_conn.quote(lock_keys.first)}, 0)")
+
+      begin
+        # Attempt to acquire with a short timeout - should fail quickly
+        elapsed = Benchmark.realtime do
+          result = model_class.with_advisory_lock(lock_name, timeout_seconds: 1) { 'success' }
+
+          # Should return false and complete within reasonable time (< 3 seconds)
+          # If it were using Ruby polling, it would take longer
+          assert_not result
+        end
+
+        assert elapsed < 3.0, "Expected quick timeout, but took #{elapsed} seconds"
+      ensure
+        other_conn.query_value("SELECT RELEASE_LOCK(#{other_conn.quote(lock_keys.first)})")
+        model_class.connection_pool.checkin(other_conn)
+      end
+    end
+  end
+end

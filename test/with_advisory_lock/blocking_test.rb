@@ -113,6 +113,21 @@ class MySQLBlockingTest < GemTestCase
   end
 end
 
+if GemTestCase.trilogy_available?
+  class TrilogyBlockingTest < GemTestCase
+    include BlockingTestCases
+
+    def model_class
+      TrilogyTag
+    end
+
+    def setup
+      super
+      TrilogyTag.delete_all
+    end
+  end
+end
+
 # Deadlock test requires non-transactional mode to work properly
 class PostgreSQLDeadlockTest < GemTestCase
   self.use_transactional_tests = false

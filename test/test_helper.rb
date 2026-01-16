@@ -19,10 +19,19 @@ class GemTestCase < ActiveSupport::TestCase
   parallelize(workers: 1)
 
   def self.startup
-    # Validate environment variables when tests actually start running
+    # Validate required environment variables
     %w[DATABASE_URL_PG DATABASE_URL_MYSQL].each do |var|
       abort "Missing required environment variable: #{var}" if ENV[var].nil? || ENV[var].empty?
     end
+
+    # Trilogy is optional (not supported on TruffleRuby)
+    if ENV['DATABASE_URL_TRILOGY'].nil? || ENV['DATABASE_URL_TRILOGY'].empty?
+      puts 'DATABASE_URL_TRILOGY not set, skipping Trilogy tests'
+    end
+  end
+
+  def self.trilogy_available?
+    ENV['DATABASE_URL_TRILOGY'] && !ENV['DATABASE_URL_TRILOGY'].empty?
   end
 
   # Override in test classes to clean only the tables you need

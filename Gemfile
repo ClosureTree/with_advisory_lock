@@ -11,12 +11,17 @@ gem 'benchmark'
 gem 'logger'
 gem 'ostruct'
 
-activerecord_version = ENV.fetch('ACTIVERECORD_VERSION', '7.2')
+activerecord_version = ENV.fetch('ACTIVERECORD_VERSION', '8.1')
 
-gem 'activerecord', "~> #{activerecord_version}.0"
+if activerecord_version == 'edge'
+  gem 'activerecord', github: 'rails/rails', branch: 'main'
+  gem 'railties', github: 'rails/rails', branch: 'main'
+else
+  gem 'activerecord', "~> #{activerecord_version}.0"
+  gem 'railties'
+end
 
 gem 'dotenv'
-gem 'railties'
 
 platforms :ruby do
   gem 'mysql2'

@@ -81,3 +81,13 @@ class MySQLThreadTest < GemTestCase
     MysqlTag
   end
 end
+
+if GemTestCase.trilogy_available?
+  class TrilogyThreadTest < GemTestCase
+    include ThreadTestCases
+
+    def model_class
+      TrilogyTag
+    end
+  end
+end

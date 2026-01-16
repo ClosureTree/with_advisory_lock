@@ -16,12 +16,15 @@ module WithAdvisoryLock
       # MySQL's GET_LOCK already provides native timeout support, making the blocking
       # parameter redundant. MySQL doesn't have separate try/blocking functions like PostgreSQL.
 
-      # MySQL GET_LOCK supports native timeout:
-      # - timeout_seconds = nil: wait indefinitely (-1)
+      # MySQL/MariaDB GET_LOCK supports native timeout:
+      # - timeout_seconds = nil: wait indefinitely
       # - timeout_seconds = 0: try once, no wait (0)
       # - timeout_seconds > 0: wait up to timeout_seconds
+      #
+      # Note: MySQL accepts -1 for infinite wait, but MariaDB does not.
+      # Using a large value (1 year) for cross-compatibility.
       mysql_timeout = case timeout_seconds
-                      when nil then -1
+                      when nil then 31_536_000 # 1 year in seconds
                       when 0 then 0
                       else timeout_seconds.to_i
                       end
