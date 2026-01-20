@@ -43,7 +43,7 @@ class SanityCheckTest < GemTestCase
     assert_equal 'Mysql2', MysqlLabel.connection.adapter_name
   end
 
-  test 'can write to both databases in same test' do
+  test 'can write to PostgreSQL and MySQL databases in same test' do
     # Create records in both databases
     pg_tag = Tag.create!(name: 'test-pg')
     mysql_tag = MysqlTag.create!(name: 'test-mysql')
@@ -59,5 +59,52 @@ class SanityCheckTest < GemTestCase
     # Clean up
     pg_tag.destroy
     mysql_tag.destroy
+  end
+end
+
+if GemTestCase.trilogy_available?
+  class TrilogySanityCheckTest < GemTestCase
+    test 'Trilogy database is isolated from PostgreSQL and MySQL' do
+      # Create tags in all databases
+      pg_tag = Tag.create!(name: 'pg-isolation-test')
+      mysql_tag = MysqlTag.create!(name: 'mysql-isolation-test')
+      trilogy_tag = TrilogyTag.create!(name: 'trilogy-isolation-test')
+
+      # Verify Trilogy tag exists only in Trilogy
+      assert TrilogyTag.exists?(name: 'trilogy-isolation-test')
+      assert_not Tag.exists?(name: 'trilogy-isolation-test')
+      assert_not MysqlTag.exists?(name: 'trilogy-isolation-test')
+
+      # Verify PostgreSQL tag doesn't exist in Trilogy
+      assert_not TrilogyTag.exists?(name: 'pg-isolation-test')
+
+      # Verify MySQL tag doesn't exist in Trilogy
+      assert_not TrilogyTag.exists?(name: 'mysql-isolation-test')
+
+      # Clean up
+      pg_tag.destroy
+      mysql_tag.destroy
+      trilogy_tag.destroy
+    end
+
+    test 'Trilogy models use Trilogy adapter' do
+      assert_equal 'Trilogy', TrilogyTag.connection.adapter_name
+      assert_equal 'Trilogy', TrilogyTagAudit.connection.adapter_name
+      assert_equal 'Trilogy', TrilogyLabel.connection.adapter_name
+    end
+
+    test 'can write to all three databases in same test' do
+      pg_tag = Tag.create!(name: 'test-pg')
+      mysql_tag = MysqlTag.create!(name: 'test-mysql')
+      trilogy_tag = TrilogyTag.create!(name: 'test-trilogy')
+
+      assert pg_tag.persisted?
+      assert mysql_tag.persisted?
+      assert trilogy_tag.persisted?
+
+      pg_tag.destroy
+      mysql_tag.destroy
+      trilogy_tag.destroy
+    end
   end
 end

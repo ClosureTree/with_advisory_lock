@@ -2,18 +2,28 @@ services:
   pg:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: with_advisory_lock_test
     ports:
       - "5433:5432"
   mysql:
     image: mysql:8
     environment:
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: with_advisory_lock_test
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_ROOT_HOST: '%'
     ports:
       - "3366:3306"
+  mariadb:
+    image: mariadb:12
+    environment:
+      MARIADB_USER: test
+      MARIADB_PASSWORD: test
+      MARIADB_DATABASE: with_advisory_lock_test_trilogy
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+      MARIADB_ROOT_HOST: '%'
+    ports:
+      - "3368:3306"

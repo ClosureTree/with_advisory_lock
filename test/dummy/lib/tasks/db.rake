@@ -4,37 +4,29 @@ namespace :db do
   namespace :test do
     desc 'Load schema for all databases'
     task prepare: :environment do
-      # Load schema for primary database
+      # Setup PostgreSQL database
       ActiveRecord::Base.establish_connection(:primary)
-      ActiveRecord::Schema.define(version: 1) do
-        create_table 'tags', force: true do |t|
-          t.string 'name'
-        end
+      load Rails.root.join('db', 'schema.rb')
+      puts 'PostgreSQL database schema loaded'
 
-        create_table 'tag_audits', id: false, force: true do |t|
-          t.string 'tag_name'
-        end
-
-        create_table 'labels', id: false, force: true do |t|
-          t.string 'name'
-        end
-      end
-
-      # Load schema for secondary database
+      # Setup MySQL database
       ActiveRecord::Base.establish_connection(:secondary)
-      ActiveRecord::Schema.define(version: 1) do
-        create_table 'mysql_tags', force: true do |t|
-          t.string 'name'
-        end
+      load Rails.root.join('db', 'secondary_schema.rb')
+      puts 'MySQL database schema loaded'
 
-        create_table 'mysql_tag_audits', id: false, force: true do |t|
-          t.string 'tag_name'
-        end
-
-        create_table 'mysql_labels', id: false, force: true do |t|
-          t.string 'name'
-        end
+      # Setup Trilogy database (MariaDB) - optional, not supported on TruffleRuby
+      if ENV['DATABASE_URL_TRILOGY'] && !ENV['DATABASE_URL_TRILOGY'].empty?
+        ActiveRecord::Base.establish_connection(:trilogy)
+        load Rails.root.join('db', 'trilogy_schema.rb')
+        puts 'Trilogy database schema loaded'
+      else
+        puts 'Skipping Trilogy database (DATABASE_URL_TRILOGY not set)'
       end
+
+      puts 'All test databases prepared successfully'
+    rescue StandardError => e
+      puts "Error preparing test databases: #{e.message}"
+      raise e
     end
   end
 end
