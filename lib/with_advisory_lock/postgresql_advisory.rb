@@ -19,10 +19,20 @@ module WithAdvisoryLock
                    advisory_try_lock_function(transaction, shared)
                  end
       execute_advisory(function, lock_keys, lock_name, blocking: blocking)
+    rescue ActiveRecord::Deadlocked
+      # Rails 8.2+ raises ActiveRecord::Deadlocked directly for PostgreSQL deadlocks
+      # When using blocking locks, treat deadlocks as lock acquisition failure
+      return false if blocking
+
+      raise
     rescue ActiveRecord::StatementInvalid => e
       # PostgreSQL deadlock detection raises PG::TRDeadlockDetected (SQLSTATE 40P01)
-      # When using blocking locks, treat deadlocks as lock acquisition failure
-      if blocking && (e.cause.is_a?(PG::TRDeadlockDetected) || e.message.include?('deadlock detected'))
+      # When using blocking locks, treat deadlocks as lock acquisition failure.
+      # Rails 8.2+ may also retry after deadlock and get "current transaction is aborted"
+      # when the transaction was rolled back by PostgreSQL's deadlock detection.
+      if blocking && (e.cause.is_a?(PG::TRDeadlockDetected) ||
+                      e.message.include?('deadlock detected') ||
+                      e.message =~ ERROR_MESSAGE_REGEX)
         false
       else
         raise
@@ -117,13 +127,23 @@ module WithAdvisoryLock
     end
 
     def execute_advisory(function, lock_keys, lock_name, blocking: false)
+      sql = prepare_sql(function, lock_keys, lock_name)
       if blocking
-        # Blocking locks return void - if the query executes successfully, the lock was acquired
-        query_value(prepare_sql(function, lock_keys, lock_name))
+        # Blocking locks return void - if the query executes successfully, the lock was acquired.
+        # Rails 8.2+ uses lazy transaction materialization. We must use materialize_transactions: true
+        # to ensure the transaction is started on the database before acquiring the lock,
+        # otherwise the lock won't actually block other connections.
+        if respond_to?(:internal_exec_query, true)
+          # Rails < 8.2
+          query_value(sql)
+        else
+          # Rails 8.2+ - use query_all with materialize_transactions: true
+          send(:query_all, sql, 'AdvisoryLock', materialize_transactions: true)
+        end
         true
       else
         # Non-blocking try locks return boolean
-        result = query_value(prepare_sql(function, lock_keys, lock_name))
+        result = query_value(sql)
         LOCK_RESULT_VALUES.include?(result)
       end
     end
