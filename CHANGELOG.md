@@ -1,5 +1,19 @@
 ## Changelog
 
+## [7.5.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v7.0.2...with_advisory_lock/v7.5.0) (2026-01-21)
+
+
+### Features
+
+* add blocking advisory locks with deadlock detection for PostgreSQL ([#140](https://github.com/ClosureTree/with_advisory_lock/issues/140)) ([f7f9aff](https://github.com/ClosureTree/with_advisory_lock/commit/f7f9aff545381107a632a25511e8fc08654a28b6))
+* Add Trilogy adapter support with MariaDB 12.0+ ([#134](https://github.com/ClosureTree/with_advisory_lock/issues/134)) ([b7764cd](https://github.com/ClosureTree/with_advisory_lock/commit/b7764cd9432b25b37c6da9160f980da29a5cdaa6))
+* bump version for new features ([9a8c4be](https://github.com/ClosureTree/with_advisory_lock/commit/9a8c4be5cf51147e60df7e5733360e3dfd8d009e))
+
+
+### Bug Fixes
+
+* Use monotonic clock so postgres timeouts are unaffected by system clock changes ([#141](https://github.com/ClosureTree/with_advisory_lock/issues/141)) ([929e010](https://github.com/ClosureTree/with_advisory_lock/commit/929e0103e5ffc4c66f9088942441f764de1bc650))
+
 ## [7.0.2](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v7.0.1...with_advisory_lock/v7.0.2) (2025-09-20)
 
 
