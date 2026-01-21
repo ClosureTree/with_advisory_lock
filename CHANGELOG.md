@@ -1,5 +1,12 @@
 ## Changelog
 
+## [7.0.2](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v0.7.5...with_advisory_lock/v7.0.2) (2026-01-21)
+
+
+### Features
+
+* release correct version 7.5.0 ([5e32732](https://github.com/ClosureTree/with_advisory_lock/commit/5e32732d420f695477141ea4d0f74e25df8c2554))
+
 ## [0.7.5](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v7.0.2...with_advisory_lock/v0.7.5) (2026-01-20)
 
 
