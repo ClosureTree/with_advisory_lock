@@ -10,14 +10,17 @@ module WithAdvisoryLock
     ERROR_MESSAGE_REGEX = / ERROR: +current transaction is aborted,/
 
     def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:, timeout_seconds: nil, blocking: false)
-      # timeout_seconds is accepted for compatibility but ignored - PostgreSQL doesn't support
-      # native timeouts with pg_try_advisory_lock, requiring Ruby-level polling instead
       function = if blocking
                    advisory_lock_function(transaction, shared)
                  else
                    advisory_try_lock_function(transaction, shared)
                  end
-      execute_advisory(function, lock_keys, lock_name, blocking: blocking)
+
+      if blocking && timeout_seconds&.positive?
+        blocking_lock_with_timeout(function, lock_keys, lock_name, timeout_seconds)
+      else
+        execute_advisory(function, lock_keys, lock_name, blocking: blocking)
+      end
     rescue ActiveRecord::Deadlocked
       # Rails 8.2+ raises ActiveRecord::Deadlocked directly for PostgreSQL deadlocks
       # When using blocking locks, treat deadlocks as lock acquisition failure
@@ -99,6 +102,23 @@ module WithAdvisoryLock
     end
 
     private
+
+    # Bounded blocking acquisition via SET LOCAL lock_timeout. The setting is
+    # transaction-scoped so it never leaks to the session (pooler-safe), and
+    # the savepoint keeps a timeout from aborting an enclosing transaction.
+    # Session-level locks acquired here survive the wrapping COMMIT.
+    def blocking_lock_with_timeout(function, lock_keys, lock_name, timeout_seconds)
+      transaction(requires_new: true) do
+        previous_timeout = query_value('SHOW lock_timeout')
+        execute("SET LOCAL lock_timeout = '#{(timeout_seconds * 1000).to_i}ms'")
+        execute_advisory(function, lock_keys, lock_name, blocking: true)
+        # SET LOCAL survives a released savepoint, so restore the outer value
+        execute("SET LOCAL lock_timeout = #{quote(previous_timeout)}")
+        true
+      end
+    rescue ActiveRecord::LockWaitTimeout
+      false
+    end
 
     def advisory_try_lock_function(transaction_scope, shared)
       [

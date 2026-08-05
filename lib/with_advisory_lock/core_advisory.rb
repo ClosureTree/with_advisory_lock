@@ -22,12 +22,6 @@ module WithAdvisoryLock
         raise ArgumentError, 'transaction-level advisory locks require an active transaction'
       end
 
-      # pg_advisory_lock has no native timeout, so timeout_seconds would be silently ignored
-      if options.fetch(:blocking, false) && !options.fetch(:timeout_seconds, nil).nil? && !supports_database_timeout?
-        raise ArgumentError, 'timeout_seconds cannot be combined with blocking: true on this adapter ' \
-                             '(blocking locks wait indefinitely)'
-      end
-
       lock_str = "#{ENV.fetch(LOCK_PREFIX_ENV, nil)}#{lock_name}"
       lock_stack_item = LockStackItem.new(lock_str, options.fetch(:shared, false))
 
@@ -63,6 +57,8 @@ module WithAdvisoryLock
       shared = options.fetch(:shared, false)
       transaction = options.fetch(:transaction, false)
       blocking = options.fetch(:blocking, false)
+      # An explicit zero timeout means try-once, so blocking degrades to the try path
+      blocking = false if timeout_seconds&.zero?
 
       lock_keys = lock_keys_for(lock_name)
 

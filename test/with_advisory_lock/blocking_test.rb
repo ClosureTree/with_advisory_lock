@@ -32,12 +32,6 @@ class PostgreSQLBlockingTest < GemTestCase
     Tag.delete_all
   end
 
-  test 'blocking lock combined with timeout_seconds raises ArgumentError' do
-    assert_raises(ArgumentError) do
-      Tag.with_advisory_lock(@lock_name, blocking: true, timeout_seconds: 5) { 'unreachable' }
-    end
-  end
-
   test 'blocking lock waits for lock to be released' do
     lock_acquired = false
     thread1_finished = false
@@ -131,6 +125,80 @@ if GemTestCase.trilogy_available?
       super
       TrilogyTag.delete_all
     end
+  end
+end
+
+# Requires non-transactional mode: transactional tests pin all threads to a
+# single shared connection, so a "holder" thread would share the session
+class PostgreSQLBlockingTimeoutTest < GemTestCase
+  self.use_transactional_tests = false
+
+  setup do
+    @lock_name = 'blocking_timeout_lock'
+    @release = false
+  end
+
+  teardown do
+    @release = true
+    @holder&.join
+  end
+
+  def hold_lock_elsewhere
+    locked = false
+    @holder = Thread.new do
+      Tag.connection_pool.with_connection do
+        Tag.with_advisory_lock(@lock_name, timeout_seconds: 0) do
+          locked = true
+          sleep 0.05 until @release
+        end
+      end
+    end
+    sleep 0.01 until locked
+  end
+
+  test 'blocking lock with timeout returns false when lock is held elsewhere' do
+    hold_lock_elsewhere
+
+    elapsed = Benchmark.realtime do
+      result = Tag.with_advisory_lock(@lock_name, blocking: true, timeout_seconds: 1) { 'unreachable' }
+      assert_equal false, result
+    end
+    assert elapsed >= 0.9, "expected to wait for the timeout, waited #{elapsed}s"
+    assert elapsed < 5.0, "expected timeout after ~1s, waited #{elapsed}s"
+  end
+
+  test 'blocking lock with timeout acquires when lock is free' do
+    result = Tag.with_advisory_lock(@lock_name, blocking: true, timeout_seconds: 1) { 'acquired' }
+    assert_equal 'acquired', result
+  end
+
+  test 'blocking lock with timeout does not leak lock_timeout' do
+    Tag.with_connection do |conn|
+      previous = conn.query_value('SHOW lock_timeout')
+      conn.with_advisory_lock_if_needed(@lock_name, { blocking: true, timeout_seconds: 1 }) { 'x' }
+      assert_equal previous, conn.query_value('SHOW lock_timeout')
+    end
+  end
+
+  test 'blocking lock with timeout failure does not abort enclosing transaction' do
+    hold_lock_elsewhere
+
+    Tag.transaction do
+      result = Tag.with_advisory_lock(@lock_name, blocking: true, timeout_seconds: 1) { 'unreachable' }
+      assert_equal false, result
+      # The savepoint rollback must leave the transaction usable
+      assert Tag.count >= 0
+    end
+  end
+
+  test 'blocking lock with zero timeout uses the try path' do
+    hold_lock_elsewhere
+
+    elapsed = Benchmark.realtime do
+      result = Tag.with_advisory_lock(@lock_name, blocking: true, timeout_seconds: 0) { 'unreachable' }
+      assert_equal false, result
+    end
+    assert elapsed < 1.0, "expected immediate return, waited #{elapsed}s"
   end
 end
 

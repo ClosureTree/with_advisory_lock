@@ -95,8 +95,30 @@ end
 - When you need PostgreSQL to detect and break circular lock dependencies
 - When you want to avoid Ruby-level polling overhead
 
+**Combining with a timeout:** `blocking: true` together with `timeout_seconds`
+bounds the database-level wait using a transaction-scoped
+`SET LOCAL lock_timeout`, returning `false` if the lock cannot be acquired in
+time. The setting never leaks to the session, and a timeout inside an enclosing
+transaction rolls back to a savepoint instead of aborting your transaction.
+A `timeout_seconds` of `0` degrades to the non-blocking try path.
+
+```ruby
+User.with_advisory_lock("lock_name", blocking: true, timeout_seconds: 5) do
+  # waits up to 5 seconds at the database level, no Ruby polling
+end
+```
+
 **Note:** MySQL ignores this option since `GET_LOCK` already provides native
 timeout and deadlock detection via the MDL subsystem.
+
+### Connection poolers (PgBouncer)
+
+Session-level advisory locks bind to the PostgreSQL backend connection, so they
+are incompatible with PgBouncer in *transaction pooling* mode: statements
+outside a transaction may run on different backends, stranding or leaking
+locks. Under transaction pooling, use `transaction: true` locks, which stay
+pinned to one backend for the duration of the transaction. Session pooling and
+direct connections are unaffected.
 
 ### Return values
 
