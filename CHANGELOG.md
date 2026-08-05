@@ -1,5 +1,18 @@
 ## Changelog
 
+## [7.6.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v7.5.0...with_advisory_lock/v7.6.0) (2026-08-05)
+
+
+### Features
+
+* honor timeout_seconds with blocking: true on PostgreSQL ([88abf06](https://github.com/ClosureTree/with_advisory_lock/commit/88abf0689b2ac7045c1617fe5fcac0bedff61adf)), closes [#147](https://github.com/ClosureTree/with_advisory_lock/issues/147)
+
+
+### Bug Fixes
+
+* Remove ruby-version files ([#145](https://github.com/ClosureTree/with_advisory_lock/issues/145)) ([681fd66](https://github.com/ClosureTree/with_advisory_lock/commit/681fd66f1d45800897f2d77ac8905474910a90ff))
+* scope advisory lock stack per connection ([8c39439](https://github.com/ClosureTree/with_advisory_lock/commit/8c394392872f0d9d6ab6b83d1185eeb291de2409))
+
 ## [7.5.0](https://github.com/ClosureTree/with_advisory_lock/compare/with_advisory_lock/v7.0.2...with_advisory_lock/v7.5.0) (2026-01-21)
 
 
