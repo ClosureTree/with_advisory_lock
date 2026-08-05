@@ -52,7 +52,7 @@ called.
 > If a non-nil value is provided for `timeout_seconds`, the block will
 *not* be invoked if the lock cannot be acquired within that time-frame. In this case, `with_advisory_lock` will return `false`, while `with_advisory_lock!` will raise a `WithAdvisoryLock::FailedToAcquireLock` error.
 
-For backwards compatability, the timeout value can be specified directly as the
+For backwards compatibility, the timeout value can be specified directly as the
 second parameter.
 
 ### Shared locks
@@ -194,4 +194,3 @@ You will want to wrap your block within a transaction to ensure consistency.
 ### Is clustered MySQL supported?
 
 [No.](https://github.com/ClosureTree/with_advisory_lock/issues/16)
-

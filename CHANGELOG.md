@@ -72,7 +72,7 @@
 
 ### Features
 
-* use current connnection instead of the one in ActiveRecord::Base ([#90](https://github.com/ClosureTree/with_advisory_lock/issues/90)) ([c28a172](https://github.com/ClosureTree/with_advisory_lock/commit/c28a172a5a64594448b6090501fc0b8cbace06f6))
+* use current connection instead of the one in ActiveRecord::Base ([#90](https://github.com/ClosureTree/with_advisory_lock/issues/90)) ([c28a172](https://github.com/ClosureTree/with_advisory_lock/commit/c28a172a5a64594448b6090501fc0b8cbace06f6))
 
 
 ### Bug Fixes
