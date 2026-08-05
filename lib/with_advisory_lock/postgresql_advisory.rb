@@ -6,7 +6,6 @@ module WithAdvisoryLock
   module PostgreSQLAdvisory
     extend ActiveSupport::Concern
 
-    LOCK_PREFIX_ENV = 'WITH_ADVISORY_LOCK_PREFIX'
     LOCK_RESULT_VALUES = ['t', true].freeze
     ERROR_MESSAGE_REGEX = / ERROR: +current transaction is aborted,/
 
@@ -40,37 +39,36 @@ module WithAdvisoryLock
     end
 
     def release_advisory_lock(*args)
-      # Handle both signatures - ActiveRecord's built-in and ours
-      if args.length == 1 && args[0].is_a?(Integer)
-        # ActiveRecord's built-in signature: release_advisory_lock(lock_id)
-        super
-      else
-        # Our signature: release_advisory_lock(lock_keys, lock_name:, shared:, transaction:)
-        lock_keys, options = args
-        return if options[:transaction]
+      # ActiveRecord's built-in signature: release_advisory_lock(lock_id)
+      return super if args.length == 1 && args[0].is_a?(Integer)
 
-        function = advisory_unlock_function(options[:shared])
-        execute_advisory(function, lock_keys, options[:lock_name])
-      end
-    rescue ActiveRecord::StatementInvalid => e
-      # If the connection is broken, the lock is automatically released by PostgreSQL
-      # No need to fail the release operation
-      return if e.cause.is_a?(PG::ConnectionBad) || e.message =~ /PG::ConnectionBad/
+      # Our signature: release_advisory_lock(lock_keys, lock_name:, shared:, transaction:)
+      lock_keys, options = args
+      return if options[:transaction]
 
-      raise unless e.message =~ ERROR_MESSAGE_REGEX
-
+      function = advisory_unlock_function(options[:shared])
       begin
-        rollback_db_transaction
         execute_advisory(function, lock_keys, options[:lock_name])
-      ensure
-        begin_db_transaction
+      rescue ActiveRecord::StatementInvalid => e
+        # If the connection is broken, the lock is automatically released by PostgreSQL
+        # No need to fail the release operation
+        return if e.cause.is_a?(PG::ConnectionBad) || e.message =~ /PG::ConnectionBad/
+
+        raise unless e.message =~ ERROR_MESSAGE_REGEX
+
+        begin
+          rollback_db_transaction
+          execute_advisory(function, lock_keys, options[:lock_name])
+        ensure
+          begin_db_transaction
+        end
       end
     end
 
     def lock_keys_for(lock_name)
       [
         stable_hashcode(lock_name),
-        ENV.fetch(LOCK_PREFIX_ENV, nil)
+        ENV.fetch(CoreAdvisory::LOCK_PREFIX_ENV, nil)
       ].map { |ea| ea.to_i & 0x7fffffff }
     end
 
@@ -90,6 +88,7 @@ module WithAdvisoryLock
           AND classid = #{lock_keys.first}
           AND objid = #{lock_keys.last}
           AND mode = '#{shared ? 'ShareLock' : 'ExclusiveLock'}'
+          AND granted
         LIMIT 1
       SQL
 

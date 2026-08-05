@@ -32,6 +32,12 @@ class PostgreSQLBlockingTest < GemTestCase
     Tag.delete_all
   end
 
+  test 'blocking lock combined with timeout_seconds raises ArgumentError' do
+    assert_raises(ArgumentError) do
+      Tag.with_advisory_lock(@lock_name, blocking: true, timeout_seconds: 5) { 'unreachable' }
+    end
+  end
+
   test 'blocking lock waits for lock to be released' do
     lock_acquired = false
     thread1_finished = false

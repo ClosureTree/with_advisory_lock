@@ -24,7 +24,6 @@ Gem::Specification.new do |spec|
   spec.metadata['changelog_uri'] = 'https://github.com/ClosureTree/with_advisory_lock/blob/master/CHANGELOG.md'
 
   spec.add_dependency 'activerecord', '>= 7.2'
-  spec.add_dependency 'zeitwerk', '>= 2.7'
 
   spec.add_development_dependency 'maxitest', '6.2.0'
   spec.add_development_dependency 'minitest-reporters'

@@ -8,9 +8,9 @@ module WithAdvisoryLock
 
     LOCK_PREFIX_ENV = 'WITH_ADVISORY_LOCK_PREFIX'
 
-    # Thread-local lock stack management
+    # Per-connection lock stack management
     def advisory_lock_stack
-      Thread.current[:with_advisory_lock_stack] ||= []
+      @advisory_lock_stack ||= []
     end
 
     def with_advisory_lock_if_needed(lock_name, options = {}, &block)
@@ -20,6 +20,12 @@ module WithAdvisoryLock
       # Validate transaction-level locks are used within a transaction
       if options.fetch(:transaction, false) && !transaction_open?
         raise ArgumentError, 'transaction-level advisory locks require an active transaction'
+      end
+
+      # pg_advisory_lock has no native timeout, so timeout_seconds would be silently ignored
+      if options.fetch(:blocking, false) && !options.fetch(:timeout_seconds, nil).nil? && !supports_database_timeout?
+        raise ArgumentError, 'timeout_seconds cannot be combined with blocking: true on this adapter ' \
+                             '(blocking locks wait indefinitely)'
       end
 
       lock_str = "#{ENV.fetch(LOCK_PREFIX_ENV, nil)}#{lock_name}"

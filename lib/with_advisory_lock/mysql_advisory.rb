@@ -6,8 +6,6 @@ module WithAdvisoryLock
   module MySQLAdvisory
     extend ActiveSupport::Concern
 
-    LOCK_PREFIX_ENV = 'WITH_ADVISORY_LOCK_PREFIX'
-
     def try_advisory_lock(lock_keys, lock_name:, shared:, transaction:, timeout_seconds: nil, blocking: false)
       raise ArgumentError, 'shared locks are not supported on MySQL' if shared
       raise ArgumentError, 'transaction level locks are not supported on MySQL' if transaction
@@ -46,22 +44,11 @@ module WithAdvisoryLock
     rescue ActiveRecord::StatementInvalid => e
       # If the connection is broken, the lock is automatically released by MySQL
       # No need to fail the release operation
-      connection_lost = case e.cause
-                        when defined?(Mysql2::Error::ConnectionError) && Mysql2::Error::ConnectionError
-                          true
-                        when defined?(Trilogy::ConnectionError) && Trilogy::ConnectionError
-                          true
-                        else
-                          e.message =~ /Lost connection|MySQL server has gone away|Connection refused/i
-                        end
-
-      return if connection_lost
-
-      raise
+      raise unless connection_lost_error?(e)
     end
 
     def lock_keys_for(lock_name)
-      lock_str = "#{ENV.fetch(LOCK_PREFIX_ENV, nil)}#{lock_name}"
+      lock_str = "#{ENV.fetch(CoreAdvisory::LOCK_PREFIX_ENV, nil)}#{lock_name}"
       [lock_str]
     end
 
@@ -69,7 +56,25 @@ module WithAdvisoryLock
       true
     end
 
+    # Non-blocking check via IS_USED_LOCK, no lock is acquired as a side effect
+    def advisory_lock_exists_for?(lock_name, shared: false)
+      raise ArgumentError, 'shared locks are not supported on MySQL' if shared
+
+      lock_keys = lock_keys_for(lock_name)
+      !query_value("SELECT IS_USED_LOCK(#{quote(lock_keys.first)})").nil?
+    rescue ActiveRecord::StatementInvalid
+      nil
+    end
+
     private
+
+    def connection_lost_error?(error)
+      cause = error.cause
+      return true if defined?(Mysql2::Error::ConnectionError) && cause.is_a?(Mysql2::Error::ConnectionError)
+      return true if defined?(Trilogy::ConnectionError) && cause.is_a?(Trilogy::ConnectionError)
+
+      error.message.match?(/Lost connection|MySQL server has gone away|Connection refused/i)
+    end
 
     def execute_successful?(mysql_function)
       query_value("SELECT #{mysql_function}") == 1

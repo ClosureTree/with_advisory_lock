@@ -24,22 +24,22 @@ module WithAdvisoryLock
         end
       end
 
-      def advisory_lock_exists?(lock_name)
+      def advisory_lock_exists?(lock_name, shared: false)
         with_connection do |conn|
           lock_str = "#{ENV.fetch(CoreAdvisory::LOCK_PREFIX_ENV, nil)}#{lock_name}"
-          lock_stack_item = LockStackItem.new(lock_str, false)
+          lock_stack_item = LockStackItem.new(lock_str, shared)
 
           if conn.advisory_lock_stack.include?(lock_stack_item)
             true
           else
-            # For PostgreSQL, try non-blocking query first to avoid race conditions
+            # Prefer the adapter's non-blocking existence check
             if conn.respond_to?(:advisory_lock_exists_for?)
-              query_result = conn.advisory_lock_exists_for?(lock_name)
+              query_result = conn.advisory_lock_exists_for?(lock_name, shared: shared)
               return query_result unless query_result.nil?
             end
 
             # Fall back to the original implementation
-            result = conn.with_advisory_lock_if_needed(lock_name, { timeout_seconds: 0 })
+            result = conn.with_advisory_lock_if_needed(lock_name, { timeout_seconds: 0, shared: shared })
             !result.lock_was_acquired?
           end
         end
