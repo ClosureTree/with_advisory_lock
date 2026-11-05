@@ -162,7 +162,13 @@ module WithAdvisoryLock
         true
       else
         # Non-blocking try locks return boolean
-        result = query_value(sql)
+        result = if respond_to?(:internal_exec_query, true)
+                   # Rails < 8.2
+                   query_value(sql)
+                 else
+                   # Rails 8.2+ - materialize the transaction so transaction-level locks are held until it ends
+                   query_value(sql, 'AdvisoryLock', materialize_transactions: true)
+                 end
         LOCK_RESULT_VALUES.include?(result)
       end
     end

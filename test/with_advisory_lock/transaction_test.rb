@@ -36,6 +36,47 @@ class PostgreSQLTransactionScopingTest < GemTestCase
 
     assert_match(/#{Regexp.escape('require an active transaction')}/, exception.message)
   end
+
+  test 'transaction level try locks are held until the transaction ends' do
+    assert_equal(false, try_lock_while_held(shared: false))
+  end
+
+  test 'transaction level shared try locks are held until the transaction ends' do
+    assert_equal(false, try_lock_while_held(shared: true))
+  end
+
+  private
+
+  # The first thread takes the lock as the first statement of its transaction and holds it
+  # while a second thread tries the same lock exclusively.
+  def try_lock_while_held(shared:)
+    locked = Queue.new
+    release = Queue.new
+    holder = Thread.new do
+      Tag.connection_pool.with_connection do
+        Tag.transaction do
+          Tag.with_advisory_lock('transaction_try_lock', transaction: true, shared: shared, timeout_seconds: 0) do
+            locked << true
+            release.pop
+          end
+        end
+      end
+    ensure
+      locked << false
+    end
+    assert(locked.pop, 'holder did not take the lock')
+
+    Thread.new do
+      Tag.connection_pool.with_connection do
+        Tag.transaction do
+          Tag.with_advisory_lock('transaction_try_lock', transaction: true, timeout_seconds: 0) { true }
+        end
+      end
+    end.value
+  ensure
+    release << true
+    holder.join
+  end
 end
 
 class MySQLTransactionScopingTest < GemTestCase
